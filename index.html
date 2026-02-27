@@ -207,6 +207,16 @@ body.resizing *{cursor:col-resize!important}
 .modal-link-add button:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
 .modal-empty-links{font-size:12px;color:var(--text3);padding:8px 0 4px;font-style:italic}
 .modal-meta{font-size:11px;color:var(--text3);margin-top:2px;padding:0}
+.dep-banner{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:16px;font-size:12px;line-height:1.5}
+.dep-banner svg{flex-shrink:0;margin-top:1px}
+.dep-banner-content{display:flex;flex-direction:column;gap:2px;min-width:0}
+.dep-banner-label{font-weight:600;font-size:12px}
+.dep-banner-detail{font-size:11px;opacity:.85}
+.dep-banner.is-dependent{background:#fef3c7;border:1px solid #fde68a;color:#92400e}
+.dep-banner.is-master{background:#dbeafe;border:1px solid #bfdbfe;color:#1e40af}
+.dep-banner.is-both{background:#ede9fe;border:1px solid #ddd6fe;color:#5b21b6}
+.form-group input:disabled,.form-group input[readonly]{background:var(--bg2);color:var(--text3);cursor:not-allowed}
+.form-group .field-hint{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.3}
 .color-picker{display:flex;gap:6px;flex-wrap:wrap}
 .color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s}
 .color-swatch:hover{transform:scale(1.1)}
@@ -1130,11 +1140,55 @@ function removeModalLink(idx) {
 }
 
 function buildTaskModalBody(opts = {}) {
-  const { name, startDate, endDate, status, notes, isEdit, lastUpdated } = opts;
+  const { name, startDate, endDate, status, notes, isEdit, lastUpdated, predecessors, dependents } = opts;
   const today = toStr(todayDate());
   const startVal = startDate || today;
   const endVal = endDate || toStr(addDays(toDate(startVal), 6));
+
+  // Dependency banners
+  let depBannerHtml = '';
+  const hasPreds = predecessors && predecessors.length > 0;
+  const hasDeps = dependents && dependents.length > 0;
+  if (hasPreds && hasDeps) {
+    depBannerHtml = `<div class="dep-banner is-both">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+      <div class="dep-banner-content">
+        <span class="dep-banner-label">Dependency Chain</span>
+        <span class="dep-banner-detail">Depends on: ${predecessors.map(p => esc(p.name)).join(', ')}</span>
+        <span class="dep-banner-detail">Blocks: ${dependents.map(d => esc(d.name)).join(', ')}</span>
+      </div>
+    </div>`;
+  } else if (hasPreds) {
+    const latestPred = predecessors.reduce((a, b) => toDate(a.endDate) > toDate(b.endDate) ? a : b);
+    depBannerHtml = `<div class="dep-banner is-dependent">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      <div class="dep-banner-content">
+        <span class="dep-banner-label">Dependent Task</span>
+        <span class="dep-banner-detail">Depends on: ${predecessors.map(p => esc(p.name)).join(', ')} &mdash; cannot start before ${formatDateShort(addDays(toDate(latestPred.endDate), 1))}</span>
+      </div>
+    </div>`;
+  } else if (hasDeps) {
+    depBannerHtml = `<div class="dep-banner is-master">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+      <div class="dep-banner-content">
+        <span class="dep-banner-label">Master Task</span>
+        <span class="dep-banner-detail">Blocks: ${dependents.map(d => esc(d.name)).join(', ')} &mdash; changing dates will cascade</span>
+      </div>
+    </div>`;
+  }
+
+  // Compute min start date for dependent tasks
+  let minStartAttr = '';
+  let startHint = '';
+  if (hasPreds) {
+    const latestPred = predecessors.reduce((a, b) => toDate(a.endDate) > toDate(b.endDate) ? a : b);
+    const minDate = toStr(addDays(toDate(latestPred.endDate), 1));
+    minStartAttr = ` min="${minDate}" onchange="clampModalStartDate('${minDate}')"`;
+    startHint = `<div class="field-hint">Earliest: ${formatDateShort(toDate(minDate))}</div>`;
+  }
+
   return `
+    ${depBannerHtml}
     <div class="form-group">
       <label>Task Name</label>
       <input id="mTaskName" value="${esc(name || '')}" placeholder="Enter task name" ${!isEdit ? 'autofocus' : ''}>
@@ -1142,7 +1196,8 @@ function buildTaskModalBody(opts = {}) {
     <div class="form-row" style="margin-bottom:16px">
       <div class="form-group">
         <label>Start Date</label>
-        <input id="mStartDate" type="date" value="${startVal}">
+        <input id="mStartDate" type="date" value="${startVal}"${minStartAttr}>
+        ${startHint}
       </div>
       <div class="form-group">
         <label>End Date</label>
@@ -1221,14 +1276,30 @@ function showAddToGroupModal(catId, encodedGroupName, prefillStart, prefillEnd) 
   setTimeout(() => document.getElementById('mTaskName')?.focus(), 100);
 }
 
+function getTaskDepInfo(catId, taskId) {
+  const cat = findCat(catId);
+  const task = findTask(catId, taskId);
+  if (!cat || !task) return { predecessors: [], dependents: [] };
+  const predecessors = (task.dependencies || []).map(id => findTask(catId, id)).filter(Boolean);
+  const dependents = cat.tasks.filter(t => t.dependencies && t.dependencies.includes(taskId));
+  return { predecessors, dependents };
+}
+
+function clampModalStartDate(minDate) {
+  const el = document.getElementById('mStartDate');
+  if (!el) return;
+  if (el.value < minDate) el.value = minDate;
+}
+
 function showEditTaskModal(catId, taskId) {
   const task = findTask(catId, taskId);
   if (!task) return;
   modalLinks = [...(task.urls || [])];
+  const { predecessors, dependents } = getTaskDepInfo(catId, taskId);
   const html = `
     <div class="modal-header">Edit Task<button class="s-action" onclick="closeModal()">&#10005;</button></div>
     <div class="modal-body">
-      ${buildTaskModalBody({ name: task.name, startDate: task.startDate, endDate: task.endDate, status: task.status, notes: task.notes, isEdit: true, lastUpdated: task.lastUpdated })}
+      ${buildTaskModalBody({ name: task.name, startDate: task.startDate, endDate: task.endDate, status: task.status, notes: task.notes, isEdit: true, lastUpdated: task.lastUpdated, predecessors, dependents })}
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" onclick="closeModal();deleteTask('${catId}','${taskId}')">Delete</button>
@@ -1244,8 +1315,21 @@ function doEditTask(catId, taskId) {
   const task = findTask(catId, taskId);
   if (!task) return;
   task.name = document.getElementById('mTaskName').value.trim() || task.name;
-  task.startDate = document.getElementById('mStartDate').value;
-  task.endDate = document.getElementById('mEndDate').value;
+  let newStart = document.getElementById('mStartDate').value;
+  let newEnd = document.getElementById('mEndDate').value;
+  // Enforce: dependent task cannot start before predecessor ends
+  const { predecessors } = getTaskDepInfo(catId, taskId);
+  if (predecessors.length > 0) {
+    const latestPredEnd = predecessors.reduce((a, b) => toDate(a.endDate) > toDate(b.endDate) ? a : b).endDate;
+    const minStart = toStr(addDays(toDate(latestPredEnd), 1));
+    if (newStart < minStart) {
+      const shift = diffDays(newStart, minStart);
+      newStart = minStart;
+      newEnd = toStr(addDays(toDate(newEnd), shift));
+    }
+  }
+  task.startDate = newStart;
+  task.endDate = newEnd;
   task.status = document.getElementById('mStatus').value;
   task.notes = document.getElementById('mNotes').value;
   task.urls = [...modalLinks];
@@ -1381,6 +1465,15 @@ function panelUpdate(key, value) {
   if (!state.selectedTask) return;
   const task = findTask(state.selectedTask.catId, state.selectedTask.taskId);
   if (!task) return;
+  // Clamp start date for dependent tasks
+  if (key === 'startDate' && task.dependencies && task.dependencies.length > 0) {
+    const { predecessors } = getTaskDepInfo(state.selectedTask.catId, state.selectedTask.taskId);
+    if (predecessors.length > 0) {
+      const latestPredEnd = predecessors.reduce((a, b) => toDate(a.endDate) > toDate(b.endDate) ? a : b).endDate;
+      const minStart = toStr(addDays(toDate(latestPredEnd), 1));
+      if (value < minStart) value = minStart;
+    }
+  }
   task[key] = value;
   task.lastUpdated = new Date().toISOString();
   if (key === 'startDate' || key === 'endDate') {
@@ -1823,6 +1916,34 @@ document.addEventListener('mousemove', (e) => {
       newStart = dragState.origStart;
       newEnd = toStr(addDays(toDate(dragState.origEnd), dayDelta));
       if (toDate(newEnd) < toDate(newStart)) newEnd = newStart;
+    }
+
+    // Clamp: dependent task cannot start before predecessor ends
+    const dragTask = findTask(dragState.catId, dragState.taskId);
+    if (dragTask && dragTask.dependencies && dragTask.dependencies.length > 0) {
+      const cat = findCat(dragState.catId);
+      if (cat) {
+        let latestPredEnd = null;
+        for (const predId of dragTask.dependencies) {
+          const pred = cat.tasks.find(t => t.id === predId);
+          if (pred) {
+            const pe = toDate(pred.endDate);
+            if (!latestPredEnd || pe > latestPredEnd) latestPredEnd = pe;
+          }
+        }
+        if (latestPredEnd) {
+          const minStart = toStr(addDays(latestPredEnd, 1));
+          if (newStart < minStart) {
+            if (dragState.mode === 'move') {
+              const shift = diffDays(newStart, minStart);
+              newStart = minStart;
+              newEnd = toStr(addDays(toDate(newEnd), shift));
+            } else {
+              newStart = minStart;
+            }
+          }
+        }
+      }
     }
 
     // Update bar position directly (no re-render)
