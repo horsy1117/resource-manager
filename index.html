@@ -548,6 +548,28 @@ function assignLanes(tasks) {
     if (tasks.length === 1) lanes.set(tasks[0].id, 0);
     return { lanes, numLanes: 1 };
   }
+
+  // Helper: check if two tasks overlap in time
+  function overlaps(a, b) {
+    return toDate(a.startDate) <= toDate(b.endDate) && toDate(b.startDate) <= toDate(a.endDate);
+  }
+
+  // Helper: find the lowest lane >= minLane that doesn't overlap with any existing task
+  function findFreeLane(task, minLane) {
+    for (let lane = minLane; lane < 100; lane++) {
+      let free = true;
+      for (const other of tasks) {
+        if (other.id === task.id) continue;
+        if (lanes.get(other.id) === lane && overlaps(task, other)) {
+          free = false;
+          break;
+        }
+      }
+      if (free) return lane;
+    }
+    return minLane;
+  }
+
   // Greedy overlap-based lane assignment
   const sorted = [...tasks].sort((a, b) => {
     const cmp = toDate(a.startDate) - toDate(b.startDate);
@@ -570,8 +592,9 @@ function assignLanes(tasks) {
     }
     lanes.set(task.id, assigned);
   }
+
   // Post-process: ensure dependent tasks sit on a lower lane than predecessors
-  const taskMap = new Map(tasks.map(t => [t.id, t]));
+  // AND don't overlap with tasks already on the target lane
   let changed = true;
   let passes = 0;
   while (changed && passes < 20) {
@@ -587,11 +610,28 @@ function assignLanes(tasks) {
         }
       }
       if (maxPredLane >= 0 && myLane <= maxPredLane) {
-        lanes.set(task.id, maxPredLane + 1);
-        changed = true;
+        const newLane = findFreeLane(task, maxPredLane + 1);
+        if (newLane !== myLane) {
+          lanes.set(task.id, newLane);
+          changed = true;
+        }
       }
     }
   }
+
+  // Final safety pass: resolve any remaining temporal overlaps on same lane
+  for (const task of tasks) {
+    const myLane = lanes.get(task.id);
+    for (const other of tasks) {
+      if (other.id === task.id) continue;
+      if (lanes.get(other.id) === myLane && overlaps(task, other)) {
+        // Bump the later-starting task to a free lane
+        const bump = toDate(task.startDate) >= toDate(other.startDate) ? task : other;
+        lanes.set(bump.id, findFreeLane(bump, myLane + 1));
+      }
+    }
+  }
+
   let numLanes = 0;
   for (const l of lanes.values()) numLanes = Math.max(numLanes, l + 1);
   return { lanes, numLanes: Math.max(1, numLanes) };
