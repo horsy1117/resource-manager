@@ -15,7 +15,7 @@
   --border:#e5e7eb;
   --bg:#ffffff;
   --bg2:#f9fafb;
-  --bg-weekend:rgba(0,0,0,.025);
+  --bg-weekend:rgba(0,0,0,.07);
   --text:#1f2937;
   --text2:#6b7280;
   --text3:#9ca3af;
@@ -47,7 +47,9 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 
 /* ===== MAIN LAYOUT ===== */
 .main-area{display:flex;flex:1;overflow:hidden;height:calc(100vh - var(--topbar-h))}
-.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg);z-index:10;position:relative}
+.sidebar{width:var(--sidebar-w);min-width:120px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg);z-index:10;position:relative}
+.sidebar-resize{position:absolute;top:0;right:-3px;width:6px;height:100%;cursor:col-resize;z-index:20;background:transparent}
+.sidebar-resize:hover,.sidebar-resize.active{background:var(--blue);opacity:.3}
 .sidebar-header{height:var(--header-h);border-bottom:1px solid var(--border);display:flex;align-items:flex-end;padding:0 10px 6px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600;background:var(--bg)}
 .sidebar-body{flex:1;overflow-y:auto;overflow-x:hidden}
 .sidebar-body::-webkit-scrollbar{width:0}
@@ -91,7 +93,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .timeline-header{height:var(--header-h);border-bottom:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--bg);flex-shrink:0;position:relative}
 .t-header-row{display:flex;height:50%}
 .t-header-row.row1{border-bottom:1px solid #f3f4f6}
-.t-group{display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2);font-weight:500;border-right:1px solid #f3f4f6;white-space:nowrap;overflow:hidden}
+.t-group{display:flex;align-items:center;font-size:12px;color:var(--text2);font-weight:500;border-right:1px solid #f3f4f6;white-space:nowrap;overflow:hidden;position:relative}
+.t-group-label{position:relative;padding:0 4px;z-index:1}
 .t-col{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);border-right:1px solid #f3f4f6;white-space:nowrap;flex-shrink:0;position:relative}
 .t-col.today{color:var(--blue);font-weight:700}
 .t-col.today::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:22px;height:22px;background:var(--blue);border-radius:50%;z-index:-1;opacity:.1}
@@ -100,6 +103,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .timeline-body-wrap{flex:1;overflow:auto;position:relative}
 .timeline-body{position:relative;min-height:100%}
 .t-grid{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0}
+.t-month-band{position:absolute;top:0;bottom:0;pointer-events:none}
 .t-weekend{position:absolute;top:0;bottom:0;background:var(--bg-weekend)}
 .t-today-line{position:absolute;top:0;bottom:0;width:2px;background:var(--blue);z-index:5;opacity:.6}
 .t-gridline{position:absolute;top:0;bottom:0;width:1px;background:var(--border);opacity:.5}
@@ -107,7 +111,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .t-rows{position:relative;z-index:1}
 .t-row{height:var(--row-h);position:relative;border-bottom:1px solid #f3f4f6}
 .t-row.cat-row{height:var(--cat-row-h);background:var(--bg2);border-bottom:1px solid var(--border)}
-.t-row.task-row{cursor:crosshair}
+.t-row.task-row{cursor:default}
 .t-row.task-row:hover{background:rgba(59,130,246,.02)}
 
 /* ===== TASK BARS ===== */
@@ -126,9 +130,9 @@ body.resizing *{cursor:col-resize!important}
 .drag-date-label{position:fixed;background:#1f2937;color:#fff;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;z-index:600;pointer-events:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2);transform:translate(-50%,-100%);margin-top:-8px}
 
 /* ===== DEPENDENCY BUBBLE ===== */
-.dep-bubble{position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.7);border:2px solid rgba(255,255,255,.9);cursor:crosshair;z-index:4;opacity:0;transition:opacity .15s}
+.dep-bubble{position:absolute;right:-3px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);border:1.5px solid rgba(255,255,255,.9);cursor:crosshair;z-index:4;opacity:0;transition:opacity .15s}
 .task-bar:hover .dep-bubble{opacity:1}
-.dep-bubble:hover{background:#fff;transform:translateY(-50%) scale(1.3)}
+.dep-bubble:hover{background:#fff;transform:translateY(-50%) scale(1.4)}
 
 /* ===== DEPENDENCY ARROWS ===== */
 .dep-svg-overlay{position:absolute;top:0;left:0;pointer-events:none;z-index:3;overflow:visible}
@@ -256,9 +260,10 @@ body.resizing *{cursor:col-resize!important}
   <!-- Main Area -->
   <div class="main-area">
     <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-header">Projects / Categories</div>
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">Categories</div>
       <div class="sidebar-body" id="sidebarBody"></div>
+      <div class="sidebar-resize" id="sidebarResize"></div>
     </div>
     <!-- Timeline -->
     <div class="timeline">
@@ -296,8 +301,8 @@ const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct
 const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 const ZOOM_CFG = {
-  days:   { dayWidth: 80,  totalDays: 56,  navStep: 7 },
-  weeks:  { dayWidth: 36,  totalDays: 98,  navStep: 14 },
+  days:   { dayWidth: 56,  totalDays: 70,  navStep: 7 },
+  weeks:  { dayWidth: 26,  totalDays: 126, navStep: 14 },
   months: { dayWidth: 14,  totalDays: 210, navStep: 30 },
   year:   { dayWidth: 3,   totalDays: 730, navStep: 90 }
 };
@@ -320,7 +325,7 @@ let state = {
 };
 
 let dragState = null;
-let createDragState = null;
+// createDragState removed — task creation only via sidebar buttons
 let depDragState = null;
 
 // ========== DOM REFS ==========
@@ -416,11 +421,29 @@ function loadState() {
       if (data.categories) state.categories = data.categories;
       if (data.aiKey) state.aiKey = data.aiKey;
       if (data.projectName) state.projectName = data.projectName;
-      // Migration: ensure every task has dependencies and urls arrays
+      // Migration: ensure every task has dependencies, urls, lastUpdated, and group
       for (const cat of state.categories) {
         for (const task of cat.tasks) {
           if (!task.dependencies) task.dependencies = [];
           if (!task.urls) task.urls = [];
+          if (!task.lastUpdated) task.lastUpdated = null;
+          if (!task.group) task.group = task.name;
+        }
+      }
+    }
+    // Enforce all dependency date constraints on load
+    for (const cat of state.categories) {
+      for (const task of cat.tasks) {
+        if (task.dependencies && task.dependencies.length > 0) {
+          for (const predId of task.dependencies) {
+            const pred = cat.tasks.find(t => t.id === predId);
+            if (pred && toDate(task.startDate) <= toDate(pred.endDate)) {
+              const minStart = toStr(addDays(toDate(pred.endDate), 1));
+              const shift = diffDays(task.startDate, minStart);
+              task.startDate = minStart;
+              task.endDate = toStr(addDays(toDate(task.endDate), shift));
+            }
+          }
         }
       }
     }
@@ -538,11 +561,12 @@ function buildGroups() {
     const groupMap = new Map();
     const groupOrder = [];
     for (const task of cat.tasks) {
-      if (!groupMap.has(task.name)) {
-        groupMap.set(task.name, []);
-        groupOrder.push(task.name);
+      const gKey = task.group || task.name;
+      if (!groupMap.has(gKey)) {
+        groupMap.set(gKey, []);
+        groupOrder.push(gKey);
       }
-      groupMap.get(task.name).push(task);
+      groupMap.get(gKey).push(task);
     }
     const groups = [];
     for (const name of groupOrder) {
@@ -594,12 +618,13 @@ function renderSidebar() {
           <div class="s-task-dot" style="background:${cat.color}"></div>
           <div class="s-task-name"><span class="s-num">${catIdx}.${groupIdx}</span>${esc(group.groupName)}${countBadge}</div>
           <div class="s-task-actions">
+            <button class="s-action" onclick="event.stopPropagation();showAddToGroupModal('${cat.id}','${encodeURIComponent(group.groupName)}')" title="Add task to this row">&#43;</button>
             <button class="s-action" onclick="event.stopPropagation();showEditTaskModal('${cat.id}','${firstTask.id}')" title="Edit">&#9998;</button>
             <button class="s-action" onclick="event.stopPropagation();deleteTask('${cat.id}','${firstTask.id}')" title="Delete">&#10005;</button>
           </div>
         </div>`;
       }
-      html += `<div class="s-add-row" onclick="showAddTaskModal('${cat.id}')">+ Add task</div>`;
+      html += `<div class="s-add-row" onclick="showAddTaskModal('${cat.id}')">+ Add Project</div>`;
     }
     html += `</div>`;
   }
@@ -628,7 +653,7 @@ function renderTimeline() {
       const yr = d.getFullYear();
       let span = 0;
       while (i + span < totalDays && addDays(start, i + span).getFullYear() === yr) span++;
-      row1 += `<div class="t-group" style="width:${span * dayW}px">${yr}</div>`;
+      row1 += `<div class="t-group" style="width:${span * dayW}px"><span class="t-group-label">${yr}</span></div>`;
       i += span;
     }
     i = 0;
@@ -642,7 +667,8 @@ function renderTimeline() {
         span++;
       }
       const isToday = today.getMonth() === mo && today.getFullYear() === d.getFullYear();
-      row2 += `<div class="t-col${isToday ? ' today' : ''}" style="width:${span * dayW}px">${MONTHS_SHORT[mo]}</div>`;
+      const moBgY = mo % 2 === 1 ? ';background:rgba(0,0,0,.06)' : '';
+      row2 += `<div class="t-col${isToday ? ' today' : ''}" style="width:${span * dayW}px${moBgY}">${MONTHS_SHORT[mo]}</div>`;
       i += span;
     }
   } else if (state.zoom === 'months') {
@@ -657,7 +683,8 @@ function renderTimeline() {
         if (d2.getMonth() !== mo || d2.getFullYear() !== d.getFullYear()) break;
         span++;
       }
-      row1 += `<div class="t-group" style="width:${span * dayW}px">${MONTHS_SHORT[mo]} ${d.getFullYear()}</div>`;
+      const moBg = mo % 2 === 1 ? ';background:rgba(0,0,0,.06)' : '';
+      row1 += `<div class="t-group" style="width:${span * dayW}px${moBg}"><span class="t-group-label">${MONTHS_SHORT[mo]} ${d.getFullYear()}</span></div>`;
       i += span;
     }
     for (let j = 0; j < totalDays; j++) {
@@ -681,7 +708,8 @@ function renderTimeline() {
       const label = state.zoom === 'days'
         ? `${MONTHS[mo]} ${d.getFullYear()}`
         : `${MONTHS_SHORT[mo]} ${d.getFullYear()}`;
-      row1 += `<div class="t-group" style="width:${span * dayW}px">${label}</div>`;
+      const moBg2 = mo % 2 === 1 ? ';background:rgba(0,0,0,.06)' : '';
+      row1 += `<div class="t-group" style="width:${span * dayW}px${moBg2}"><span class="t-group-label">${label}</span></div>`;
       i += span;
     }
     for (let j = 0; j < totalDays; j++) {
@@ -701,6 +729,25 @@ function renderTimeline() {
 
   // ----- BODY -----
   let gridHTML = '';
+  // Alternating month bands
+  {
+    let mi = 0;
+    while (mi < totalDays) {
+      const d0 = addDays(start, mi);
+      const mo = d0.getMonth();
+      const yr = d0.getFullYear();
+      let span = 0;
+      while (mi + span < totalDays) {
+        const d2 = addDays(start, mi + span);
+        if (d2.getMonth() !== mo || d2.getFullYear() !== yr) break;
+        span++;
+      }
+      if (mo % 2 === 1) {
+        gridHTML += `<div class="t-month-band" style="left:${mi * dayW}px;width:${span * dayW}px;background:rgba(0,0,0,.05)"></div>`;
+      }
+      mi += span;
+    }
+  }
   // Weekend columns
   for (let j = 0; j < totalDays; j++) {
     const d = addDays(start, j);
@@ -730,8 +777,7 @@ function renderTimeline() {
     if (!cat.collapsed) {
       for (const group of groups) {
         const groupTop = currentY;
-        rowsHTML += `<div class="t-row task-row" data-cat="${cat.id}" data-group="${encodeURIComponent(group.groupName)}" style="width:${totalWidth}px;height:${group.rowHeight}px"
-          onmousedown="onTimelineRowMouseDown(event,'${cat.id}')">`;
+        rowsHTML += `<div class="t-row task-row" data-cat="${cat.id}" data-group="${encodeURIComponent(group.groupName)}" style="width:${totalWidth}px;height:${group.rowHeight}px">`;
         for (const task of group.tasks) {
           const tStart = diffDays(toStr(start), task.startDate);
           const tDur = diffDays(task.startDate, task.endDate) + 1;
@@ -765,8 +811,7 @@ function renderTimeline() {
         currentY += group.rowHeight;
       }
       // Add-row placeholder (matches sidebar s-add-row height)
-      rowsHTML += `<div class="t-row task-row" data-cat="${cat.id}" data-add="1" style="width:${totalWidth}px;height:24px"
-        onmousedown="onTimelineRowMouseDown(event,'${cat.id}')"></div>`;
+      rowsHTML += `<div class="t-row" data-cat="${cat.id}" data-add="1" style="width:${totalWidth}px;height:24px"></div>`;
       currentY += 24;
     }
   }
@@ -787,15 +832,18 @@ function renderTimeline() {
         if (!fromPos) continue;
         const x1 = fromPos.right, y1 = fromPos.centerY;
         const x2 = toPos.left, y2 = toPos.centerY;
-        let pathD;
         const gap = x2 - x1;
-        if (gap < 20) {
-          // Route arrow below the bars when they're adjacent
-          const dropY = Math.max(y1, y2) + 16;
-          pathD = `M${x1},${y1} L${x1 + 4},${y1} L${x1 + 4},${dropY} L${x2 - 4},${dropY} L${x2 - 4},${y2} L${x2},${y2}`;
+        let pathD;
+        // Clean 90-degree routing: right stub, straight down, right into dependent left side
+        if (gap > 0) {
+          // Place vertical drop between the two bars (midpoint of the gap, clamped)
+          const vertX = x1 + Math.max(1, Math.min(gap / 2, 14));
+          pathD = `M${x1},${y1} L${vertX},${y1} L${vertX},${y2} L${x2},${y2}`;
         } else {
-          const midX = (x1 + x2) / 2;
-          pathD = `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`;
+          // Bars overlapping: route below both bars
+          const belowY = Math.max(y1, y2) + 18;
+          const vertX = x1 + 10;
+          pathD = `M${x1},${y1} L${vertX},${y1} L${vertX},${belowY} L${x2 - 10},${belowY} L${x2 - 10},${y2} L${x2},${y2}`;
         }
         depSVG += `<path class="dep-arrow" d="${pathD}"
           data-from="${predId}" data-to="${task.id}" data-cat="${cat.id}"
@@ -840,12 +888,77 @@ function setZoom(z) {
 }
 
 // ========== SCROLL SYNC ==========
+function updateStickyLabels() {
+  const scrollLeft = $timelineWrap.scrollLeft;
+  const labels = $timelineHeader.querySelectorAll('.t-group-label');
+  labels.forEach(label => {
+    const group = label.parentElement;
+    // Get group's position relative to header scroll
+    const groupLeft = group.offsetLeft;
+    const groupWidth = group.offsetWidth;
+    const labelWidth = label.offsetWidth;
+    // Calculate how far the label should shift to stay visible
+    const offset = scrollLeft - groupLeft;
+    if (offset > 0 && offset < groupWidth - labelWidth - 8) {
+      label.style.transform = `translateX(${offset}px)`;
+    } else {
+      label.style.transform = '';
+    }
+  });
+}
 $timelineWrap.addEventListener('scroll', () => {
   $timelineHeader.scrollLeft = $timelineWrap.scrollLeft;
   $sidebarBody.scrollTop = $timelineWrap.scrollTop;
+  updateStickyLabels();
 });
 $sidebarBody.addEventListener('scroll', () => {
   $timelineWrap.scrollTop = $sidebarBody.scrollTop;
+});
+
+// ========== SIDEBAR RESIZE ==========
+const $sidebar = document.getElementById('sidebar');
+const $sidebarResize = document.getElementById('sidebarResize');
+let sidebarResizeState = null;
+$sidebarResize.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  sidebarResizeState = { startX: e.clientX, startW: $sidebar.offsetWidth };
+  $sidebarResize.classList.add('active');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+});
+document.addEventListener('mousemove', (e) => {
+  if (!sidebarResizeState) return;
+  const newW = Math.max(120, Math.min(500, sidebarResizeState.startW + (e.clientX - sidebarResizeState.startX)));
+  $sidebar.style.width = newW + 'px';
+});
+document.addEventListener('mouseup', () => {
+  if (sidebarResizeState) {
+    sidebarResizeState = null;
+    $sidebarResize.classList.remove('active');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+});
+
+// ========== TIMELINE PAN ==========
+let panState = null;
+$timelineWrap.addEventListener('mousedown', (e) => {
+  // Only start pan if clicking empty timeline area (not a bar, handle, or bubble)
+  if (e.target.closest('.task-bar') || e.target.closest('.dep-bubble')) return;
+  if (e.button !== 0) return;
+  panState = { startX: e.clientX, startY: e.clientY, scrollLeft: $timelineWrap.scrollLeft, scrollTop: $timelineWrap.scrollTop, moved: false };
+});
+document.addEventListener('mousemove', (e) => {
+  if (!panState) return;
+  const dx = e.clientX - panState.startX;
+  const dy = e.clientY - panState.startY;
+  if (!panState.moved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+  panState.moved = true;
+  $timelineWrap.scrollLeft = panState.scrollLeft - dx;
+  $timelineWrap.scrollTop = panState.scrollTop - dy;
+});
+document.addEventListener('mouseup', () => {
+  panState = null;
 });
 
 // ========== CATEGORY CRUD ==========
@@ -941,7 +1054,7 @@ function showAddTaskModal(catId, prefillStart, prefillEnd) {
   setTimeout(() => document.getElementById('mTaskName')?.focus(), 100);
 }
 
-function doAddTask(catId) {
+function doAddTask(catId, groupOverride) {
   const cat = findCat(catId);
   if (!cat) return;
   const name = document.getElementById('mTaskName').value.trim();
@@ -949,14 +1062,41 @@ function doAddTask(catId) {
   cat.tasks.push({
     id: uid(),
     name,
+    group: groupOverride || name,
     startDate: document.getElementById('mStartDate').value,
     endDate: document.getElementById('mEndDate').value,
     status: document.getElementById('mStatus').value,
     notes: document.getElementById('mNotes').value,
     urls: [],
-    dependencies: []
+    dependencies: [],
+    lastUpdated: new Date().toISOString()
   });
   closeModal(); render(); saveState();
+}
+
+function showAddToGroupModal(catId, encodedGroupName, prefillStart, prefillEnd) {
+  const groupName = decodeURIComponent(encodedGroupName);
+  const safeGroup = groupName.replace(/'/g, "\\'");
+  const today = toStr(todayDate());
+  const startVal = prefillStart || today;
+  const endVal = prefillEnd || toStr(addDays(toDate(startVal), 6));
+  const html = `
+    <div class="modal-header">Add Task to "${esc(groupName)}"<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Task Name</label><input id="mTaskName" placeholder="Task name" autofocus></div>
+      <div class="form-group"><label>Start Date</label><input id="mStartDate" type="date" value="${startVal}"></div>
+      <div class="form-group"><label>End Date</label><input id="mEndDate" type="date" value="${endVal}"></div>
+      <div class="form-group"><label>Status</label>
+        <select id="mStatus">${STATUS_OPTIONS.map(s => `<option value="${s.value}">${s.label}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="mNotes" rows="3" placeholder="Add notes..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="doAddTask('${catId}','${safeGroup}')">Add</button>
+    </div>`;
+  openModal(html);
+  setTimeout(() => document.getElementById('mTaskName')?.focus(), 100);
 }
 
 function showEditTaskModal(catId, taskId) {
@@ -972,6 +1112,7 @@ function showEditTaskModal(catId, taskId) {
         <select id="mStatus">${STATUS_OPTIONS.map(s => `<option value="${s.value}"${s.value === task.status ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
       </div>
       <div class="form-group"><label>Notes</label><textarea id="mNotes" rows="3">${esc(task.notes)}</textarea></div>
+      ${task.lastUpdated ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">Last updated: ${new Date(task.lastUpdated).toLocaleString()}</div>` : ''}
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" onclick="closeModal();deleteTask('${catId}','${taskId}')">Delete</button>
@@ -990,6 +1131,7 @@ function doEditTask(catId, taskId) {
   task.endDate = document.getElementById('mEndDate').value;
   task.status = document.getElementById('mStatus').value;
   task.notes = document.getElementById('mNotes').value;
+  task.lastUpdated = new Date().toISOString();
   enforceAllDependencies(catId, taskId);
   closeModal(); render(); saveState();
   if (state.selectedTask?.taskId === taskId) renderPanel();
@@ -1068,6 +1210,7 @@ function renderPanel() {
         <label class="dp-label">Notes</label>
         <textarea class="dp-textarea" onchange="panelUpdate('notes',this.value)">${esc(task.notes)}</textarea>
       </div>
+      ${task.lastUpdated ? `<div style="font-size:11px;color:var(--text3);padding:0 0 8px">Last updated: ${new Date(task.lastUpdated).toLocaleString()}</div>` : ''}
       <div class="dp-field">
         <label class="dp-label">Links</label>
         <div class="url-list" id="dpUrlList">
@@ -1120,6 +1263,7 @@ function panelUpdate(key, value) {
   const task = findTask(state.selectedTask.catId, state.selectedTask.taskId);
   if (!task) return;
   task[key] = value;
+  task.lastUpdated = new Date().toISOString();
   if (key === 'startDate' || key === 'endDate') {
     enforceAllDependencies(state.selectedTask.catId, state.selectedTask.taskId);
   }
@@ -1359,13 +1503,14 @@ document.addEventListener('mouseup', (e) => {
 function reorderGroup(catId, groupName, fromGroupIdx, toGroupIdx) {
   const cat = findCat(catId);
   if (!cat) return;
-  // Build ordered list of unique group names (same as buildGroups logic)
+  // Build ordered list of unique group keys (same as buildGroups logic)
   const groupOrder = [];
   const seen = new Set();
   for (const task of cat.tasks) {
-    if (!seen.has(task.name)) {
-      seen.add(task.name);
-      groupOrder.push(task.name);
+    const gKey = task.group || task.name;
+    if (!seen.has(gKey)) {
+      seen.add(gKey);
+      groupOrder.push(gKey);
     }
   }
   if (fromGroupIdx < 0 || fromGroupIdx >= groupOrder.length) return;
@@ -1375,13 +1520,14 @@ function reorderGroup(catId, groupName, fromGroupIdx, toGroupIdx) {
   groupOrder.splice(toGroupIdx, 0, moved);
   // Rebuild cat.tasks in new group order
   const tasksByGroup = new Map();
-  for (const name of groupOrder) tasksByGroup.set(name, []);
+  for (const gKey of groupOrder) tasksByGroup.set(gKey, []);
   for (const task of cat.tasks) {
-    tasksByGroup.get(task.name).push(task);
+    const gKey = task.group || task.name;
+    tasksByGroup.get(gKey).push(task);
   }
   cat.tasks = [];
-  for (const name of groupOrder) {
-    cat.tasks.push(...tasksByGroup.get(name));
+  for (const gKey of groupOrder) {
+    cat.tasks.push(...tasksByGroup.get(gKey));
   }
   render();
   saveState();
@@ -1440,29 +1586,7 @@ function onBarMouseDown(e, catId, taskId) {
   };
 }
 
-// ========== DRAG: CREATE NEW TASK ==========
-function onTimelineRowMouseDown(e, catId) {
-  if (e.button !== 0 || e.target.closest('.task-bar')) return;
-  const dayW = ZOOM_CFG[state.zoom].dayWidth;
-  const row = e.target.closest('.t-row');
-  if (!row) return;
-  const rowRect = row.getBoundingClientRect();
-  const clickX = e.clientX - rowRect.left + $timelineWrap.scrollLeft;
-  const dayOffset = Math.floor(clickX / dayW);
-  const clickDate = toStr(addDays(state.viewStart, dayOffset));
-
-  createDragState = {
-    catId,
-    startDate: clickDate,
-    endDate: clickDate,
-    startX: e.clientX,
-    dayWidth: dayW,
-    row,
-    preview: null,
-    origDayOffset: dayOffset,
-    started: false
-  };
-}
+// (drag-to-create removed — use sidebar "+" buttons to add tasks)
 
 document.addEventListener('mousemove', (e) => {
   // ---- Task bar move/resize ----
@@ -1524,37 +1648,6 @@ document.addEventListener('mousemove', (e) => {
       `${formatDateShort(toDate(newStart))} \u2192 ${formatDateShort(toDate(newEnd))}  (${dur}d)`);
   }
 
-  // ---- Create new task by dragging empty area ----
-  if (createDragState) {
-    const dx = e.clientX - createDragState.startX;
-    if (Math.abs(dx) < 5) return;
-    if (!createDragState.started) {
-      createDragState.started = true;
-      document.body.classList.add('dragging');
-      const preview = document.createElement('div');
-      preview.className = 'task-bar dragging';
-      const cat = findCat(createDragState.catId);
-      preview.style.cssText = `left:${createDragState.origDayOffset * createDragState.dayWidth}px;width:${createDragState.dayWidth}px;background:${cat?.color || '#3b82f6'};opacity:0.5;pointer-events:none;transition:none`;
-      createDragState.row.appendChild(preview);
-      createDragState.preview = preview;
-    }
-    const dayDelta = Math.round(dx / createDragState.dayWidth);
-    const newDayOffset = createDragState.origDayOffset + dayDelta;
-    const minOff = Math.min(createDragState.origDayOffset, newDayOffset);
-    const maxOff = Math.max(createDragState.origDayOffset, newDayOffset);
-    createDragState.startDate = toStr(addDays(state.viewStart, minOff));
-    createDragState.endDate = toStr(addDays(state.viewStart, maxOff));
-
-    if (createDragState.preview) {
-      createDragState.preview.style.left = minOff * createDragState.dayWidth + 'px';
-      createDragState.preview.style.width = (maxOff - minOff + 1) * createDragState.dayWidth + 'px';
-    }
-
-    const dur = maxOff - minOff + 1;
-    showDragLabel(e.clientX, createDragState.row.getBoundingClientRect().top,
-      `${formatDateShort(toDate(createDragState.startDate))} \u2192 ${formatDateShort(toDate(createDragState.endDate))}  (${dur}d)`);
-  }
-
   // ---- Dependency bubble drag ----
   if (depDragState) {
     if (!depDragState.started) {
@@ -1600,18 +1693,6 @@ document.addEventListener('mouseup', (e) => {
       saveState();
     }
   }
-  if (createDragState) {
-    document.body.classList.remove('dragging');
-    hideDragLabel();
-    if (createDragState.preview) createDragState.preview.remove();
-    if (createDragState.started) {
-      const dur = diffDays(createDragState.startDate, createDragState.endDate);
-      if (dur >= 0) {
-        showAddTaskModal(createDragState.catId, createDragState.startDate, createDragState.endDate);
-      }
-    }
-    createDragState = null;
-  }
   if (depDragState) {
     if (depDragState.svgLine) depDragState.svgLine.remove();
     if (depDragState.started) {
@@ -1623,7 +1704,7 @@ document.addEventListener('mouseup', (e) => {
         if (toTaskId && toTaskId !== depDragState.fromTaskId && toCatId === depDragState.catId) {
           const fromTask = findTask(depDragState.catId, depDragState.fromTaskId);
           const toTask = findTask(toCatId, toTaskId);
-          if (fromTask && toTask && fromTask.name === toTask.name) {
+          if (fromTask && toTask && (fromTask.group || fromTask.name) === (toTask.group || toTask.name)) {
             if (!wouldCreateCycle(depDragState.catId, depDragState.fromTaskId, toTaskId)) {
               if (!toTask.dependencies) toTask.dependencies = [];
               if (!toTask.dependencies.includes(depDragState.fromTaskId)) {
