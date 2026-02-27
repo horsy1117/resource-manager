@@ -181,14 +181,32 @@ body.resizing *{cursor:col-resize!important}
 /* ===== MODAL ===== */
 .modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:300;display:none;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
-.modal{background:var(--bg);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:360px;max-width:90vw;max-height:90vh;overflow-y:auto}
-.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);font-size:16px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.modal{background:var(--bg);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:440px;max-width:92vw;max-height:90vh;overflow-y:auto}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
 .modal-body{padding:20px}
-.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:500}
-.form-group input,.form-group select,.form-group textarea{width:100%;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit}
-.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--blue)}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;align-items:center}
+.form-group{margin-bottom:16px}
+.form-group:last-child{margin-bottom:0}
+.form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;letter-spacing:.01em}
+.form-group input,.form-group select,.form-group textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;transition:border-color .15s,box-shadow .15s;box-sizing:border-box}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.form-group textarea{resize:vertical;min-height:60px}
+.form-row{display:flex;gap:12px}
+.form-row .form-group{flex:1;margin-bottom:0}
+.form-section-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px;letter-spacing:.01em}
+.form-section-label svg{opacity:.5}
+.modal-links-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.modal-link-item{display:flex;align-items:center;gap:6px;padding:7px 10px;background:var(--bg2);border-radius:6px;font-size:12px;border:1px solid var(--border)}
+.modal-link-item .link-title{font-weight:500;color:var(--text);white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis}
+.modal-link-item .link-url{color:var(--blue);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.modal-link-item .s-action{flex-shrink:0;font-size:10px;width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.modal-link-add{display:flex;gap:6px;align-items:center}
+.modal-link-add input{flex:1;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px;font-family:inherit;transition:border-color .15s}
+.modal-link-add input:focus{outline:none;border-color:var(--blue)}
+.modal-link-add button{flex-shrink:0;padding:7px 12px;font-size:12px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text2);transition:all .15s;font-weight:500}
+.modal-link-add button:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.modal-empty-links{font-size:12px;color:var(--text3);padding:8px 0 4px;font-style:italic}
+.modal-meta{font-size:11px;color:var(--text3);margin-top:2px;padding:0}
 .color-picker{display:flex;gap:6px;flex-wrap:wrap}
 .color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s}
 .color-swatch:hover{transform:scale(1.1)}
@@ -1060,26 +1078,98 @@ function deleteCat(catId) {
 }
 
 // ========== TASK CRUD ==========
-function showAddTaskModal(catId, prefillStart, prefillEnd) {
+let modalLinks = [];
+
+function renderModalLinks() {
+  const container = document.getElementById('mLinksContainer');
+  if (!container) return;
+  let html = '';
+  if (modalLinks.length > 0) {
+    html += '<div class="modal-links-list">';
+    for (let i = 0; i < modalLinks.length; i++) {
+      const link = modalLinks[i];
+      html += `<div class="modal-link-item">
+        <span class="link-title">${esc(link.title || 'Link')}</span>
+        <span class="link-url">${esc(link.url)}</span>
+        <button class="s-action" onclick="removeModalLink(${i})" title="Remove">&#10005;</button>
+      </div>`;
+    }
+    html += '</div>';
+  }
+  html += `<div class="modal-link-add">
+    <input id="mLinkTitle" placeholder="Title" style="flex:0.35">
+    <input id="mLinkUrl" placeholder="https://..." style="flex:0.65" onkeydown="if(event.key==='Enter'){event.preventDefault();addModalLink()}">
+    <button onclick="addModalLink()">+ Add</button>
+  </div>`;
+  container.innerHTML = html;
+}
+
+function addModalLink() {
+  const titleEl = document.getElementById('mLinkTitle');
+  const urlEl = document.getElementById('mLinkUrl');
+  if (!urlEl) return;
+  const url = urlEl.value.trim();
+  if (!url) return;
+  const title = titleEl?.value.trim() || 'Link';
+  modalLinks.push({ title, url });
+  renderModalLinks();
+}
+
+function removeModalLink(idx) {
+  modalLinks.splice(idx, 1);
+  renderModalLinks();
+}
+
+function buildTaskModalBody(opts = {}) {
+  const { name, startDate, endDate, status, notes, isEdit, lastUpdated } = opts;
   const today = toStr(todayDate());
-  const startVal = prefillStart || today;
-  const endVal = prefillEnd || toStr(addDays(toDate(startVal), 6));
-  const html = `
-    <div class="modal-header">Add Task<button class="s-action" onclick="closeModal()">&#10005;</button></div>
-    <div class="modal-body">
-      <div class="form-group"><label>Task Name</label><input id="mTaskName" placeholder="Task name" autofocus></div>
-      <div class="form-group"><label>Start Date</label><input id="mStartDate" type="date" value="${startVal}"></div>
-      <div class="form-group"><label>End Date</label><input id="mEndDate" type="date" value="${endVal}"></div>
-      <div class="form-group"><label>Status</label>
-        <select id="mStatus">${STATUS_OPTIONS.map(s => `<option value="${s.value}">${s.label}</option>`).join('')}</select>
+  const startVal = startDate || today;
+  const endVal = endDate || toStr(addDays(toDate(startVal), 6));
+  return `
+    <div class="form-group">
+      <label>Task Name</label>
+      <input id="mTaskName" value="${esc(name || '')}" placeholder="Enter task name" ${!isEdit ? 'autofocus' : ''}>
+    </div>
+    <div class="form-row" style="margin-bottom:16px">
+      <div class="form-group">
+        <label>Start Date</label>
+        <input id="mStartDate" type="date" value="${startVal}">
       </div>
-      <div class="form-group"><label>Notes</label><textarea id="mNotes" rows="3" placeholder="Add notes..."></textarea></div>
+      <div class="form-group">
+        <label>End Date</label>
+        <input id="mEndDate" type="date" value="${endVal}">
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:16px">
+      <div class="form-group" style="flex:1">
+        <label>Status</label>
+        <select id="mStatus">${STATUS_OPTIONS.map(s => `<option value="${s.value}"${s.value === (status || 'confirmed') ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="mNotes" rows="2" placeholder="Add notes...">${esc(notes || '')}</textarea>
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <label>Links</label>
+      <div id="mLinksContainer"></div>
+    </div>
+    ${lastUpdated ? `<div class="modal-meta">Last updated: ${new Date(lastUpdated).toLocaleString()}</div>` : ''}`;
+}
+
+function showAddTaskModal(catId, prefillStart, prefillEnd) {
+  modalLinks = [];
+  const html = `
+    <div class="modal-header">New Project<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-body">
+      ${buildTaskModalBody({ startDate: prefillStart, endDate: prefillEnd })}
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="doAddTask('${catId}')">Add</button>
+      <button class="btn btn-primary" onclick="doAddTask('${catId}')">Add Project</button>
     </div>`;
   openModal(html);
+  renderModalLinks();
   setTimeout(() => document.getElementById('mTaskName')?.focus(), 100);
 }
 
@@ -1096,52 +1186,40 @@ function doAddTask(catId, groupOverride) {
     endDate: document.getElementById('mEndDate').value,
     status: document.getElementById('mStatus').value,
     notes: document.getElementById('mNotes').value,
-    urls: [],
+    urls: [...modalLinks],
     dependencies: [],
     lastUpdated: new Date().toISOString()
   });
+  modalLinks = [];
   closeModal(); render(); saveState();
 }
 
 function showAddToGroupModal(catId, encodedGroupName, prefillStart, prefillEnd) {
+  modalLinks = [];
   const groupName = decodeURIComponent(encodedGroupName);
   const safeGroup = groupName.replace(/'/g, "\\'");
-  const today = toStr(todayDate());
-  const startVal = prefillStart || today;
-  const endVal = prefillEnd || toStr(addDays(toDate(startVal), 6));
   const html = `
     <div class="modal-header">Add Task to "${esc(groupName)}"<button class="s-action" onclick="closeModal()">&#10005;</button></div>
     <div class="modal-body">
-      <div class="form-group"><label>Task Name</label><input id="mTaskName" placeholder="Task name" autofocus></div>
-      <div class="form-group"><label>Start Date</label><input id="mStartDate" type="date" value="${startVal}"></div>
-      <div class="form-group"><label>End Date</label><input id="mEndDate" type="date" value="${endVal}"></div>
-      <div class="form-group"><label>Status</label>
-        <select id="mStatus">${STATUS_OPTIONS.map(s => `<option value="${s.value}">${s.label}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Notes</label><textarea id="mNotes" rows="3" placeholder="Add notes..."></textarea></div>
+      ${buildTaskModalBody({ startDate: prefillStart, endDate: prefillEnd })}
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="doAddTask('${catId}','${safeGroup}')">Add</button>
+      <button class="btn btn-primary" onclick="doAddTask('${catId}','${safeGroup}')">Add Task</button>
     </div>`;
   openModal(html);
+  renderModalLinks();
   setTimeout(() => document.getElementById('mTaskName')?.focus(), 100);
 }
 
 function showEditTaskModal(catId, taskId) {
   const task = findTask(catId, taskId);
   if (!task) return;
+  modalLinks = [...(task.urls || [])];
   const html = `
     <div class="modal-header">Edit Task<button class="s-action" onclick="closeModal()">&#10005;</button></div>
     <div class="modal-body">
-      <div class="form-group"><label>Task Name</label><input id="mTaskName" value="${esc(task.name)}"></div>
-      <div class="form-group"><label>Start Date</label><input id="mStartDate" type="date" value="${task.startDate}"></div>
-      <div class="form-group"><label>End Date</label><input id="mEndDate" type="date" value="${task.endDate}"></div>
-      <div class="form-group"><label>Status</label>
-        <select id="mStatus">${STATUS_OPTIONS.map(s => `<option value="${s.value}"${s.value === task.status ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
-      </div>
-      <div class="form-group"><label>Notes</label><textarea id="mNotes" rows="3">${esc(task.notes)}</textarea></div>
-      ${task.lastUpdated ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">Last updated: ${new Date(task.lastUpdated).toLocaleString()}</div>` : ''}
+      ${buildTaskModalBody({ name: task.name, startDate: task.startDate, endDate: task.endDate, status: task.status, notes: task.notes, isEdit: true, lastUpdated: task.lastUpdated })}
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" onclick="closeModal();deleteTask('${catId}','${taskId}')">Delete</button>
@@ -1150,6 +1228,7 @@ function showEditTaskModal(catId, taskId) {
       <button class="btn btn-primary" onclick="doEditTask('${catId}','${taskId}')">Save</button>
     </div>`;
   openModal(html);
+  renderModalLinks();
 }
 
 function doEditTask(catId, taskId) {
@@ -1160,7 +1239,9 @@ function doEditTask(catId, taskId) {
   task.endDate = document.getElementById('mEndDate').value;
   task.status = document.getElementById('mStatus').value;
   task.notes = document.getElementById('mNotes').value;
+  task.urls = [...modalLinks];
   task.lastUpdated = new Date().toISOString();
+  modalLinks = [];
   enforceAllDependencies(catId, taskId);
   closeModal(); render(); saveState();
   if (state.selectedTask?.taskId === taskId) renderPanel();
