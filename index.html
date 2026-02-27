@@ -60,13 +60,20 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .s-cat-toggle{width:28px;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text3);font-size:10px;transition:transform .2s}
 .s-cat-toggle.collapsed{transform:rotate(-90deg)}
 .s-cat-name{flex:1;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-num{color:var(--text3);font-weight:500;margin-right:5px;font-size:11px}
 .s-cat-actions{opacity:0;display:flex;gap:2px;transition:opacity .15s}
 .s-cat-header:hover .s-cat-actions{opacity:1}
 .s-action{width:24px;height:24px;border:none;background:transparent;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px}
 .s-action:hover{background:var(--border);color:var(--text)}
 
-.s-task{min-height:var(--row-h);display:flex;align-items:center;padding:0 6px 0 28px;border-bottom:1px solid #f3f4f6;position:relative;cursor:pointer}
+.s-task{min-height:var(--row-h);display:flex;align-items:center;padding:0 6px 0 8px;border-bottom:1px solid #f3f4f6;position:relative;cursor:pointer}
 .s-task:hover{background:var(--bg2)}
+.s-task-grip{width:16px;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:grab;opacity:0;transition:opacity .15s;color:var(--text3);font-size:10px;letter-spacing:1px}
+.s-task:hover .s-task-grip{opacity:.6}
+.s-task-grip:hover{opacity:1!important}
+.s-task-grip svg{pointer-events:none}
+.s-reorder-line{position:absolute;left:28px;right:8px;height:2px;background:var(--blue);z-index:20;pointer-events:none;border-radius:1px}
+.s-task.drag-ghost{opacity:.4}
 .s-task.selected{background:var(--blue-light)}
 .s-task-dot{width:7px;height:7px;border-radius:50%;margin-right:6px;flex-shrink:0}
 .s-task-name{flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -472,6 +479,7 @@ function assignLanes(tasks) {
     if (tasks.length === 1) lanes.set(tasks[0].id, 0);
     return { lanes, numLanes: 1 };
   }
+  // Greedy overlap-based lane assignment
   const sorted = [...tasks].sort((a, b) => {
     const cmp = toDate(a.startDate) - toDate(b.startDate);
     return cmp !== 0 ? cmp : toDate(a.endDate) - toDate(b.endDate);
@@ -493,7 +501,31 @@ function assignLanes(tasks) {
     }
     lanes.set(task.id, assigned);
   }
-  return { lanes, numLanes: laneEnds.length };
+  // Post-process: ensure dependent tasks sit on a lower lane than predecessors
+  const taskMap = new Map(tasks.map(t => [t.id, t]));
+  let changed = true;
+  let passes = 0;
+  while (changed && passes < 20) {
+    changed = false;
+    passes++;
+    for (const task of tasks) {
+      if (!task.dependencies || task.dependencies.length === 0) continue;
+      const myLane = lanes.get(task.id);
+      let maxPredLane = -1;
+      for (const predId of task.dependencies) {
+        if (lanes.has(predId)) {
+          maxPredLane = Math.max(maxPredLane, lanes.get(predId));
+        }
+      }
+      if (maxPredLane >= 0 && myLane <= maxPredLane) {
+        lanes.set(task.id, maxPredLane + 1);
+        changed = true;
+      }
+    }
+  }
+  let numLanes = 0;
+  for (const l of lanes.values()) numLanes = Math.max(numLanes, l + 1);
+  return { lanes, numLanes: Math.max(1, numLanes) };
 }
 
 function buildGroups() {
@@ -535,27 +567,32 @@ function render() {
 function renderSidebar() {
   let html = '';
   const grouped = cachedGroups || buildGroups();
+  let catIdx = 0;
   for (const { cat, groups } of grouped) {
+    catIdx++;
     const collapsed = cat.collapsed;
     const catBg = lightenColor(cat.color, 0.88);
     html += `<div class="s-cat" data-cat="${cat.id}">
       <div class="s-cat-header" style="background:${catBg}" oncontextmenu="showCatCtx(event,'${cat.id}')" onclick="toggleCat('${cat.id}')">
         <div class="s-cat-color" style="background:${cat.color}"></div>
         <div class="s-cat-toggle ${collapsed ? 'collapsed' : ''}">&#9660;</div>
-        <div class="s-cat-name">${esc(cat.name)}</div>
+        <div class="s-cat-name"><span class="s-num">${catIdx}</span>${esc(cat.name)}</div>
         <div class="s-cat-actions">
           <button class="s-action" onclick="event.stopPropagation();showEditCatModal('${cat.id}')" title="Edit">&#9998;</button>
           <button class="s-action" onclick="event.stopPropagation();deleteCat('${cat.id}')" title="Delete">&#10005;</button>
         </div>
       </div>`;
     if (!collapsed) {
+      let groupIdx = 0;
       for (const group of groups) {
+        groupIdx++;
         const firstTask = group.tasks[0];
         const sel = state.selectedTask && group.tasks.some(t => t.id === state.selectedTask.taskId) ? ' selected' : '';
         const countBadge = group.tasks.length > 1 ? ` <span style="color:var(--text3);font-weight:400;font-size:11px">(${group.tasks.length})</span>` : '';
-        html += `<div class="s-task${sel}" style="height:${group.rowHeight}px" data-cat="${cat.id}" data-task="${firstTask.id}" onclick="openPanel('${cat.id}','${firstTask.id}')" oncontextmenu="showTaskCtx(event,'${cat.id}','${firstTask.id}')">
+        html += `<div class="s-task${sel}" style="height:${group.rowHeight}px" data-cat="${cat.id}" data-task="${firstTask.id}" data-group="${encodeURIComponent(group.groupName)}" data-gidx="${groupIdx - 1}" onclick="openPanel('${cat.id}','${firstTask.id}')" oncontextmenu="showTaskCtx(event,'${cat.id}','${firstTask.id}')">
+          <div class="s-task-grip" onmousedown="onGripMouseDown(event,'${cat.id}','${encodeURIComponent(group.groupName)}',${groupIdx - 1})"><svg width="6" height="10" viewBox="0 0 6 10"><circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="8.5" r="1" fill="currentColor"/></svg></div>
           <div class="s-task-dot" style="background:${cat.color}"></div>
-          <div class="s-task-name">${esc(group.groupName)}${countBadge}</div>
+          <div class="s-task-name"><span class="s-num">${catIdx}.${groupIdx}</span>${esc(group.groupName)}${countBadge}</div>
           <div class="s-task-actions">
             <button class="s-action" onclick="event.stopPropagation();showEditTaskModal('${cat.id}','${firstTask.id}')" title="Edit">&#9998;</button>
             <button class="s-action" onclick="event.stopPropagation();deleteTask('${cat.id}','${firstTask.id}')" title="Delete">&#10005;</button>
@@ -1244,6 +1281,111 @@ document.addEventListener('click', () => closeCtxMenu());
 document.addEventListener('contextmenu', (e) => {
   if (!e.target.closest('.s-cat-header') && !e.target.closest('.s-task')) closeCtxMenu();
 });
+
+// ========== SIDEBAR REORDER ==========
+let reorderState = null;
+
+function onGripMouseDown(e, catId, encodedGroupName, groupIdx) {
+  e.stopPropagation();
+  e.preventDefault();
+  const row = e.target.closest('.s-task');
+  if (!row) return;
+  reorderState = {
+    catId,
+    groupName: decodeURIComponent(encodedGroupName),
+    fromIdx: groupIdx,
+    row,
+    startY: e.clientY,
+    started: false,
+    indicator: null
+  };
+}
+
+document.addEventListener('mousemove', (e) => {
+  if (!reorderState) return;
+  if (!reorderState.started) {
+    if (Math.abs(e.clientY - reorderState.startY) < 4) return;
+    reorderState.started = true;
+    reorderState.row.classList.add('drag-ghost');
+    document.body.style.cursor = 'grabbing';
+  }
+  // Find all .s-task rows in the same category
+  const catEl = reorderState.row.closest('.s-cat');
+  if (!catEl) return;
+  const rows = [...catEl.querySelectorAll('.s-task')];
+  // Remove old indicator
+  if (reorderState.indicator) reorderState.indicator.remove();
+  // Find insertion point
+  let insertIdx = rows.length;
+  for (let i = 0; i < rows.length; i++) {
+    const rect = rows[i].getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      insertIdx = i;
+      break;
+    }
+  }
+  reorderState.insertIdx = insertIdx;
+  // Show indicator line
+  const indicator = document.createElement('div');
+  indicator.className = 's-reorder-line';
+  if (insertIdx < rows.length) {
+    rows[insertIdx].style.position = 'relative';
+    indicator.style.top = '0px';
+    rows[insertIdx].prepend(indicator);
+  } else if (rows.length > 0) {
+    rows[rows.length - 1].style.position = 'relative';
+    indicator.style.bottom = '0px';
+    indicator.style.top = 'auto';
+    rows[rows.length - 1].append(indicator);
+  }
+  reorderState.indicator = indicator;
+});
+
+document.addEventListener('mouseup', (e) => {
+  if (!reorderState) return;
+  if (reorderState.indicator) reorderState.indicator.remove();
+  reorderState.row.classList.remove('drag-ghost');
+  document.body.style.cursor = '';
+  if (reorderState.started && reorderState.insertIdx !== undefined) {
+    const fromIdx = reorderState.fromIdx;
+    let toIdx = reorderState.insertIdx;
+    if (fromIdx !== toIdx && fromIdx !== toIdx - 1) {
+      reorderGroup(reorderState.catId, reorderState.groupName, fromIdx, toIdx > fromIdx ? toIdx - 1 : toIdx);
+    }
+  }
+  reorderState = null;
+});
+
+function reorderGroup(catId, groupName, fromGroupIdx, toGroupIdx) {
+  const cat = findCat(catId);
+  if (!cat) return;
+  // Build ordered list of unique group names (same as buildGroups logic)
+  const groupOrder = [];
+  const seen = new Set();
+  for (const task of cat.tasks) {
+    if (!seen.has(task.name)) {
+      seen.add(task.name);
+      groupOrder.push(task.name);
+    }
+  }
+  if (fromGroupIdx < 0 || fromGroupIdx >= groupOrder.length) return;
+  if (toGroupIdx < 0 || toGroupIdx >= groupOrder.length) return;
+  // Reorder the groupOrder array
+  const [moved] = groupOrder.splice(fromGroupIdx, 1);
+  groupOrder.splice(toGroupIdx, 0, moved);
+  // Rebuild cat.tasks in new group order
+  const tasksByGroup = new Map();
+  for (const name of groupOrder) tasksByGroup.set(name, []);
+  for (const task of cat.tasks) {
+    tasksByGroup.get(task.name).push(task);
+  }
+  cat.tasks = [];
+  for (const name of groupOrder) {
+    cat.tasks.push(...tasksByGroup.get(name));
+  }
+  render();
+  saveState();
+}
 
 // ========== DRAG: HELPERS ==========
 let $dragDateLabel = null;
