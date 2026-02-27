@@ -554,81 +554,50 @@ function assignLanes(tasks) {
     return toDate(a.startDate) <= toDate(b.endDate) && toDate(b.startDate) <= toDate(a.endDate);
   }
 
-  // Helper: find the lowest lane >= minLane that doesn't overlap with any existing task
+  // Helper: find the lowest free lane >= minLane with no temporal overlap
   function findFreeLane(task, minLane) {
     for (let lane = minLane; lane < 100; lane++) {
       let free = true;
-      for (const other of tasks) {
-        if (other.id === task.id) continue;
-        if (lanes.get(other.id) === lane && overlaps(task, other)) {
-          free = false;
-          break;
-        }
+      for (const [id, l] of lanes) {
+        if (l !== lane) continue;
+        const other = taskMap.get(id);
+        if (other && overlaps(task, other)) { free = false; break; }
       }
       if (free) return lane;
     }
     return minLane;
   }
 
-  // Greedy overlap-based lane assignment
+  const taskMap = new Map(tasks.map(t => [t.id, t]));
+
+  // Topological sort: predecessors are placed before their dependents
+  const visited = new Set();
+  const order = [];
+  function visit(t) {
+    if (visited.has(t.id)) return;
+    visited.add(t.id);
+    for (const depId of (t.dependencies || [])) {
+      if (taskMap.has(depId)) visit(taskMap.get(depId));
+    }
+    order.push(t);
+  }
+  // Seed the sort by start date so independent tasks pack chronologically
   const sorted = [...tasks].sort((a, b) => {
     const cmp = toDate(a.startDate) - toDate(b.startDate);
     return cmp !== 0 ? cmp : toDate(a.endDate) - toDate(b.endDate);
   });
-  const laneEnds = [];
-  for (const task of sorted) {
-    const tStart = toDate(task.startDate);
-    let assigned = -1;
-    for (let i = 0; i < laneEnds.length; i++) {
-      if (tStart > laneEnds[i]) {
-        assigned = i;
-        laneEnds[i] = toDate(task.endDate);
-        break;
-      }
-    }
-    if (assigned === -1) {
-      assigned = laneEnds.length;
-      laneEnds.push(toDate(task.endDate));
-    }
-    lanes.set(task.id, assigned);
-  }
+  for (const t of sorted) visit(t);
 
-  // Post-process: ensure dependent tasks sit on a lower lane than predecessors
-  // AND don't overlap with tasks already on the target lane
-  let changed = true;
-  let passes = 0;
-  while (changed && passes < 20) {
-    changed = false;
-    passes++;
-    for (const task of tasks) {
-      if (!task.dependencies || task.dependencies.length === 0) continue;
-      const myLane = lanes.get(task.id);
-      let maxPredLane = -1;
-      for (const predId of task.dependencies) {
-        if (lanes.has(predId)) {
-          maxPredLane = Math.max(maxPredLane, lanes.get(predId));
-        }
-      }
-      if (maxPredLane >= 0 && myLane <= maxPredLane) {
-        const newLane = findFreeLane(task, maxPredLane + 1);
-        if (newLane !== myLane) {
-          lanes.set(task.id, newLane);
-          changed = true;
-        }
-      }
-    }
-  }
-
-  // Final safety pass: resolve any remaining temporal overlaps on same lane
-  for (const task of tasks) {
-    const myLane = lanes.get(task.id);
-    for (const other of tasks) {
-      if (other.id === task.id) continue;
-      if (lanes.get(other.id) === myLane && overlaps(task, other)) {
-        // Bump the later-starting task to a free lane
-        const bump = toDate(task.startDate) >= toDate(other.startDate) ? task : other;
-        lanes.set(bump.id, findFreeLane(bump, myLane + 1));
-      }
+  // Single pass in topological order:
+  // - Dependent tasks: place immediately below predecessor (predLane + 1)
+  // - Independent tasks: pack into lowest free lane from 0
+  for (const task of order) {
+    const deps = (task.dependencies || []).filter(id => lanes.has(id));
+    if (deps.length > 0) {
+      const predLane = Math.max(...deps.map(id => lanes.get(id)));
+      lanes.set(task.id, findFreeLane(task, predLane + 1));
+    } else {
+      lanes.set(task.id, findFreeLane(task, 0));
     }
   }
 
