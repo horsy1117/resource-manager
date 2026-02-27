@@ -56,8 +56,14 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 
 /* ===== SIDEBAR ROWS ===== */
 .s-cat{}
+.s-cat.cat-drag-ghost{opacity:.4}
+.s-cat-reorder-line{position:absolute;left:0;right:0;height:3px;background:var(--blue);z-index:20;pointer-events:none;border-radius:1px}
 .s-cat-header{height:var(--cat-row-h);display:flex;align-items:center;padding:0 8px 0 0;cursor:pointer;position:relative;background:var(--bg);border-bottom:1px solid var(--border)}
 .s-cat-header:hover{filter:brightness(0.97)}
+.s-cat-grip{width:20px;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:grab;opacity:0;transition:opacity .15s;color:var(--text3)}
+.s-cat-header:hover .s-cat-grip{opacity:.5}
+.s-cat-grip:hover{opacity:1!important}
+.s-cat-grip svg{pointer-events:none}
 .s-cat-color{width:4px;height:100%;flex-shrink:0;border-radius:0 2px 2px 0}
 .s-cat-toggle{width:28px;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text3);font-size:10px;transition:transform .2s}
 .s-cat-toggle.collapsed{transform:rotate(-90deg)}
@@ -598,6 +604,7 @@ function renderSidebar() {
     const catBg = lightenColor(cat.color, 0.88);
     html += `<div class="s-cat" data-cat="${cat.id}">
       <div class="s-cat-header" style="background:${catBg}" oncontextmenu="showCatCtx(event,'${cat.id}')" onclick="toggleCat('${cat.id}')">
+        <div class="s-cat-grip" onmousedown="onCatGripMouseDown(event,'${cat.id}',${catIdx - 1})"><svg width="6" height="10" viewBox="0 0 6 10"><circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="8.5" r="1" fill="currentColor"/></svg></div>
         <div class="s-cat-color" style="background:${cat.color}"></div>
         <div class="s-cat-toggle ${collapsed ? 'collapsed' : ''}">&#9660;</div>
         <div class="s-cat-name"><span class="s-num">${catIdx}</span>${esc(cat.name)}</div>
@@ -1532,6 +1539,79 @@ function reorderGroup(catId, groupName, fromGroupIdx, toGroupIdx) {
   render();
   saveState();
 }
+
+// ========== DRAG: REORDER CATEGORIES ==========
+let catReorderState = null;
+
+function onCatGripMouseDown(e, catId, catIdx) {
+  e.stopPropagation();
+  e.preventDefault();
+  const catEl = e.target.closest('.s-cat');
+  if (!catEl) return;
+  catReorderState = {
+    catId,
+    fromIdx: catIdx,
+    catEl,
+    startY: e.clientY,
+    started: false,
+    indicator: null
+  };
+}
+
+document.addEventListener('mousemove', (e) => {
+  if (!catReorderState) return;
+  if (!catReorderState.started) {
+    if (Math.abs(e.clientY - catReorderState.startY) < 4) return;
+    catReorderState.started = true;
+    catReorderState.catEl.classList.add('cat-drag-ghost');
+    document.body.style.cursor = 'grabbing';
+  }
+  const allCats = [...$sidebarBody.querySelectorAll('.s-cat')];
+  if (catReorderState.indicator) catReorderState.indicator.remove();
+  // Find insertion point
+  let insertIdx = allCats.length;
+  for (let i = 0; i < allCats.length; i++) {
+    const rect = allCats[i].getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      insertIdx = i;
+      break;
+    }
+  }
+  catReorderState.insertIdx = insertIdx;
+  // Show indicator line
+  const indicator = document.createElement('div');
+  indicator.className = 's-cat-reorder-line';
+  if (insertIdx < allCats.length) {
+    allCats[insertIdx].style.position = 'relative';
+    indicator.style.top = '0px';
+    allCats[insertIdx].prepend(indicator);
+  } else if (allCats.length > 0) {
+    allCats[allCats.length - 1].style.position = 'relative';
+    indicator.style.bottom = '0px';
+    indicator.style.top = 'auto';
+    allCats[allCats.length - 1].append(indicator);
+  }
+  catReorderState.indicator = indicator;
+});
+
+document.addEventListener('mouseup', () => {
+  if (!catReorderState) return;
+  if (catReorderState.indicator) catReorderState.indicator.remove();
+  catReorderState.catEl.classList.remove('cat-drag-ghost');
+  document.body.style.cursor = '';
+  if (catReorderState.started && catReorderState.insertIdx !== undefined) {
+    const fromIdx = catReorderState.fromIdx;
+    let toIdx = catReorderState.insertIdx;
+    if (fromIdx !== toIdx && fromIdx !== toIdx - 1) {
+      const adjustedTo = toIdx > fromIdx ? toIdx - 1 : toIdx;
+      const [moved] = state.categories.splice(fromIdx, 1);
+      state.categories.splice(adjustedTo, 0, moved);
+      render();
+      saveState();
+    }
+  }
+  catReorderState = null;
+});
 
 // ========== DRAG: HELPERS ==========
 let $dragDateLabel = null;
