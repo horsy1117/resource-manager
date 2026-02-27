@@ -25,32 +25,73 @@
   --green:#10b981;
   --shadow:0 1px 3px rgba(0,0,0,.1);
   --day-w:120px;
+  --border-subtle:#f3f4f6;
 }
 html.dark{
-  --border:#374151;
-  --bg:#111827;
-  --bg2:#1f2937;
-  --bg-weekend:rgba(255,255,255,.05);
-  --text:#f3f4f6;
-  --text2:#9ca3af;
-  --text3:#6b7280;
-  --blue:#60a5fa;
-  --blue-light:#1e3a5f;
-  --red:#f87171;
-  --green:#34d399;
-  --shadow:0 1px 3px rgba(0,0,0,.4);
+  --border:#253040;
+  --border-subtle:#1b2535;
+  --bg:#0f1419;
+  --bg2:#161d27;
+  --bg-weekend:rgba(255,255,255,.025);
+  --text:#c9d1d9;
+  --text2:#7d8590;
+  --text3:#4d5768;
+  --blue:#58a6ff;
+  --blue-light:#131d2e;
+  --red:#f07070;
+  --green:#3fb68b;
+  --shadow:0 2px 8px rgba(0,0,0,.5);
 }
-html.dark .modal{background:#1f2937}
-html.dark .modal-bg{background:rgba(0,0,0,.6)}
-html.dark .ctx-menu{background:#1f2937}
-html.dark .ai-panel{background:#111827}
-html.dark .dep-banner.is-dependent{background:#422006;border-color:#b45309;color:#fbbf24}
-html.dark .dep-banner.is-master{background:#172554;border-color:#3b82f6;color:#93c5fd}
-html.dark .dep-banner.is-both{background:#2e1065;border-color:#8b5cf6;color:#c4b5fd}
-html.dark .ai-msg.system{background:#422006;color:#fbbf24}
-html.dark .ai-provider-option.selected{background:#1e3a5f;border-color:var(--blue)}
+
+/* Dark mode: surfaces & overlays */
+html.dark .modal{background:#1a2230;border:1px solid #253040}
+html.dark .modal-bg{background:rgba(0,0,0,.55)}
+html.dark .ctx-menu{background:#1a2230;border-color:#253040}
+html.dark .ai-panel{background:#0f1419;border-left:1px solid #253040}
+html.dark .detail-panel{background:#0f1419;box-shadow:-4px 0 24px rgba(0,0,0,.4)}
+html.dark .panel-overlay.open{background:rgba(0,0,0,.4)}
+html.dark .tooltip{background:#253040;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+html.dark .drag-date-label{background:#253040}
+
+/* Dark mode: form inputs */
 html.dark select{background:var(--bg2);color:var(--text);border-color:var(--border)}
 html.dark input[type="date"]{color-scheme:dark}
+html.dark input,html.dark textarea,html.dark select{background:var(--bg2);color:var(--text);border-color:var(--border)}
+html.dark .form-group input:focus,html.dark .form-group select:focus,html.dark .form-group textarea:focus{box-shadow:0 0 0 3px rgba(88,166,255,.12)}
+html.dark .dp-input:focus,html.dark .dp-select:focus,html.dark .dp-textarea:focus{box-shadow:0 0 0 3px rgba(88,166,255,.12)}
+html.dark .ai-setup-fields input:focus{box-shadow:0 0 0 3px rgba(88,166,255,.12)}
+html.dark .form-group input:disabled,html.dark .form-group input[readonly]{background:#111820;color:var(--text3)}
+
+/* Dark mode: buttons & interactive */
+html.dark .btn:hover{background:var(--bg2);border-color:#354050}
+html.dark .btn-primary:hover{background:#4088e0}
+html.dark .btn-danger:hover{background:rgba(240,112,112,.1)}
+html.dark .ctx-item.danger:hover{background:rgba(240,112,112,.1)}
+html.dark .s-cat-header:hover{filter:brightness(1.08)}
+html.dark .t-row.task-row:hover{background:rgba(88,166,255,.04)}
+html.dark .modal-link-add button:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+
+/* Dark mode: scrollbar */
+html.dark .timeline-body-wrap::-webkit-scrollbar-track{background:#111820}
+html.dark .timeline-body-wrap::-webkit-scrollbar-thumb{background:#2a3545;border-radius:4px}
+html.dark .timeline-body-wrap::-webkit-scrollbar-thumb:hover{background:#35445a}
+
+/* Dark mode: dependency banners */
+html.dark .dep-banner.is-dependent{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);color:#fbbf24}
+html.dark .dep-banner.is-master{background:rgba(88,166,255,.08);border-color:rgba(88,166,255,.3);color:#79b8ff}
+html.dark .dep-banner.is-both{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.3);color:#b4a0f0}
+
+/* Dark mode: AI panel */
+html.dark .ai-msg.system{background:rgba(245,158,11,.08);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
+html.dark .ai-msg.assistant{background:#161d27}
+html.dark .ai-provider-option.selected{background:var(--blue-light);border-color:rgba(88,166,255,.4)}
+
+/* Dark mode: task bars softening */
+html.dark .task-bar{box-shadow:0 1px 3px rgba(0,0,0,.3)}
+html.dark .task-bar:hover{box-shadow:0 2px 10px rgba(0,0,0,.4)}
+
+/* Dark mode: dependency arrows */
+html.dark .dep-arrow{stroke:#4d5768}
 html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:var(--text);background:var(--bg)}
 
 /* ===== TOPBAR ===== */
@@ -99,7 +140,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .s-action{width:24px;height:24px;border:none;background:transparent;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px}
 .s-action:hover{background:var(--border);color:var(--text)}
 
-.s-task{min-height:var(--row-h);display:flex;align-items:center;padding:0 6px 0 8px;border-bottom:1px solid #f3f4f6;position:relative;cursor:pointer}
+.s-task{min-height:var(--row-h);display:flex;align-items:center;padding:0 6px 0 8px;border-bottom:1px solid var(--border-subtle);position:relative;cursor:pointer}
 .s-task:hover{background:var(--bg2)}
 .s-task-grip{width:16px;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:grab;opacity:0;transition:opacity .15s;color:var(--text3);font-size:10px;letter-spacing:1px}
 .s-task:hover .s-task-grip{opacity:.6}
@@ -113,7 +154,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .s-task-actions{opacity:0;display:flex;gap:2px;transition:opacity .15s}
 .s-task:hover .s-task-actions{opacity:1}
 
-.s-add-row{height:24px;display:flex;align-items:center;padding:0 6px 0 28px;cursor:pointer;color:var(--text3);font-size:11px;gap:4px;border-bottom:1px solid #f3f4f6}
+.s-add-row{height:24px;display:flex;align-items:center;padding:0 6px 0 28px;cursor:pointer;color:var(--text3);font-size:11px;gap:4px;border-bottom:1px solid var(--border-subtle)}
 .s-add-row:hover{background:var(--bg2);color:var(--blue)}
 
 .s-add-cat{height:32px;display:flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--text3);font-size:12px;gap:6px;border-bottom:1px solid var(--border)}
@@ -123,10 +164,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .timeline{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
 .timeline-header{height:var(--header-h);border-bottom:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--bg);flex-shrink:0;position:relative}
 .t-header-row{display:flex;height:50%}
-.t-header-row.row1{border-bottom:1px solid #f3f4f6}
-.t-group{display:flex;align-items:center;font-size:12px;color:var(--text2);font-weight:500;border-right:1px solid #f3f4f6;white-space:nowrap;overflow:hidden;position:relative}
+.t-header-row.row1{border-bottom:1px solid var(--border-subtle)}
+.t-group{display:flex;align-items:center;font-size:12px;color:var(--text2);font-weight:500;border-right:1px solid var(--border-subtle);white-space:nowrap;overflow:hidden;position:relative}
 .t-group-label{position:relative;padding:0 4px;z-index:1}
-.t-col{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);border-right:1px solid #f3f4f6;white-space:nowrap;flex-shrink:0;position:relative}
+.t-col{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);border-right:1px solid var(--border-subtle);white-space:nowrap;flex-shrink:0;position:relative}
 .t-col.today{color:var(--blue);font-weight:700}
 .t-col.today::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:22px;height:22px;background:var(--blue);border-radius:50%;z-index:-1;opacity:.1}
 .t-col.weekend{background:var(--bg-weekend)}
@@ -140,7 +181,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .t-gridline{position:absolute;top:0;bottom:0;width:1px;background:var(--border);opacity:.5}
 
 .t-rows{position:relative;z-index:1}
-.t-row{height:var(--row-h);position:relative;border-bottom:1px solid #f3f4f6}
+.t-row{height:var(--row-h);position:relative;border-bottom:1px solid var(--border-subtle)}
 .t-row.cat-row{height:var(--cat-row-h);background:var(--bg2);border-bottom:1px solid var(--border)}
 .t-row.task-row{cursor:default}
 .t-row.task-row:hover{background:rgba(59,130,246,.02)}
@@ -476,9 +517,12 @@ function lightenColor(hex, amount = 0.88) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
-  const lr = Math.round(r + (255 - r) * amount);
-  const lg = Math.round(g + (255 - g) * amount);
-  const lb = Math.round(b + (255 - b) * amount);
+  const isDark = document.documentElement.classList.contains('dark');
+  const target = isDark ? 18 : 255;
+  const amt = isDark ? 0.82 : amount;
+  const lr = Math.round(r + (target - r) * amt);
+  const lg = Math.round(g + (target - g) * amt);
+  const lb = Math.round(b + (target - b) * amt);
   return `rgb(${lr},${lg},${lb})`;
 }
 
@@ -2179,6 +2223,7 @@ function toggleDarkMode() {
   state.darkMode = isDark;
   updateDarkModeIcon(isDark);
   localStorage.setItem('rm_darkMode', isDark ? '1' : '0');
+  render();
 }
 
 function updateDarkModeIcon(isDark) {
