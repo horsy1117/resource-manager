@@ -854,7 +854,7 @@ function showEditCatModal(catId) {
       </div></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" onclick="deleteCat('${catId}');closeModal()">Delete</button>
+      <button class="btn btn-danger" onclick="closeModal();deleteCat('${catId}')">Delete</button>
       <div style="flex:1"></div>
       <button class="btn" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="doEditCat('${catId}')">Save</button>
@@ -871,10 +871,13 @@ function doEditCat(catId) {
 }
 
 function deleteCat(catId) {
-  if (!confirm('Delete this category and all its tasks?')) return;
-  state.categories = state.categories.filter(c => c.id !== catId);
-  if (state.selectedTask?.catId === catId) closePanel();
-  render(); saveState();
+  const cat = findCat(catId);
+  if (!cat) return;
+  showConfirmModal('Delete Category', `Are you sure you want to delete "${esc(cat.name)}" and all its tasks? This cannot be undone.`, () => {
+    state.categories = state.categories.filter(c => c.id !== catId);
+    if (state.selectedTask?.catId === catId) closePanel();
+    render(); saveState();
+  });
 }
 
 // ========== TASK CRUD ==========
@@ -934,7 +937,7 @@ function showEditTaskModal(catId, taskId) {
       <div class="form-group"><label>Notes</label><textarea id="mNotes" rows="3">${esc(task.notes)}</textarea></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" onclick="deleteTask('${catId}','${taskId}');closeModal()">Delete</button>
+      <button class="btn btn-danger" onclick="closeModal();deleteTask('${catId}','${taskId}')">Delete</button>
       <div style="flex:1"></div>
       <button class="btn" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="doEditTask('${catId}','${taskId}')">Save</button>
@@ -958,16 +961,19 @@ function doEditTask(catId, taskId) {
 function deleteTask(catId, taskId) {
   const cat = findCat(catId);
   if (!cat) return;
-  if (!confirm('Delete this task?')) return;
-  // Clean up dependency references
-  for (const task of cat.tasks) {
-    if (task.dependencies) {
-      task.dependencies = task.dependencies.filter(id => id !== taskId);
+  const task = findTask(catId, taskId);
+  if (!task) return;
+  showConfirmModal('Delete Task', `Are you sure you want to delete "${esc(task.name)}"? This cannot be undone.`, () => {
+    // Clean up dependency references
+    for (const t of cat.tasks) {
+      if (t.dependencies) {
+        t.dependencies = t.dependencies.filter(id => id !== taskId);
+      }
     }
-  }
-  cat.tasks = cat.tasks.filter(t => t.id !== taskId);
-  if (state.selectedTask?.taskId === taskId) closePanel();
-  render(); saveState();
+    cat.tasks = cat.tasks.filter(t => t.id !== taskId);
+    if (state.selectedTask?.taskId === taskId) closePanel();
+    render(); saveState();
+  });
 }
 
 // ========== DETAIL PANEL ==========
@@ -1067,7 +1073,7 @@ function renderPanel() {
       })()}
     </div>
     <div class="dp-footer">
-      <button class="btn btn-danger" onclick="deleteTask('${catId}','${taskId}');closePanel()">Delete</button>
+      <button class="btn btn-danger" onclick="closePanel();deleteTask('${catId}','${taskId}')">Delete</button>
       <button class="btn btn-primary" onclick="closePanel()">Done</button>
     </div>`;
 }
@@ -1121,6 +1127,21 @@ function openModal(html) {
   $modalBg.classList.add('open');
 }
 function closeModal() { $modalBg.classList.remove('open'); }
+
+let _confirmCb = null;
+function showConfirmModal(title, message, onConfirm) {
+  _confirmCb = onConfirm;
+  const html = `
+    <div class="modal-header" style="color:var(--red)">${title}<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin:0">${message}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="_confirmCb&&_confirmCb();closeModal()">Delete</button>
+    </div>`;
+  openModal(html);
+}
 
 function pickColor(el) {
   el.parentElement.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
