@@ -1772,6 +1772,7 @@ function showCatCtx(e, catId) {
 function showTaskCtx(e, catId, taskId) {
   e.preventDefault(); e.stopPropagation();
   showCtxMenu(e.clientX, e.clientY, [
+    { label: 'Add Task', action: () => showAddTaskModal(catId) },
     { label: 'Edit Task', action: () => showEditTaskModal(catId, taskId) },
     { label: 'Open Details', action: () => openPanel(catId, taskId) },
     { label: 'Delete Task', danger: true, action: () => deleteTask(catId, taskId) }
