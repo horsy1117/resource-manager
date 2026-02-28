@@ -47,6 +47,7 @@ html.dark{
 html.dark .modal{background:#1a2230;border:1px solid #253040}
 html.dark .modal-bg{background:rgba(0,0,0,.55)}
 html.dark .ctx-menu{background:#1a2230;border-color:#253040}
+html.dark .portfolio-dropdown{background:#1a2230;border-color:#253040}
 html.dark .ai-panel{background:#0f1419;border-left:1px solid #253040}
 html.dark .detail-panel{background:#0f1419;box-shadow:-4px 0 24px rgba(0,0,0,.4)}
 html.dark .panel-overlay.open{background:rgba(0,0,0,.4)}
@@ -107,6 +108,18 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .project-name{cursor:pointer;border-radius:4px;padding:0 4px;transition:background .15s}
 .project-name:hover{background:var(--bg2)}
 .project-name-input{font-size:16px;font-weight:600;border:1px solid var(--blue);border-radius:4px;padding:0 4px;outline:none;background:var(--bg);color:var(--text);font-family:inherit}
+.portfolio-title-wrap{display:flex;align-items:center;gap:2px;cursor:pointer;border-radius:4px;padding:0 4px;transition:background .15s}
+.portfolio-title-wrap:hover{background:var(--bg2)}
+.portfolio-chevron{width:14px;height:14px;color:var(--text2);flex-shrink:0;transition:transform .15s}
+.portfolio-title-wrap:hover .portfolio-chevron{color:var(--text)}
+.portfolio-dropdown{position:absolute;top:100%;left:0;min-width:220px;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);z-index:1000;padding:4px 0;max-height:320px;overflow-y:auto}
+.portfolio-item{padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);transition:background .1s}
+.portfolio-item:hover{background:var(--bg2)}
+.portfolio-item.active{font-weight:600;color:var(--blue)}
+.portfolio-item .check-icon{width:14px;flex-shrink:0;color:var(--blue)}
+.portfolio-divider{height:1px;background:var(--border);margin:4px 0}
+.portfolio-action{padding:6px 12px;cursor:pointer;font-size:13px;color:var(--blue);transition:background .1s}
+.portfolio-action:hover{background:var(--bg2)}
 .topbar-controls{display:flex;align-items:center;gap:6px}
 .btn{border:1px solid var(--border);background:var(--bg);border-radius:5px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text);display:inline-flex;align-items:center;gap:4px;transition:all .15s}
 .btn:hover{background:var(--bg2);border-color:#d1d5db}
@@ -389,9 +402,13 @@ body.resizing *{cursor:col-resize!important}
 <div id="app">
   <!-- Top Bar -->
   <div class="topbar">
-    <h1>
+    <h1 style="position:relative">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      <span id="projectName" class="project-name" onclick="editProjectName()" title="Click to rename">Project Plan</span>
+      <div class="portfolio-title-wrap" onclick="togglePortfolioDropdown(event)" title="Switch portfolio">
+        <span id="projectName" class="project-name" style="padding:0">Project Plan</span>
+        <svg class="portfolio-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div id="portfolioDropdown" class="portfolio-dropdown" style="display:none"></div>
     </h1>
     <div class="topbar-controls">
       <button class="btn btn-icon" onclick="navigate(-1)" title="Previous">&#9664;</button>
@@ -509,7 +526,8 @@ let state = {
   aiCustomEndpoint: '',
   aiCustomModel: '',
   aiMessages: [],
-  projectName: 'Project Plan'
+  projectName: 'Project Plan',
+  activePortfolioId: null
 };
 
 let dragState = null;
@@ -532,6 +550,7 @@ const $zoomSelect = document.getElementById('zoomSelect');
 const $cmdBg = document.getElementById('cmdBg');
 const $cmdInput = document.getElementById('cmdInput');
 const $cmdResults = document.getElementById('cmdResults');
+const $portfolioDropdown = document.getElementById('portfolioDropdown');
 
 // ========== UTILITIES ==========
 function uid() { return 'id_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
@@ -601,51 +620,199 @@ function findTask(catId, taskId) {
   return cat ? cat.tasks.find(t => t.id === taskId) : null;
 }
 
-// ========== PERSISTENCE ==========
-function saveState() {
-  const data = { categories: state.categories, aiKey: state.aiKey, aiProvider: state.aiProvider, aiCustomEndpoint: state.aiCustomEndpoint, aiCustomModel: state.aiCustomModel, projectName: state.projectName };
-  localStorage.setItem('rm_state', JSON.stringify(data));
+// ========== PERSISTENCE (Multi-Portfolio) ==========
+function getPortfolioRegistry() {
+  try { return JSON.parse(localStorage.getItem('rm_portfolios') || '[]'); }
+  catch { return []; }
+}
+function savePortfolioRegistry(reg) { localStorage.setItem('rm_portfolios', JSON.stringify(reg)); }
+
+function getGlobalSettings() {
+  try { return JSON.parse(localStorage.getItem('rm_global') || '{}'); }
+  catch { return {}; }
+}
+function saveGlobalSettings() {
+  localStorage.setItem('rm_global', JSON.stringify({
+    aiKey: state.aiKey, aiProvider: state.aiProvider,
+    aiCustomEndpoint: state.aiCustomEndpoint, aiCustomModel: state.aiCustomModel
+  }));
 }
 
-function loadState() {
+function migrateFromLegacy() {
   try {
     const raw = localStorage.getItem('rm_state');
-    if (raw) {
-      const data = JSON.parse(raw);
-      if (data.categories) state.categories = data.categories;
-      if (data.aiKey) state.aiKey = data.aiKey;
-      if (data.aiProvider) state.aiProvider = data.aiProvider;
-      if (data.aiCustomEndpoint) state.aiCustomEndpoint = data.aiCustomEndpoint;
-      if (data.aiCustomModel) state.aiCustomModel = data.aiCustomModel;
-      if (data.projectName) state.projectName = data.projectName;
-      // Migration: ensure every task has dependencies, urls, lastUpdated, and group
-      for (const cat of state.categories) {
-        for (const task of cat.tasks) {
-          if (!task.dependencies) task.dependencies = [];
-          if (!task.urls) task.urls = [];
-          if (!task.lastUpdated) task.lastUpdated = null;
-          if (!task.group) task.group = task.name;
-          if (task.status === 'tentative') task.status = 'planning';
-        }
-      }
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    const id = uid();
+    const name = data.projectName || 'Project Plan';
+    const now = new Date().toISOString();
+    // Create portfolio registry
+    savePortfolioRegistry([{ id, name, createdAt: now, updatedAt: now }]);
+    // Save portfolio data
+    localStorage.setItem('rm_portfolio_' + id, JSON.stringify({
+      categories: data.categories || [], projectName: name, aiMessages: []
+    }));
+    // Save global settings
+    localStorage.setItem('rm_global', JSON.stringify({
+      aiKey: data.aiKey || '', aiProvider: data.aiProvider || 'gemini',
+      aiCustomEndpoint: data.aiCustomEndpoint || '', aiCustomModel: data.aiCustomModel || ''
+    }));
+    localStorage.setItem('rm_active', id);
+    localStorage.removeItem('rm_state');
+  } catch (e) { console.warn('Migration failed', e); }
+}
+
+function migrateTaskData() {
+  for (const cat of state.categories) {
+    for (const task of cat.tasks) {
+      if (!task.dependencies) task.dependencies = [];
+      if (!task.urls) task.urls = [];
+      if (!task.lastUpdated) task.lastUpdated = null;
+      if (!task.group) task.group = task.name;
+      if (task.status === 'tentative') task.status = 'planning';
     }
-    // Enforce all dependency date constraints on load
-    for (const cat of state.categories) {
-      for (const task of cat.tasks) {
-        if (task.dependencies && task.dependencies.length > 0) {
-          for (const predId of task.dependencies) {
-            const pred = cat.tasks.find(t => t.id === predId);
-            if (pred && toDate(task.startDate) <= toDate(pred.endDate)) {
-              const minStart = toStr(addDays(toDate(pred.endDate), 1));
-              const shift = diffDays(task.startDate, minStart);
-              task.startDate = minStart;
-              task.endDate = toStr(addDays(toDate(task.endDate), shift));
-            }
+  }
+  // Enforce dependency date constraints
+  for (const cat of state.categories) {
+    for (const task of cat.tasks) {
+      if (task.dependencies && task.dependencies.length > 0) {
+        for (const predId of task.dependencies) {
+          const pred = cat.tasks.find(t => t.id === predId);
+          if (pred && toDate(task.startDate) <= toDate(pred.endDate)) {
+            const minStart = toStr(addDays(toDate(pred.endDate), 1));
+            const shift = diffDays(task.startDate, minStart);
+            task.startDate = minStart;
+            task.endDate = toStr(addDays(toDate(task.endDate), shift));
           }
         }
       }
     }
+  }
+}
+
+function loadPortfolio(id) {
+  try {
+    const raw = localStorage.getItem('rm_portfolio_' + id);
+    if (raw) {
+      const data = JSON.parse(raw);
+      state.categories = data.categories || [];
+      state.projectName = data.projectName || 'Project Plan';
+      state.aiMessages = data.aiMessages || [];
+    } else {
+      state.categories = [];
+      state.projectName = 'Project Plan';
+      state.aiMessages = [];
+    }
+    state.activePortfolioId = id;
+    localStorage.setItem('rm_active', id);
+    migrateTaskData();
+  } catch (e) { console.warn('Failed to load portfolio', e); }
+}
+
+function saveState() {
+  if (!state.activePortfolioId) return;
+  const data = { categories: state.categories, projectName: state.projectName, aiMessages: state.aiMessages };
+  localStorage.setItem('rm_portfolio_' + state.activePortfolioId, JSON.stringify(data));
+  const reg = getPortfolioRegistry();
+  const entry = reg.find(p => p.id === state.activePortfolioId);
+  if (entry) { entry.updatedAt = new Date().toISOString(); entry.name = state.projectName; savePortfolioRegistry(reg); }
+  saveGlobalSettings();
+}
+
+function loadState() {
+  try {
+    // Migrate legacy single-portfolio data
+    if (!localStorage.getItem('rm_portfolios') && localStorage.getItem('rm_state')) {
+      migrateFromLegacy();
+    }
+    // Load global settings
+    const global = getGlobalSettings();
+    state.aiKey = global.aiKey || '';
+    state.aiProvider = global.aiProvider || 'gemini';
+    state.aiCustomEndpoint = global.aiCustomEndpoint || '';
+    state.aiCustomModel = global.aiCustomModel || '';
+    // Determine active portfolio
+    const reg = getPortfolioRegistry();
+    let activeId = localStorage.getItem('rm_active');
+    if (!activeId || !reg.find(p => p.id === activeId)) {
+      activeId = reg.length > 0 ? reg[0].id : null;
+    }
+    if (activeId) {
+      loadPortfolio(activeId);
+    } else {
+      createPortfolio('Project Plan', true);
+    }
   } catch (e) { console.warn('Failed to load state', e); }
+}
+
+function switchPortfolio(id) {
+  if (id === state.activePortfolioId) return;
+  saveState();
+  loadPortfolio(id);
+  state.selectedTask = null;
+  closePanel();
+  closePortfolioDropdown();
+  applyProjectName();
+  state.zoom = 'weeks';
+  $zoomSelect.value = 'weeks';
+  goToday();
+}
+
+function createPortfolio(name, loadImmediately) {
+  const id = uid();
+  const now = new Date().toISOString();
+  const reg = getPortfolioRegistry();
+  reg.push({ id, name, createdAt: now, updatedAt: now });
+  savePortfolioRegistry(reg);
+  localStorage.setItem('rm_portfolio_' + id, JSON.stringify({
+    categories: [], projectName: name, aiMessages: []
+  }));
+  if (loadImmediately) {
+    loadPortfolio(id);
+  }
+  return id;
+}
+
+function deletePortfolio(id) {
+  const reg = getPortfolioRegistry();
+  if (reg.length <= 1) return;
+  const idx = reg.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  reg.splice(idx, 1);
+  savePortfolioRegistry(reg);
+  localStorage.removeItem('rm_portfolio_' + id);
+  if (state.activePortfolioId === id) {
+    switchPortfolio(reg[0].id);
+  }
+}
+
+function renamePortfolio(id, newName) {
+  const reg = getPortfolioRegistry();
+  const entry = reg.find(p => p.id === id);
+  if (entry) { entry.name = newName; entry.updatedAt = new Date().toISOString(); savePortfolioRegistry(reg); }
+  if (state.activePortfolioId === id) {
+    state.projectName = newName;
+    applyProjectName();
+    saveState();
+  }
+}
+
+function duplicatePortfolio(id) {
+  const raw = localStorage.getItem('rm_portfolio_' + id);
+  if (!raw) return;
+  const data = JSON.parse(raw);
+  const reg = getPortfolioRegistry();
+  const source = reg.find(p => p.id === id);
+  const newName = (source ? source.name : 'Portfolio') + ' (Copy)';
+  const newId = uid();
+  const now = new Date().toISOString();
+  // Deep clone categories with new IDs
+  const clonedData = JSON.parse(raw);
+  clonedData.projectName = newName;
+  reg.push({ id: newId, name: newName, createdAt: now, updatedAt: now });
+  savePortfolioRegistry(reg);
+  localStorage.setItem('rm_portfolio_' + newId, JSON.stringify(clonedData));
+  switchPortfolio(newId);
 }
 
 // ========== SAMPLE DATA ==========
@@ -1800,27 +1967,24 @@ function pickColor(el) {
 const $projectName = document.getElementById('projectName');
 
 function editProjectName() {
-  const span = $projectName;
+  closePortfolioDropdown();
+  const wrap = document.querySelector('.portfolio-title-wrap');
   const current = state.projectName;
   const input = document.createElement('input');
   input.type = 'text';
   input.value = current;
   input.className = 'project-name-input';
-  span.replaceWith(input);
+  wrap.style.display = 'none';
+  wrap.parentNode.insertBefore(input, wrap.nextSibling);
   input.focus();
   input.select();
 
   function commit() {
     const val = input.value.trim() || current;
     state.projectName = val;
-    const newSpan = document.createElement('span');
-    newSpan.id = 'projectName';
-    newSpan.className = 'project-name';
-    newSpan.textContent = val;
-    newSpan.title = 'Click to rename';
-    newSpan.onclick = editProjectName;
-    input.replaceWith(newSpan);
-    document.title = `Resource Manager - ${val}`;
+    input.remove();
+    wrap.style.display = '';
+    applyProjectName();
     saveState();
   }
 
@@ -1832,8 +1996,92 @@ function editProjectName() {
 }
 
 function applyProjectName() {
-  $projectName.textContent = state.projectName;
+  const span = document.getElementById('projectName');
+  if (span) span.textContent = state.projectName;
   document.title = `Resource Manager - ${state.projectName}`;
+}
+
+// ========== PORTFOLIO DROPDOWN ==========
+let portfolioDropdownOpen = false;
+
+function togglePortfolioDropdown(e) {
+  e.stopPropagation();
+  if (portfolioDropdownOpen) { closePortfolioDropdown(); }
+  else { openPortfolioDropdown(); }
+}
+
+function openPortfolioDropdown() {
+  renderPortfolioDropdown();
+  $portfolioDropdown.style.display = '';
+  portfolioDropdownOpen = true;
+  setTimeout(() => document.addEventListener('click', closePortfolioDropdownOutside), 0);
+}
+
+function closePortfolioDropdown() {
+  $portfolioDropdown.style.display = 'none';
+  portfolioDropdownOpen = false;
+  document.removeEventListener('click', closePortfolioDropdownOutside);
+}
+
+function closePortfolioDropdownOutside(e) {
+  if (!$portfolioDropdown.contains(e.target) && !e.target.closest('.portfolio-title-wrap')) {
+    closePortfolioDropdown();
+  }
+}
+
+function renderPortfolioDropdown() {
+  const reg = getPortfolioRegistry();
+  let html = '';
+  for (const p of reg) {
+    const isActive = p.id === state.activePortfolioId;
+    const check = isActive ? '<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' : '<span style="width:14px;display:inline-block"></span>';
+    html += `<div class="portfolio-item${isActive ? ' active' : ''}" onclick="handlePortfolioClick('${p.id}')">${check}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</span></div>`;
+  }
+  html += '<div class="portfolio-divider"></div>';
+  html += '<div class="portfolio-action" onclick="handleNewPortfolio()">+ New Portfolio</div>';
+  html += '<div class="portfolio-action" onclick="handleRenamePortfolio()">Rename</div>';
+  html += '<div class="portfolio-action" onclick="handleDuplicatePortfolio()">Duplicate</div>';
+  if (reg.length > 1) {
+    html += `<div class="portfolio-action" style="color:var(--red)" onclick="handleDeletePortfolio()">Delete</div>`;
+  }
+  $portfolioDropdown.innerHTML = html;
+}
+
+function handlePortfolioClick(id) {
+  closePortfolioDropdown();
+  if (id !== state.activePortfolioId) switchPortfolio(id);
+}
+
+function handleNewPortfolio() {
+  closePortfolioDropdown();
+  const name = prompt('New portfolio name:', 'New Portfolio');
+  if (!name || !name.trim()) return;
+  saveState();
+  createPortfolio(name.trim(), true);
+  applyProjectName();
+  state.zoom = 'weeks';
+  $zoomSelect.value = 'weeks';
+  goToday();
+}
+
+function handleRenamePortfolio() {
+  closePortfolioDropdown();
+  editProjectName();
+}
+
+function handleDuplicatePortfolio() {
+  closePortfolioDropdown();
+  saveState();
+  duplicatePortfolio(state.activePortfolioId);
+}
+
+function handleDeletePortfolio() {
+  closePortfolioDropdown();
+  const reg = getPortfolioRegistry();
+  if (reg.length <= 1) return;
+  const entry = reg.find(p => p.id === state.activePortfolioId);
+  if (!confirm(`Delete portfolio "${entry ? entry.name : ''}"? This cannot be undone.`)) return;
+  deletePortfolio(state.activePortfolioId);
 }
 
 // ========== ADD MENU ==========
@@ -2874,6 +3122,18 @@ function searchAll(query) {
   const q = query.toLowerCase().trim();
   if (!q) return [];
   const results = [];
+  // Search portfolios (other than active)
+  const reg = getPortfolioRegistry();
+  for (const p of reg) {
+    if (p.id !== state.activePortfolioId && p.name.toLowerCase().includes(q)) {
+      results.push({
+        type: 'portfolio', portfolioId: p.id,
+        name: p.name, color: '#8b5cf6',
+        meta: 'Switch to portfolio'
+      });
+    }
+  }
+  // Search current portfolio's programs and tasks
   for (const cat of state.categories) {
     if (cat.name.toLowerCase().includes(q)) {
       results.push({
@@ -2906,7 +3166,7 @@ function highlightMatch(text, query) {
 function renderCmdResults(query) {
   const results = searchAll(query);
   if (!query.trim()) {
-    $cmdResults.innerHTML = '<div class="cmd-empty">Type to search tasks and programs\u2026</div>';
+    $cmdResults.innerHTML = '<div class="cmd-empty">Type to search tasks, programs, and portfolios\u2026</div>';
     return;
   }
   if (results.length === 0) {
@@ -2925,7 +3185,7 @@ function renderCmdResults(query) {
     html += '<div class="cmd-item-name">' + highlightMatch(r.name, query) + '</div>';
     html += '<div class="cmd-item-meta">' + esc(r.meta) + '</div>';
     html += '</div>';
-    html += '<div class="cmd-item-type">' + (r.type === 'category' ? 'program' : r.type) + '</div>';
+    html += '<div class="cmd-item-type">' + (r.type === 'category' ? 'program' : r.type === 'portfolio' ? 'portfolio' : r.type) + '</div>';
     html += '</div>';
   }
   $cmdResults.innerHTML = html;
@@ -2947,6 +3207,10 @@ function cmdSelect(idx) {
   const r = results[idx];
   closeCmdPalette();
 
+  if (r.type === 'portfolio') {
+    switchPortfolio(r.portfolioId);
+    return;
+  }
   if (r.type === 'category') {
     const cat = findCat(r.catId);
     if (cat && cat.collapsed) { cat.collapsed = false; render(); saveState(); }
