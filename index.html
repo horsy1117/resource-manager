@@ -200,6 +200,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .task-bar .resize-handle.left{left:-2px}
 .task-bar .resize-handle.right{right:-2px}
 .task-bar-label{position:relative;z-index:0;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.2)}
+.task-bar .status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;pointer-events:none;box-shadow:0 0 0 1.5px rgba(255,255,255,.5);margin-right:2px}
 .task-bar-dates{position:absolute;top:-16px;left:0;font-size:10px;color:var(--text3);white-space:nowrap;pointer-events:none;font-weight:400}
 body.dragging{cursor:grabbing!important}
 body.dragging *{cursor:grabbing!important}
@@ -266,6 +267,9 @@ body.resizing *{cursor:col-resize!important}
 .form-group textarea{resize:vertical;min-height:60px}
 .form-row{display:flex;gap:12px}
 .form-row .form-group{flex:1;margin-bottom:0}
+.status-select-wrap{display:flex;align-items:center;gap:8px}
+.status-select-wrap select{flex:1}
+.status-select-wrap .status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .form-section-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px;letter-spacing:.01em}
 .form-section-label svg{opacity:.5}
 .modal-links-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
@@ -480,10 +484,11 @@ const ZOOM_CFG = {
 };
 
 const STATUS_OPTIONS = [
-  { value: 'confirmed', label: 'Confirmed', color: '#10b981' },
-  { value: 'tentative', label: 'Tentative', color: '#f59e0b' },
-  { value: 'draft', label: 'Draft', color: '#9ca3af' }
+  { value: 'draft', label: 'Draft', color: '#ef4444' },
+  { value: 'planning', label: 'In Planning', color: '#f59e0b' },
+  { value: 'confirmed', label: 'Confirmed', color: '#10b981' }
 ];
+function statusColor(v) { const s = STATUS_OPTIONS.find(o => o.value === v); return s ? s.color : '#9ca3af'; }
 
 // ========== STATE ==========
 let state = {
@@ -612,6 +617,7 @@ function loadState() {
           if (!task.urls) task.urls = [];
           if (!task.lastUpdated) task.lastUpdated = null;
           if (!task.group) task.group = task.name;
+          if (task.status === 'tentative') task.status = 'planning';
         }
       }
     }
@@ -643,7 +649,7 @@ function loadSampleData() {
       tasks: [
         { id: uid(), name: 'UX Research', startDate: toStr(addDays(today, -5)), endDate: toStr(addDays(today, 8)), status: 'confirmed', notes: 'User interviews and competitive analysis', urls: [{title:'Figma Board', url:'https://figma.com/example'}] },
         { id: uid(), name: 'Wireframing', startDate: toStr(addDays(today, 6)), endDate: toStr(addDays(today, 18)), status: 'confirmed', notes: '', urls: [] },
-        { id: uid(), name: 'Visual Design', startDate: toStr(addDays(today, 15)), endDate: toStr(addDays(today, 30)), status: 'tentative', notes: 'Pending wireframe approval', urls: [] }
+        { id: uid(), name: 'Visual Design', startDate: toStr(addDays(today, 15)), endDate: toStr(addDays(today, 30)), status: 'planning', notes: 'Pending wireframe approval', urls: [] }
       ]
     },
     {
@@ -659,7 +665,7 @@ function loadSampleData() {
       tasks: [
         { id: uid(), name: 'Strategy', startDate: toStr(addDays(today, -8)), endDate: toStr(addDays(today, 2)), status: 'confirmed', notes: 'Define target audience and channels', urls: [] },
         { id: uid(), name: 'Content Creation', startDate: toStr(addDays(today, 1)), endDate: toStr(addDays(today, 16)), status: 'confirmed', notes: '', urls: [] },
-        { id: uid(), name: 'Launch', startDate: toStr(addDays(today, 17)), endDate: toStr(addDays(today, 24)), status: 'tentative', notes: 'Dependent on content completion', urls: [] }
+        { id: uid(), name: 'Launch', startDate: toStr(addDays(today, 17)), endDate: toStr(addDays(today, 24)), status: 'planning', notes: 'Dependent on content completion', urls: [] }
       ]
     },
     {
@@ -995,6 +1001,7 @@ function renderTimeline() {
               onmouseenter="showBarTooltip(event,'${cat.id}','${task.id}')"
               onmouseleave="hideTooltip()">
               <div class="resize-handle left"></div>
+              <span class="status-dot" style="background:${statusColor(task.status)}"></span>
               <span class="task-bar-label">${esc(task.name)}</span>
               <div class="resize-handle right"></div>
               <div class="dep-bubble" onmousedown="onDepBubbleMouseDown(event,'${cat.id}','${task.id}')"></div>
@@ -1335,7 +1342,10 @@ function buildTaskModalBody(opts = {}) {
     <div class="form-row" style="margin-bottom:16px">
       <div class="form-group" style="flex:1">
         <label>Status</label>
-        <select id="mStatus">${STATUS_OPTIONS.map(s => `<option value="${s.value}"${s.value === (status || 'confirmed') ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
+        <div class="status-select-wrap">
+          <span class="status-dot" id="mStatusDot" style="background:${statusColor(status || 'draft')}"></span>
+          <select id="mStatus" onchange="document.getElementById('mStatusDot').style.background=statusColor(this.value)">${STATUS_OPTIONS.map(s => `<option value="${s.value}"${s.value === (status || 'draft') ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
+        </div>
       </div>
     </div>
     <div class="form-group">
@@ -1524,9 +1534,12 @@ function renderPanel() {
     <div class="dp-body">
       <div class="dp-field">
         <label class="dp-label">Status</label>
-        <select class="dp-select" onchange="panelUpdate('status',this.value)">
-          ${STATUS_OPTIONS.map(s => `<option value="${s.value}"${s.value === task.status ? ' selected' : ''}>${s.label}</option>`).join('')}
-        </select>
+        <div class="status-select-wrap">
+          <span class="status-dot" id="dpStatusDot" style="background:${statusColor(task.status)}"></span>
+          <select class="dp-select" onchange="document.getElementById('dpStatusDot').style.background=statusColor(this.value);panelUpdate('status',this.value)">
+            ${STATUS_OPTIONS.map(s => `<option value="${s.value}"${s.value === task.status ? ' selected' : ''}>${s.label}</option>`).join('')}
+          </select>
+        </div>
       </div>
       <div class="dp-field">
         <label class="dp-label">Dates</label>
@@ -2243,7 +2256,9 @@ function showBarTooltip(e, catId, taskId) {
   const cat = findCat(catId);
   if (!task || !cat) return;
   const dur = diffDays(task.startDate, task.endDate) + 1;
-  $tooltip.textContent = `${task.name} | ${formatDateShort(toDate(task.startDate))} - ${formatDateShort(toDate(task.endDate))} (${dur}d)`;
+  const sOpt = STATUS_OPTIONS.find(s => s.value === task.status);
+  const sLabel = sOpt ? sOpt.label : task.status;
+  $tooltip.textContent = `${task.name} | ${sLabel} | ${formatDateShort(toDate(task.startDate))} - ${formatDateShort(toDate(task.endDate))} (${dur}d)`;
   $tooltip.style.display = 'block';
   positionTooltip(e);
 }
