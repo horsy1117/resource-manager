@@ -425,7 +425,7 @@ body.resizing *{cursor:col-resize!important}
   <div class="main-area">
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-      <div class="sidebar-header">Categories</div>
+      <div class="sidebar-header">Programs</div>
       <div class="sidebar-body" id="sidebarBody"></div>
       <div class="sidebar-resize" id="sidebarResize"></div>
     </div>
@@ -462,7 +462,7 @@ body.resizing *{cursor:col-resize!important}
   <div class="cmd-palette" id="cmdPalette">
     <div class="cmd-input-wrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="cmd-input" id="cmdInput" placeholder="Search tasks and categories..." autocomplete="off">
+      <input class="cmd-input" id="cmdInput" placeholder="Search tasks and programs..." autocomplete="off">
     </div>
     <div class="cmd-results" id="cmdResults"></div>
     <div class="cmd-hint">
@@ -834,7 +834,7 @@ function renderSidebar() {
   }
   html += `<div class="s-add-cat" onclick="showAddCatModal()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    Add category
+    Add program
   </div>`;
   $sidebarBody.innerHTML = html;
 }
@@ -1174,9 +1174,9 @@ function toggleCat(catId) {
 
 function showAddCatModal() {
   const html = `
-    <div class="modal-header">Add Category<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-header">Add Program<button class="s-action" onclick="closeModal()">&#10005;</button></div>
     <div class="modal-body">
-      <div class="form-group"><label>Name</label><input id="mCatName" placeholder="Category name" autofocus></div>
+      <div class="form-group"><label>Name</label><input id="mCatName" placeholder="Program name" autofocus></div>
       <div class="form-group"><label>Color</label><div class="color-picker" id="mColorPicker">
         ${COLORS.map((c, i) => `<div class="color-swatch${i === 0 ? ' selected' : ''}" style="background:${c}" data-color="${c}" onclick="pickColor(this)"></div>`).join('')}
       </div></div>
@@ -1201,7 +1201,7 @@ function showEditCatModal(catId) {
   const cat = findCat(catId);
   if (!cat) return;
   const html = `
-    <div class="modal-header">Edit Category<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-header">Edit Program<button class="s-action" onclick="closeModal()">&#10005;</button></div>
     <div class="modal-body">
       <div class="form-group"><label>Name</label><input id="mCatName" value="${esc(cat.name)}"></div>
       <div class="form-group"><label>Color</label><div class="color-picker" id="mColorPicker">
@@ -1228,7 +1228,7 @@ function doEditCat(catId) {
 function deleteCat(catId) {
   const cat = findCat(catId);
   if (!cat) return;
-  showConfirmModal('Delete Category', `Are you sure you want to delete "${esc(cat.name)}" and all its tasks? This cannot be undone.`, () => {
+  showConfirmModal('Delete Program', `Are you sure you want to delete "${esc(cat.name)}" and all its tasks? This cannot be undone.`, () => {
     state.categories = state.categories.filter(c => c.id !== catId);
     if (state.selectedTask?.catId === catId) closePanel();
     render(); saveState();
@@ -1730,7 +1730,7 @@ function applyProjectName() {
 function showAddMenu(e) {
   e.stopPropagation();
   const items = [
-    { label: '+ New Category', action: () => showAddCatModal() },
+    { label: '+ New Program', action: () => showAddCatModal() },
     ...state.categories.map(c => ({
       label: `+ Task in "${c.name}"`,
       action: () => showAddTaskModal(c.id)
@@ -1764,8 +1764,8 @@ function showCatCtx(e, catId) {
   e.preventDefault(); e.stopPropagation();
   showCtxMenu(e.clientX, e.clientY, [
     { label: 'Add Task', action: () => showAddTaskModal(catId) },
-    { label: 'Edit Category', action: () => showEditCatModal(catId) },
-    { label: 'Delete Category', danger: true, action: () => deleteCat(catId) }
+    { label: 'Edit Program', action: () => showEditCatModal(catId) },
+    { label: 'Delete Program', danger: true, action: () => deleteCat(catId) }
   ]);
 }
 
@@ -2476,7 +2476,7 @@ async function sendAI() {
       const dur = diffDays(t.startDate, t.endDate) + 1;
       return `  - ${t.name}: ${t.startDate} to ${t.endDate} (${dur} days), Status: ${t.status}, Links: ${(t.urls||[]).length}`;
     }).join('\n');
-    return `Category: ${c.name}\n${tasks || '  (no tasks)'}`;
+    return `Program: ${c.name}\n${tasks || '  (no tasks)'}`;
   }).join('\n\n');
 
   const today = toStr(todayDate());
@@ -2546,7 +2546,7 @@ function csvEscape(val) {
 }
 
 function exportCSV() {
-  const headers = ['Category', 'Category Color', 'Task Name', 'Group', 'Start Date', 'End Date', 'Duration (days)', 'Status', 'Notes', 'Links', 'Dependencies'];
+  const headers = ['Program', 'Program Color', 'Task Name', 'Group', 'Start Date', 'End Date', 'Duration (days)', 'Status', 'Notes', 'Links', 'Dependencies'];
   const rows = [headers.map(csvEscape).join(',')];
 
   for (const cat of state.categories) {
@@ -2621,12 +2621,13 @@ function importCSV(input) {
     const hMap = {};
     headerRow.forEach((h, i) => hMap[h.trim()] = i);
 
-    const required = ['Category', 'Task Name', 'Start Date', 'End Date'];
+    const required = ['Task Name', 'Start Date', 'End Date'];
     const missing = required.filter(r => hMap[r] === undefined);
+    if (hMap['Program'] === undefined && hMap['Category'] === undefined) missing.unshift('Program');
     if (missing.length) { alert('Missing required columns: ' + missing.join(', ')); return; }
 
-    const catIdx = hMap['Category'];
-    const colorIdx = hMap['Category Color'];
+    const catIdx = hMap['Program'] !== undefined ? hMap['Program'] : hMap['Category'];
+    const colorIdx = hMap['Program Color'] !== undefined ? hMap['Program Color'] : hMap['Category Color'];
     const nameIdx = hMap['Task Name'];
     const groupIdx = hMap['Group'];
     const startIdx = hMap['Start Date'];
@@ -2708,7 +2709,7 @@ function importCSV(input) {
     if (!newCats.length) { alert('No valid tasks found in CSV.'); return; }
 
     const mode = confirm(
-      'Import ' + taskRows.length + ' task(s) across ' + newCats.length + ' category/categories.\n\n' +
+      'Import ' + taskRows.length + ' task(s) across ' + newCats.length + ' program(s).\n\n' +
       'OK = Replace all existing data\nCancel = Merge with existing data'
     );
 
@@ -2784,7 +2785,7 @@ function highlightMatch(text, query) {
 function renderCmdResults(query) {
   const results = searchAll(query);
   if (!query.trim()) {
-    $cmdResults.innerHTML = '<div class="cmd-empty">Type to search tasks and categories\u2026</div>';
+    $cmdResults.innerHTML = '<div class="cmd-empty">Type to search tasks and programs\u2026</div>';
     return;
   }
   if (results.length === 0) {
@@ -2803,7 +2804,7 @@ function renderCmdResults(query) {
     html += '<div class="cmd-item-name">' + highlightMatch(r.name, query) + '</div>';
     html += '<div class="cmd-item-meta">' + esc(r.meta) + '</div>';
     html += '</div>';
-    html += '<div class="cmd-item-type">' + r.type + '</div>';
+    html += '<div class="cmd-item-type">' + (r.type === 'category' ? 'program' : r.type) + '</div>';
     html += '</div>';
   }
   $cmdResults.innerHTML = html;
