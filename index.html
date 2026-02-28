@@ -193,6 +193,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .t-row.task-row{cursor:default}
 .t-row.task-row:hover{background:rgba(59,130,246,.02)}
 
+/* ===== GHOST BAR (drag-to-create) ===== */
+.ghost-bar{position:absolute;height:20px;top:4px;border-radius:6px;opacity:.35;pointer-events:none;z-index:5}
+.t-row.task-row.create-hover{cursor:crosshair}
+
 /* ===== TASK BARS ===== */
 .task-bar{position:absolute;top:6px;height:calc(var(--row-h) - 14px);border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:12px;font-weight:500;color:#fff;cursor:grab;z-index:2;transition:box-shadow .15s,filter .15s;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;user-select:none;min-width:24px}
 .task-bar:hover{box-shadow:0 2px 8px rgba(0,0,0,.2);filter:brightness(1.05);z-index:3}
@@ -1145,15 +1149,63 @@ document.addEventListener('mouseup', () => {
   }
 });
 
-// ========== TIMELINE PAN ==========
+// ========== TIMELINE PAN + DRAG-TO-CREATE ==========
 let panState = null;
+let createDragState = null;
+
 $timelineWrap.addEventListener('mousedown', (e) => {
-  // Only start pan if clicking empty timeline area (not a bar, handle, or bubble)
   if (e.target.closest('.task-bar') || e.target.closest('.dep-bubble')) return;
   if (e.button !== 0) return;
-  panState = { startX: e.clientX, startY: e.clientY, scrollLeft: $timelineWrap.scrollLeft, scrollTop: $timelineWrap.scrollTop, moved: false };
+
+  // Strategy B: drag on a task row = create task, drag elsewhere = pan
+  const taskRow = e.target.closest('.t-row.task-row');
+  if (taskRow && !e.target.closest('.task-bar')) {
+    const catId = taskRow.dataset.cat;
+    const cat = findCat(catId);
+    if (!cat) return;
+    const px = timelinePixelX(e);
+    createDragState = {
+      catId, startX: e.clientX, pixelX: px, taskRow,
+      ghostBar: null, moved: false, color: cat.color
+    };
+  } else {
+    panState = { startX: e.clientX, startY: e.clientY, scrollLeft: $timelineWrap.scrollLeft, scrollTop: $timelineWrap.scrollTop, moved: false };
+  }
 });
+
 document.addEventListener('mousemove', (e) => {
+  // Create-drag on task row
+  if (createDragState) {
+    const dx = e.clientX - createDragState.startX;
+    if (!createDragState.moved && Math.abs(dx) < 4) return;
+    createDragState.moved = true;
+
+    const currentPx = timelinePixelX(e);
+    const leftPx = Math.min(createDragState.pixelX, currentPx);
+    const widthPx = Math.max(Math.abs(currentPx - createDragState.pixelX), ZOOM_CFG[state.zoom].dayWidth);
+
+    // Create or update ghost bar
+    if (!createDragState.ghostBar) {
+      const ghost = document.createElement('div');
+      ghost.className = 'ghost-bar';
+      ghost.style.background = createDragState.color;
+      createDragState.taskRow.appendChild(ghost);
+      createDragState.ghostBar = ghost;
+      document.body.style.cursor = 'crosshair';
+    }
+    createDragState.ghostBar.style.left = leftPx + 'px';
+    createDragState.ghostBar.style.width = widthPx + 'px';
+
+    // Show date label
+    const startDate = pixelToDate(Math.min(createDragState.pixelX, currentPx));
+    const endDate = pixelToDate(Math.max(createDragState.pixelX, currentPx));
+    const dur = diffDays(startDate, endDate) + 1;
+    showDragLabel(e.clientX, createDragState.taskRow.getBoundingClientRect().top,
+      `${formatDateShort(toDate(startDate))} → ${formatDateShort(toDate(endDate))}  (${dur}d)`);
+    return;
+  }
+
+  // Pan
   if (!panState) return;
   const dx = e.clientX - panState.startX;
   const dy = e.clientY - panState.startY;
@@ -1162,8 +1214,52 @@ document.addEventListener('mousemove', (e) => {
   $timelineWrap.scrollLeft = panState.scrollLeft - dx;
   $timelineWrap.scrollTop = panState.scrollTop - dy;
 });
-document.addEventListener('mouseup', () => {
+
+document.addEventListener('mouseup', (e) => {
+  if (createDragState) {
+    const { catId, moved, ghostBar, pixelX } = createDragState;
+    if (ghostBar) ghostBar.remove();
+    hideDragLabel();
+    document.body.style.cursor = '';
+
+    if (moved) {
+      const currentPx = timelinePixelX(e);
+      const startDate = pixelToDate(Math.min(pixelX, currentPx));
+      const endDate = pixelToDate(Math.max(pixelX, currentPx));
+      createDragState = null;
+      showAddTaskModal(catId, startDate, endDate);
+    } else {
+      createDragState = null;
+    }
+    return;
+  }
   panState = null;
+});
+
+// Double-click on empty task row → add task at that date
+$timelineWrap.addEventListener('dblclick', (e) => {
+  const taskRow = e.target.closest('.t-row.task-row');
+  if (!taskRow || e.target.closest('.task-bar')) return;
+  const catId = taskRow.dataset.cat;
+  const px = timelinePixelX(e);
+  const clickDate = pixelToDate(px);
+  showAddTaskModal(catId, clickDate);
+});
+
+// Right-click on empty task row → context menu with "Add Task here"
+$timelineWrap.addEventListener('contextmenu', (e) => {
+  const taskRow = e.target.closest('.t-row.task-row');
+  if (!taskRow || e.target.closest('.task-bar')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const catId = taskRow.dataset.cat;
+  const cat = findCat(catId);
+  if (!cat) return;
+  const px = timelinePixelX(e);
+  const clickDate = pixelToDate(px);
+  showCtxMenu(e.clientX, e.clientY, [
+    { label: 'Add Task here', action: () => showAddTaskModal(catId, clickDate) }
+  ]);
 });
 
 // ========== CATEGORY CRUD ==========
@@ -1988,6 +2084,17 @@ function calcBarPos(startDate, endDate) {
   const tStart = diffDays(toStr(state.viewStart), startDate);
   const tDur = diffDays(startDate, endDate) + 1;
   return { left: tStart * dayW, width: Math.max(tDur * dayW - 2, 20) };
+}
+
+function pixelToDate(pixelX) {
+  const dayW = ZOOM_CFG[state.zoom].dayWidth;
+  const dayOffset = Math.floor(pixelX / dayW);
+  return toStr(addDays(state.viewStart, dayOffset));
+}
+
+function timelinePixelX(e) {
+  const rect = $timelineWrap.getBoundingClientRect();
+  return e.clientX - rect.left + $timelineWrap.scrollLeft;
 }
 
 // ========== DRAG: MOVE/RESIZE TASK BARS ==========
