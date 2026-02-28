@@ -1226,8 +1226,13 @@ document.addEventListener('mouseup', (e) => {
       const currentPx = timelinePixelX(e);
       const startDate = pixelToDate(Math.min(pixelX, currentPx));
       const endDate = pixelToDate(Math.max(pixelX, currentPx));
+      const group = createDragState.taskRow.dataset.group;
       createDragState = null;
-      showAddTaskModal(catId, startDate, endDate);
+      if (group) {
+        showAddToGroupModal(catId, group, startDate, endDate);
+      } else {
+        showAddTaskModal(catId, startDate, endDate);
+      }
     } else {
       createDragState = null;
     }
@@ -1241,9 +1246,14 @@ $timelineWrap.addEventListener('dblclick', (e) => {
   const taskRow = e.target.closest('.t-row.task-row');
   if (!taskRow || e.target.closest('.task-bar')) return;
   const catId = taskRow.dataset.cat;
+  const group = taskRow.dataset.group;
   const px = timelinePixelX(e);
   const clickDate = pixelToDate(px);
-  showAddTaskModal(catId, clickDate);
+  if (group) {
+    showAddToGroupModal(catId, group, clickDate);
+  } else {
+    showAddTaskModal(catId, clickDate);
+  }
 });
 
 // Right-click on empty task row → context menu with "Add Task here"
@@ -1253,12 +1263,16 @@ $timelineWrap.addEventListener('contextmenu', (e) => {
   e.preventDefault();
   e.stopPropagation();
   const catId = taskRow.dataset.cat;
+  const group = taskRow.dataset.group;
   const cat = findCat(catId);
   if (!cat) return;
   const px = timelinePixelX(e);
   const clickDate = pixelToDate(px);
+  const addAction = group
+    ? () => showAddToGroupModal(catId, group, clickDate)
+    : () => showAddTaskModal(catId, clickDate);
   showCtxMenu(e.clientX, e.clientY, [
-    { label: 'Add Task here', action: () => showAddTaskModal(catId, clickDate) }
+    { label: 'Add Task here', action: addAction }
   ]);
 });
 
