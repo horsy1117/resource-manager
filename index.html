@@ -405,6 +405,10 @@ body.resizing *{cursor:col-resize!important}
       <button class="btn btn-icon" onclick="exportCSV()" title="Export CSV">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       </button>
+      <button class="btn btn-icon" onclick="document.getElementById('csvFileInput').click()" title="Import CSV">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </button>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(this)">
       <button class="btn btn-icon" onclick="toggleAI()" title="AI Assistant" id="aiBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 014 4v1h1a3 3 0 013 3v2a3 3 0 01-3 3h-1v3a4 4 0 01-8 0v-3H7a3 3 0 01-3-3v-2a3 3 0 013-3h1V6a4 4 0 014-4z"/><circle cx="9" cy="11" r="1" fill="currentColor"/><circle cx="15" cy="11" r="1" fill="currentColor"/></svg>
       </button>
@@ -2579,6 +2583,152 @@ function exportCSV() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// ========== IMPORT CSV ==========
+function parseCSVRow(line) {
+  const cells = [];
+  let cur = '', inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      else if (ch === '"') inQuotes = false;
+      else cur += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { cells.push(cur); cur = ''; }
+      else cur += ch;
+    }
+  }
+  cells.push(cur);
+  return cells;
+}
+
+function importCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) { alert('CSV file is empty or has no data rows.'); return; }
+
+    const headerRow = parseCSVRow(lines[0]);
+    const hMap = {};
+    headerRow.forEach((h, i) => hMap[h.trim()] = i);
+
+    const required = ['Category', 'Task Name', 'Start Date', 'End Date'];
+    const missing = required.filter(r => hMap[r] === undefined);
+    if (missing.length) { alert('Missing required columns: ' + missing.join(', ')); return; }
+
+    const catIdx = hMap['Category'];
+    const colorIdx = hMap['Category Color'];
+    const nameIdx = hMap['Task Name'];
+    const groupIdx = hMap['Group'];
+    const startIdx = hMap['Start Date'];
+    const endIdx = hMap['End Date'];
+    const statusIdx = hMap['Status'];
+    const notesIdx = hMap['Notes'];
+    const linksIdx = hMap['Links'];
+    const depsIdx = hMap['Dependencies'];
+
+    const catMap = new Map();
+    const taskRows = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const cells = parseCSVRow(lines[i]);
+      const catName = (cells[catIdx] || '').trim();
+      const taskName = (cells[nameIdx] || '').trim();
+      if (!catName || !taskName) continue;
+
+      const startDate = (cells[startIdx] || '').trim();
+      const endDate = (cells[endIdx] || '').trim();
+      if (!startDate || !endDate) continue;
+
+      if (!catMap.has(catName)) {
+        const color = colorIdx !== undefined ? (cells[colorIdx] || '').trim() : '';
+        catMap.set(catName, {
+          id: uid(), name: catName,
+          color: /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0'),
+          collapsed: false, tasks: []
+        });
+      }
+
+      let status = statusIdx !== undefined ? (cells[statusIdx] || '').trim().toLowerCase() : 'draft';
+      if (!STATUS_OPTIONS.find(s => s.value === status)) {
+        if (status === 'in planning') status = 'planning';
+        else if (!STATUS_OPTIONS.find(s => s.value === status)) status = 'draft';
+      }
+
+      const urls = [];
+      if (linksIdx !== undefined && cells[linksIdx]) {
+        cells[linksIdx].split(';').forEach(part => {
+          part = part.trim();
+          if (!part) return;
+          const colonIdx = part.indexOf(': http');
+          if (colonIdx > 0) {
+            urls.push({ title: part.slice(0, colonIdx).trim(), url: part.slice(colonIdx + 2).trim() });
+          } else if (part.startsWith('http')) {
+            urls.push({ title: '', url: part });
+          }
+        });
+      }
+
+      const task = {
+        id: uid(),
+        name: taskName,
+        group: groupIdx !== undefined && cells[groupIdx] ? cells[groupIdx].trim() : taskName,
+        startDate, endDate, status,
+        notes: notesIdx !== undefined ? (cells[notesIdx] || '') : '',
+        urls,
+        dependencies: [],
+        lastUpdated: new Date().toISOString()
+      };
+
+      const depNames = depsIdx !== undefined && cells[depsIdx] ? cells[depsIdx].split(';').map(d => d.trim()).filter(Boolean) : [];
+
+      catMap.get(catName).tasks.push(task);
+      taskRows.push({ task, depNames, catName });
+    }
+
+    // Resolve dependency names to IDs within same category
+    for (const { task, depNames, catName } of taskRows) {
+      const cat = catMap.get(catName);
+      for (const depName of depNames) {
+        const dep = cat.tasks.find(t => t.name === depName && t.id !== task.id);
+        if (dep) task.dependencies.push(dep.id);
+      }
+    }
+
+    const newCats = Array.from(catMap.values());
+    if (!newCats.length) { alert('No valid tasks found in CSV.'); return; }
+
+    const mode = confirm(
+      'Import ' + taskRows.length + ' task(s) across ' + newCats.length + ' category/categories.\n\n' +
+      'OK = Replace all existing data\nCancel = Merge with existing data'
+    );
+
+    if (mode) {
+      state.categories = newCats;
+    } else {
+      for (const newCat of newCats) {
+        const existing = state.categories.find(c => c.name.toLowerCase() === newCat.name.toLowerCase());
+        if (existing) {
+          for (const task of newCat.tasks) existing.tasks.push(task);
+        } else {
+          state.categories.push(newCat);
+        }
+      }
+    }
+
+    render();
+    saveState();
+    goToday();
+  };
+  reader.readAsText(file);
 }
 
 // ========== COMMAND PALETTE ==========
