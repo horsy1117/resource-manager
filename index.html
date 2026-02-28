@@ -8,7 +8,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --sidebar-w:250px;
-  --topbar-h:44px;
+  --topbar-h:56px;
   --header-h:48px;
   --row-h:34px;
   --cat-row-h:32px;
@@ -104,7 +104,11 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 
 /* ===== TOPBAR ===== */
 .topbar{height:var(--topbar-h);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:var(--bg);z-index:100;position:relative}
-.topbar h1{font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px}
+.topbar h1{font-size:16px;font-weight:600;display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.topbar-title-row{display:flex;align-items:center;gap:6px}
+.org-name{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border-radius:3px;padding:0 3px;transition:background .15s;line-height:1.4}
+.org-name:hover{background:var(--bg2);color:var(--text2)}
+.org-name-input{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;border:1px solid var(--blue);border-radius:3px;padding:0 3px;outline:none;background:var(--bg);color:var(--text);font-family:inherit;line-height:1.4}
 .project-name{cursor:pointer;border-radius:4px;padding:0 4px;transition:background .15s}
 .project-name:hover{background:var(--bg2)}
 .project-name-input{font-size:16px;font-weight:600;border:1px solid var(--blue);border-radius:4px;padding:0 4px;outline:none;background:var(--bg);color:var(--text);font-family:inherit}
@@ -403,12 +407,15 @@ body.resizing *{cursor:col-resize!important}
   <!-- Top Bar -->
   <div class="topbar">
     <h1 style="position:relative">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      <div class="portfolio-title-wrap" onclick="togglePortfolioDropdown(event)" title="Switch portfolio">
-        <span id="projectName" class="project-name" style="padding:0">Project Plan</span>
-        <svg class="portfolio-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <span id="orgName" class="org-name" onclick="editOrgName()" title="Click to rename organization">Organization</span>
+      <div class="topbar-title-row">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <div class="portfolio-title-wrap" onclick="togglePortfolioDropdown(event)" title="Switch portfolio">
+          <span id="projectName" class="project-name" style="padding:0">Project Plan</span>
+          <svg class="portfolio-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="portfolioDropdown" class="portfolio-dropdown" style="display:none"></div>
       </div>
-      <div id="portfolioDropdown" class="portfolio-dropdown" style="display:none"></div>
     </h1>
     <div class="topbar-controls">
       <button class="btn btn-icon" onclick="navigate(-1)" title="Previous">&#9664;</button>
@@ -527,7 +534,8 @@ let state = {
   aiCustomModel: '',
   aiMessages: [],
   projectName: 'Project Plan',
-  activePortfolioId: null
+  activePortfolioId: null,
+  orgName: 'Organization'
 };
 
 let dragState = null;
@@ -634,7 +642,8 @@ function getGlobalSettings() {
 function saveGlobalSettings() {
   localStorage.setItem('rm_global', JSON.stringify({
     aiKey: state.aiKey, aiProvider: state.aiProvider,
-    aiCustomEndpoint: state.aiCustomEndpoint, aiCustomModel: state.aiCustomModel
+    aiCustomEndpoint: state.aiCustomEndpoint, aiCustomModel: state.aiCustomModel,
+    orgName: state.orgName
   }));
 }
 
@@ -731,6 +740,7 @@ function loadState() {
     state.aiProvider = global.aiProvider || 'gemini';
     state.aiCustomEndpoint = global.aiCustomEndpoint || '';
     state.aiCustomModel = global.aiCustomModel || '';
+    state.orgName = global.orgName || 'Organization';
     // Determine active portfolio
     const reg = getPortfolioRegistry();
     let activeId = localStorage.getItem('rm_active');
@@ -2001,6 +2011,43 @@ function applyProjectName() {
   document.title = `Resource Manager - ${state.projectName}`;
 }
 
+function applyOrgName() {
+  const el = document.getElementById('orgName');
+  if (el) el.textContent = state.orgName;
+}
+
+function editOrgName() {
+  const el = document.getElementById('orgName');
+  if (!el) return;
+  const current = state.orgName;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = current;
+  input.className = 'org-name-input';
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+
+  function commit() {
+    const val = input.value.trim() || current;
+    state.orgName = val;
+    const newEl = document.createElement('span');
+    newEl.id = 'orgName';
+    newEl.className = 'org-name';
+    newEl.textContent = val;
+    newEl.title = 'Click to rename organization';
+    newEl.onclick = editOrgName;
+    input.replaceWith(newEl);
+    saveGlobalSettings();
+  }
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { input.value = current; input.blur(); }
+  });
+}
+
 // ========== PORTFOLIO DROPDOWN ==========
 let portfolioDropdownOpen = false;
 
@@ -3263,6 +3310,7 @@ function init() {
   if (state.categories.length === 0) loadSampleData();
 
   applyProjectName();
+  applyOrgName();
 
   // Set initial view
   state.zoom = 'weeks';
