@@ -1348,7 +1348,7 @@ function buildTaskModalBody(opts = {}) {
         <label>Status</label>
         <div class="status-select-wrap">
           <span class="status-dot" id="mStatusDot" style="background:${statusColor(status || 'draft')}"></span>
-          <select id="mStatus" onchange="document.getElementById('mStatusDot').style.background=statusColor(this.value)">${STATUS_OPTIONS.map(s => `<option value="${s.value}"${s.value === (status || 'draft') ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
+          <select id="mStatus" style="color:${statusColor(status || 'draft')};font-weight:600" onchange="this.style.color=statusColor(this.value);document.getElementById('mStatusDot').style.background=statusColor(this.value)">${STATUS_OPTIONS.map(s => `<option value="${s.value}" style="color:${s.color}"${s.value === (status || 'draft') ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
         </div>
       </div>
     </div>
@@ -1540,8 +1540,8 @@ function renderPanel() {
         <label class="dp-label">Status</label>
         <div class="status-select-wrap">
           <span class="status-dot" id="dpStatusDot" style="background:${statusColor(task.status)}"></span>
-          <select class="dp-select" onchange="document.getElementById('dpStatusDot').style.background=statusColor(this.value);panelUpdate('status',this.value)">
-            ${STATUS_OPTIONS.map(s => `<option value="${s.value}"${s.value === task.status ? ' selected' : ''}>${s.label}</option>`).join('')}
+          <select class="dp-select" style="color:${statusColor(task.status)};font-weight:600" onchange="this.style.color=statusColor(this.value);document.getElementById('dpStatusDot').style.background=statusColor(this.value);panelUpdate('status',this.value)">
+            ${STATUS_OPTIONS.map(s => `<option value="${s.value}" style="color:${s.color}"${s.value === task.status ? ' selected' : ''}>${s.label}</option>`).join('')}
           </select>
         </div>
       </div>
