@@ -398,6 +398,9 @@ body.resizing *{cursor:col-resize!important}
       <button class="btn btn-primary btn-icon" onclick="showAddMenu(event)" title="Add">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
+      <button class="btn btn-icon" onclick="exportCSV()" title="Export CSV">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
       <button class="btn btn-icon" onclick="toggleAI()" title="AI Assistant" id="aiBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 014 4v1h1a3 3 0 013 3v2a3 3 0 01-3 3h-1v3a4 4 0 01-8 0v-3H7a3 3 0 01-3-3v-2a3 3 0 013-3h1V6a4 4 0 014-4z"/><circle cx="9" cy="11" r="1" fill="currentColor"/><circle cx="15" cy="11" r="1" fill="currentColor"/></svg>
       </button>
@@ -2510,6 +2513,57 @@ async function sendAI() {
 
   saveState();
   renderAIPanel();
+}
+
+// ========== EXPORT CSV ==========
+function csvEscape(val) {
+  if (val == null) return '';
+  const str = String(val);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+function exportCSV() {
+  const headers = ['Category', 'Category Color', 'Task Name', 'Group', 'Start Date', 'End Date', 'Duration (days)', 'Status', 'Notes', 'Links', 'Dependencies'];
+  const rows = [headers.map(csvEscape).join(',')];
+
+  for (const cat of state.categories) {
+    for (const task of cat.tasks) {
+      const dur = diffDays(task.startDate, task.endDate) + 1;
+      const links = (task.urls || []).map(u => u.title ? u.title + ': ' + u.url : u.url).join('; ');
+      const deps = (task.dependencies || []).map(depId => {
+        const depTask = cat.tasks.find(t => t.id === depId);
+        return depTask ? depTask.name : depId;
+      }).join('; ');
+
+      rows.push([
+        csvEscape(cat.name),
+        csvEscape(cat.color),
+        csvEscape(task.name),
+        csvEscape(task.group),
+        csvEscape(task.startDate),
+        csvEscape(task.endDate),
+        csvEscape(dur),
+        csvEscape(task.status),
+        csvEscape(task.notes),
+        csvEscape(links),
+        csvEscape(deps)
+      ].join(','));
+    }
+  }
+
+  const csv = rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (state.projectName || 'project') + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ========== COMMAND PALETTE ==========
