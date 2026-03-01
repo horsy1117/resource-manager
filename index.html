@@ -934,9 +934,16 @@ Timeline.assignLanes = function(tasks) {
     return { lanes, numLanes: 1 };
   }
 
-  // Helper: check if two tasks overlap in time
+  // Helper: get visual end date (milestones extend right to account for label)
+  const dayW = ZOOM_CFG[state.zoom].dayWidth;
+  const milestoneLabelDays = Math.ceil(120 / dayW); // ~120px label width in days
+  function visualEnd(t) {
+    if (t.type === 'milestone') return Utils.toStr(Utils.addDays(Utils.toDate(t.endDate), milestoneLabelDays));
+    return t.endDate;
+  }
+  // Helper: check if two tasks overlap visually
   function overlaps(a, b) {
-    return Utils.toDate(a.startDate) <= Utils.toDate(b.endDate) && Utils.toDate(b.startDate) <= Utils.toDate(a.endDate);
+    return Utils.toDate(a.startDate) <= Utils.toDate(visualEnd(b)) && Utils.toDate(b.startDate) <= Utils.toDate(visualEnd(a));
   }
 
   // Helper: find the lowest free lane >= minLane with no temporal overlap
