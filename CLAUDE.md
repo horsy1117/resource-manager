@@ -27,7 +27,8 @@ There is only **one source file**: `index.html`. Everything — styles, markup, 
 ### Core Hierarchy
 - **Portfolios** — top-level independent workspaces (each stored separately in localStorage)
 - **Programs** (called "categories" in code) — colored groupings within a portfolio
-- **Tasks** (called "tasks" or "projects" in the UI) — work items with dates, status, notes, links, dependencies
+- **Projects** — named groupings of tasks within a program (tasks sharing the same `group` field appear as one sidebar row)
+- **Tasks** (called "tasks" in code) — individual work items within a project; have dates, status, notes, links, dependencies
 
 ### State Object
 ```javascript

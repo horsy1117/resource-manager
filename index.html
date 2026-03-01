@@ -526,7 +526,7 @@ body.resizing *{cursor:col-resize!important}
   <div class="cmd-palette" id="cmdPalette">
     <div class="cmd-input-wrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="cmd-input" id="cmdInput" placeholder="Search tasks and programs..." autocomplete="off">
+      <input class="cmd-input" id="cmdInput" placeholder="Search projects and programs..." autocomplete="off">
     </div>
     <div class="cmd-results" id="cmdResults"></div>
     <div class="cmd-hint">
@@ -1059,7 +1059,7 @@ Sidebar.renderSidebar = function() {
           <div class="s-task-dot" style="background:${cat.color}"></div>
           <div class="s-task-name"><span class="s-num">${catIdx}.${groupIdx}</span>${Utils.esc(group.groupName)}${countBadge}</div>
           <div class="s-task-actions">
-            <button class="s-action" onclick="event.stopPropagation();Tasks.showAddToGroupModal('${cat.id}','${encodeURIComponent(group.groupName)}')" title="Add task to this row">&#43;</button>
+            <button class="s-action" onclick="event.stopPropagation();Tasks.showAddToGroupModal('${cat.id}','${encodeURIComponent(group.groupName)}')" title="Add task or milestone to this project">&#43;</button>
             <button class="s-action" onclick="event.stopPropagation();Tasks.showEditTaskModal('${cat.id}','${firstTask.id}')" title="Edit">&#9998;</button>
             <button class="s-action" onclick="event.stopPropagation();Tasks.deleteTask('${cat.id}','${firstTask.id}')" title="Delete">&#10005;</button>
           </div>
@@ -1505,7 +1505,7 @@ Sidebar.doEditCat = function(catId) {
 Sidebar.deleteCat = function(catId) {
   const cat = Utils.findCat(catId);
   if (!cat) return;
-  UI.showConfirmModal('Delete Program', `Are you sure you want to delete "${Utils.esc(cat.name)}" and all its tasks? This cannot be undone.`, () => {
+  UI.showConfirmModal('Delete Program', `Are you sure you want to delete "${Utils.esc(cat.name)}" and all its projects? This cannot be undone.`, () => {
     state.categories = state.categories.filter(c => c.id !== catId);
     if (state.selectedTask?.catId === catId) Tasks.closePanel();
     App.render(); App.saveState();
@@ -2168,7 +2168,7 @@ Sidebar.showAddMenu = function(e) {
   const items = [
     { label: '+ New Program', action: () => Sidebar.showAddCatModal() },
     ...state.categories.map(c => ({
-      label: `+ Task in "${c.name}"`,
+      label: `+ Project in "${c.name}"`,
       action: () => Tasks.showAddTaskModal(c.id)
     }))
   ];
@@ -2199,7 +2199,7 @@ UI.closeCtxMenu = function() { $ctxMenu.classList.remove('open'); };
 Sidebar.showCatCtx = function(e, catId) {
   e.preventDefault(); e.stopPropagation();
   UI.showCtxMenu(e.clientX, e.clientY, [
-    { label: 'Add Task', action: () => Tasks.showAddTaskModal(catId) },
+    { label: 'Add Project', action: () => Tasks.showAddTaskModal(catId) },
     { label: 'Edit Program', action: () => Sidebar.showEditCatModal(catId) },
     { label: 'Delete Program', danger: true, action: () => Sidebar.deleteCat(catId) }
   ]);
@@ -2208,7 +2208,7 @@ Sidebar.showCatCtx = function(e, catId) {
 Sidebar.showTaskCtx = function(e, catId, taskId) {
   e.preventDefault(); e.stopPropagation();
   UI.showCtxMenu(e.clientX, e.clientY, [
-    { label: 'Add Task', action: () => Tasks.showAddTaskModal(catId) },
+    { label: 'Add Project', action: () => Tasks.showAddTaskModal(catId) },
     { label: 'Edit Task', action: () => Tasks.showEditTaskModal(catId, taskId) },
     { label: 'Open Details', action: () => Tasks.openPanel(catId, taskId) },
     { label: 'Delete Task', danger: true, action: () => Tasks.deleteTask(catId, taskId) }
@@ -3317,7 +3317,7 @@ Cmd.searchAll = function(query) {
       results.push({
         type: 'category', catId: cat.id, taskId: null,
         name: cat.name, color: cat.color,
-        meta: cat.tasks.length + ' task' + (cat.tasks.length !== 1 ? 's' : '')
+        meta: (() => { const n = new Set(cat.tasks.map(t => t.group)).size; return n + ' project' + (n !== 1 ? 's' : ''); })()
       });
     }
     for (const task of cat.tasks) {
@@ -3344,7 +3344,7 @@ Cmd.highlightMatch = function(text, query) {
 Cmd.renderCmdResults = function(query) {
   const results = Cmd.searchAll(query);
   if (!query.trim()) {
-    $cmdResults.innerHTML = '<div class="cmd-empty">Type to search tasks, programs, and portfolios\u2026</div>';
+    $cmdResults.innerHTML = '<div class="cmd-empty">Type to search projects, programs, and portfolios\u2026</div>';
     return;
   }
   if (results.length === 0) {
