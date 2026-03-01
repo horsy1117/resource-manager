@@ -26,6 +26,47 @@
   --shadow:0 1px 3px rgba(0,0,0,.1);
   --day-w:120px;
   --border-subtle:#f3f4f6;
+  --bg3:#f3f4f6;
+  --bg-hover:#f9fafb;
+  --shadow-overlay:rgba(0,0,0,.3);
+  --shadow-deep:0 20px 60px rgba(0,0,0,.15);
+  --shadow-panel:-4px 0 24px rgba(0,0,0,.1);
+  --surface-elevated:#ffffff;
+  --surface-elevated-border:var(--border);
+  --focus-ring:0 0 0 3px rgba(59,130,246,.1);
+  --scrollbar-track:#f9fafb;
+  --scrollbar-thumb:#d1d5db;
+  --scrollbar-thumb-hover:#9ca3af;
+  --bar-shadow:0 1px 3px rgba(0,0,0,.1);
+  --bar-shadow-hover:0 2px 8px rgba(0,0,0,.2);
+  --dep-arrow-color:#6b7280;
+  --tooltip-bg:#1f2937;
+  --tooltip-shadow:0 2px 8px rgba(0,0,0,.2);
+  --btn-hover-border:#d1d5db;
+  --btn-primary-hover:#2563eb;
+  --btn-danger-hover-bg:#fef2f2;
+  --cat-header-hover:brightness(0.97);
+  --row-hover-bg:rgba(59,130,246,.02);
+  --dep-dependent-bg:#fef3c7;
+  --dep-dependent-border:#f59e0b;
+  --dep-dependent-text:#92400e;
+  --dep-master-bg:#bfdbfe;
+  --dep-master-border:#3b82f6;
+  --dep-master-text:#1e3a8a;
+  --dep-both-bg:#ddd6fe;
+  --dep-both-border:#8b5cf6;
+  --dep-both-text:#4c1d95;
+  --ai-msg-system-bg:#fef3c7;
+  --ai-msg-system-border:transparent;
+  --ai-msg-system-text:#92400e;
+  --ai-provider-selected-border:var(--blue);
+  --mark-bg:rgba(59,130,246,.15);
+  --mark-color:var(--blue);
+  --input-bg:var(--bg);
+  --input-color:var(--text);
+  --input-border:var(--border);
+  --input-disabled-bg:var(--bg2);
+  --color-scheme:light;
 }
 html.dark{
   --border:#253040;
@@ -41,66 +82,52 @@ html.dark{
   --red:#f07070;
   --green:#3fb68b;
   --shadow:0 2px 8px rgba(0,0,0,.5);
+  --bg3:#111820;
+  --bg-hover:#1e2a3a;
+  --shadow-overlay:rgba(0,0,0,.55);
+  --shadow-deep:0 20px 60px rgba(0,0,0,.5);
+  --shadow-panel:-4px 0 24px rgba(0,0,0,.4);
+  --surface-elevated:#1a2230;
+  --surface-elevated-border:#253040;
+  --focus-ring:0 0 0 3px rgba(88,166,255,.12);
+  --scrollbar-track:#111820;
+  --scrollbar-thumb:#2a3545;
+  --scrollbar-thumb-hover:#35445a;
+  --bar-shadow:0 1px 3px rgba(0,0,0,.3);
+  --bar-shadow-hover:0 2px 10px rgba(0,0,0,.4);
+  --dep-arrow-color:#4d5768;
+  --tooltip-bg:#253040;
+  --tooltip-shadow:0 2px 8px rgba(0,0,0,.4);
+  --btn-hover-border:#354050;
+  --btn-primary-hover:#4088e0;
+  --btn-danger-hover-bg:rgba(240,112,112,.1);
+  --cat-header-hover:brightness(1.08);
+  --row-hover-bg:rgba(88,166,255,.04);
+  --dep-dependent-bg:rgba(245,158,11,.08);
+  --dep-dependent-border:rgba(245,158,11,.3);
+  --dep-dependent-text:#fbbf24;
+  --dep-master-bg:rgba(88,166,255,.08);
+  --dep-master-border:rgba(88,166,255,.3);
+  --dep-master-text:#79b8ff;
+  --dep-both-bg:rgba(139,92,246,.08);
+  --dep-both-border:rgba(139,92,246,.3);
+  --dep-both-text:#b4a0f0;
+  --ai-msg-system-bg:rgba(245,158,11,.08);
+  --ai-msg-system-border:rgba(245,158,11,.2);
+  --ai-msg-system-text:#fbbf24;
+  --ai-provider-selected-border:rgba(88,166,255,.4);
+  --mark-bg:rgba(88,166,255,.15);
+  --mark-color:#58a6ff;
+  --input-bg:var(--bg2);
+  --input-color:var(--text);
+  --input-border:var(--border);
+  --input-disabled-bg:#111820;
+  --color-scheme:dark;
 }
 
-/* Dark mode: surfaces & overlays */
-html.dark .modal{background:#1a2230;border:1px solid #253040}
-html.dark .modal-bg{background:rgba(0,0,0,.55)}
-html.dark .ctx-menu{background:#1a2230;border-color:#253040}
-html.dark .portfolio-dropdown{background:#1a2230;border-color:#253040}
-html.dark .ai-panel{background:#0f1419;border-left:1px solid #253040}
-html.dark .detail-panel{background:#0f1419;box-shadow:-4px 0 24px rgba(0,0,0,.4)}
-html.dark .panel-overlay.open{background:rgba(0,0,0,.4)}
-html.dark .tooltip{background:#253040;box-shadow:0 2px 8px rgba(0,0,0,.4)}
-html.dark .drag-date-label{background:#253040}
-
-/* Dark mode: form inputs */
-html.dark select{background:var(--bg2);color:var(--text);border-color:var(--border)}
-html.dark input[type="date"]{color-scheme:dark}
-html.dark input,html.dark textarea,html.dark select{background:var(--bg2);color:var(--text);border-color:var(--border)}
-html.dark .form-group input:focus,html.dark .form-group select:focus,html.dark .form-group textarea:focus{box-shadow:0 0 0 3px rgba(88,166,255,.12)}
-html.dark .dp-input:focus,html.dark .dp-select:focus,html.dark .dp-textarea:focus{box-shadow:0 0 0 3px rgba(88,166,255,.12)}
-html.dark .ai-setup-fields input:focus{box-shadow:0 0 0 3px rgba(88,166,255,.12)}
-html.dark .form-group input:disabled,html.dark .form-group input[readonly]{background:#111820;color:var(--text3)}
-
-/* Dark mode: buttons & interactive */
-html.dark .btn:hover{background:var(--bg2);border-color:#354050}
-html.dark .btn-primary:hover{background:#4088e0}
-html.dark .btn-danger:hover{background:rgba(240,112,112,.1)}
-html.dark .ctx-item.danger:hover{background:rgba(240,112,112,.1)}
-html.dark .s-cat-header:hover{filter:brightness(1.08)}
-html.dark .t-row.task-row:hover{background:rgba(88,166,255,.04)}
-html.dark .modal-link-add button:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
-
-/* Dark mode: scrollbar */
-html.dark .timeline-body-wrap::-webkit-scrollbar-track{background:#111820}
-html.dark .timeline-body-wrap::-webkit-scrollbar-thumb{background:#2a3545;border-radius:4px}
-html.dark .timeline-body-wrap::-webkit-scrollbar-thumb:hover{background:#35445a}
-
-/* Dark mode: dependency banners */
-html.dark .dep-banner.is-dependent{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);color:#fbbf24}
-html.dark .dep-banner.is-master{background:rgba(88,166,255,.08);border-color:rgba(88,166,255,.3);color:#79b8ff}
-html.dark .dep-banner.is-both{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.3);color:#b4a0f0}
-
-/* Dark mode: AI panel */
-html.dark .ai-msg.system{background:rgba(245,158,11,.08);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
-html.dark .ai-msg.assistant{background:#161d27}
-html.dark .ai-provider-option.selected{background:var(--blue-light);border-color:rgba(88,166,255,.4)}
-
-/* Dark mode: task bars softening */
-html.dark .task-bar{box-shadow:0 1px 3px rgba(0,0,0,.3)}
-html.dark .task-bar:hover{box-shadow:0 2px 10px rgba(0,0,0,.4)}
-
-/* Dark mode: dependency arrows */
-html.dark .dep-arrow{stroke:#4d5768}
-
-/* Dark mode: command palette */
-html.dark .cmd-palette{background:#1a2230;border-color:#253040;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-html.dark .cmd-bg{background:rgba(0,0,0,.55)}
-html.dark .cmd-item.active,html.dark .cmd-item:hover{background:#1e2a3a}
-html.dark .cmd-item-name mark{background:rgba(88,166,255,.15);color:#58a6ff}
-html.dark .cmd-item-type{background:#1e2a3a}
 html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:var(--text);background:var(--bg)}
+input,textarea,select{background:var(--input-bg);color:var(--input-color);border-color:var(--input-border)}
+input[type="date"]{color-scheme:var(--color-scheme)}
 
 /* ===== TOPBAR ===== */
 .topbar{height:var(--topbar-h);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:var(--bg);z-index:100;position:relative}
@@ -116,7 +143,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .portfolio-title-wrap:hover{background:var(--bg2)}
 .portfolio-chevron{width:14px;height:14px;color:var(--text2);flex-shrink:0;transition:transform .15s}
 .portfolio-title-wrap:hover .portfolio-chevron{color:var(--text)}
-.portfolio-dropdown{position:absolute;top:100%;left:0;min-width:220px;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);z-index:1000;padding:4px 0;max-height:320px;overflow-y:auto}
+.portfolio-dropdown{position:absolute;top:100%;left:0;min-width:220px;background:var(--surface-elevated);border:1px solid var(--surface-elevated-border);border-radius:8px;box-shadow:var(--shadow);z-index:1000;padding:4px 0;max-height:320px;overflow-y:auto}
 .portfolio-item{padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);transition:background .1s}
 .portfolio-item:hover{background:var(--bg2)}
 .portfolio-item.active{font-weight:600;color:var(--blue)}
@@ -126,12 +153,12 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .portfolio-action:hover{background:var(--bg2)}
 .topbar-controls{display:flex;align-items:center;gap:6px}
 .btn{border:1px solid var(--border);background:var(--bg);border-radius:5px;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text);display:inline-flex;align-items:center;gap:4px;transition:all .15s}
-.btn:hover{background:var(--bg2);border-color:#d1d5db}
+.btn:hover{background:var(--bg2);border-color:var(--btn-hover-border)}
 .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.btn-primary:hover{background:#2563eb}
+.btn-primary:hover{background:var(--btn-primary-hover)}
 .btn-icon{padding:4px 6px;min-width:28px;justify-content:center}
 .btn-danger{color:var(--red);border-color:var(--red)}
-.btn-danger:hover{background:#fef2f2}
+.btn-danger:hover{background:var(--btn-danger-hover-bg)}
 .zoom-select{border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px;background:var(--bg);cursor:pointer;color:var(--text)}
 .today-btn{font-weight:500}
 
@@ -149,7 +176,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .s-cat.cat-drag-ghost{opacity:.4}
 .s-cat-reorder-line{position:absolute;left:0;right:0;height:3px;background:var(--blue);z-index:20;pointer-events:none;border-radius:1px}
 .s-cat-header{height:var(--cat-row-h);display:flex;align-items:center;padding:0 8px 0 0;cursor:pointer;position:relative;background:var(--bg);border-bottom:1px solid var(--border)}
-.s-cat-header:hover{filter:brightness(0.97)}
+.s-cat-header:hover{filter:var(--cat-header-hover)}
 .s-cat-grip{width:20px;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:grab;opacity:0;transition:opacity .15s;color:var(--text3)}
 .s-cat-header:hover .s-cat-grip{opacity:.5}
 .s-cat-grip:hover{opacity:1!important}
@@ -208,15 +235,15 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .t-row{height:var(--row-h);position:relative;border-bottom:1px solid var(--border-subtle)}
 .t-row.cat-row{height:var(--cat-row-h);background:var(--bg2);border-bottom:1px solid var(--border)}
 .t-row.task-row{cursor:default}
-.t-row.task-row:hover{background:rgba(59,130,246,.02)}
+.t-row.task-row:hover{background:var(--row-hover-bg)}
 
 /* ===== GHOST BAR (drag-to-create) ===== */
 .ghost-bar{position:absolute;height:20px;top:4px;border-radius:6px;opacity:.35;pointer-events:none;z-index:5}
 .t-row.task-row.create-hover{cursor:crosshair}
 
 /* ===== TASK BARS ===== */
-.task-bar{position:absolute;top:6px;height:calc(var(--row-h) - 14px);border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:12px;font-weight:500;color:#fff;cursor:grab;z-index:2;transition:box-shadow .15s,filter .15s;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;user-select:none;min-width:24px}
-.task-bar:hover{box-shadow:0 2px 8px rgba(0,0,0,.2);filter:brightness(1.05);z-index:3}
+.task-bar{position:absolute;top:6px;height:calc(var(--row-h) - 14px);border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:12px;font-weight:500;color:#fff;cursor:grab;z-index:2;transition:box-shadow .15s,filter .15s;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;user-select:none;min-width:24px;box-shadow:var(--bar-shadow)}
+.task-bar:hover{box-shadow:var(--bar-shadow-hover);filter:brightness(1.05);z-index:3}
 .task-bar .resize-handle{position:absolute;top:0;width:10px;height:100%;cursor:col-resize;z-index:1}
 .task-bar .resize-handle.left{left:-2px}
 .task-bar .resize-handle.right{right:-2px}
@@ -228,7 +255,16 @@ body.dragging *{cursor:grabbing!important}
 body.resizing{cursor:col-resize!important}
 body.resizing *{cursor:col-resize!important}
 .task-bar.dragging{opacity:.85;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:none}
-.drag-date-label{position:fixed;background:#1f2937;color:#fff;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;z-index:600;pointer-events:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2);transform:translate(-50%,-100%);margin-top:-8px}
+.drag-date-label{position:fixed;background:var(--tooltip-bg);color:#fff;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500;z-index:600;pointer-events:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2);transform:translate(-50%,-100%);margin-top:-8px}
+
+/* ===== MILESTONE DIAMOND ===== */
+.milestone-diamond{position:absolute;z-index:2;cursor:grab;user-select:none}
+.milestone-diamond .diamond-shape{width:16px;height:16px;transform:rotate(45deg);border-radius:2px;box-shadow:var(--bar-shadow);transition:box-shadow .15s,filter .15s}
+.milestone-diamond:hover .diamond-shape{box-shadow:var(--bar-shadow-hover);filter:brightness(1.05)}
+.milestone-diamond:hover .dep-bubble{opacity:1}
+.milestone-diamond .dep-bubble{position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:50%;background:var(--dep-arrow-color);border:2px solid #fff;cursor:crosshair;opacity:0;transition:opacity .15s;z-index:5}
+.milestone-diamond .milestone-label{position:absolute;left:22px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;pointer-events:none}
+.milestone-diamond.dragging{opacity:.85;z-index:10}
 
 /* ===== DEPENDENCY BUBBLE ===== */
 .dep-bubble{position:absolute;right:-3px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);border:1.5px solid rgba(255,255,255,.9);cursor:crosshair;z-index:4;opacity:0;transition:opacity .15s}
@@ -237,7 +273,7 @@ body.resizing *{cursor:col-resize!important}
 
 /* ===== DEPENDENCY ARROWS ===== */
 .dep-svg-overlay{position:absolute;top:0;left:0;pointer-events:none;z-index:3;overflow:visible}
-.dep-arrow{fill:none;stroke:#6b7280;stroke-width:1.5;pointer-events:stroke;cursor:pointer}
+.dep-arrow{fill:none;stroke:var(--dep-arrow-color);stroke-width:1.5;pointer-events:stroke;cursor:pointer}
 .dep-arrow:hover{stroke:var(--red);stroke-width:2.5}
 
 /* ===== URL LIST ===== */
@@ -256,7 +292,7 @@ body.resizing *{cursor:col-resize!important}
 /* ===== DETAIL PANEL ===== */
 .panel-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.15);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
 .panel-overlay.open{opacity:1;pointer-events:auto}
-.detail-panel{position:fixed;top:0;right:0;width:440px;height:100%;background:var(--bg);z-index:201;box-shadow:-4px 0 24px rgba(0,0,0,.1);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+.detail-panel{position:fixed;top:0;right:0;width:440px;height:100%;background:var(--bg);z-index:201;box-shadow:var(--shadow-panel);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
 .detail-panel.open{transform:translateX(0)}
 .dp-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .dp-breadcrumb{font-size:12px;color:var(--text3)}
@@ -267,16 +303,16 @@ body.resizing *{cursor:col-resize!important}
 .dp-field{margin-bottom:16px}
 .dp-label{font-size:12px;color:var(--text3);margin-bottom:4px;display:block}
 .dp-input,.dp-select,.dp-textarea{width:100%;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg)}
-.dp-input:focus,.dp-select:focus,.dp-textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.dp-input:focus,.dp-select:focus,.dp-textarea:focus{outline:none;border-color:var(--blue);box-shadow:var(--focus-ring)}
 .dp-textarea{min-height:80px;resize:vertical}
 .dp-date-row{display:flex;gap:8px;align-items:center}
 .dp-date-row span{color:var(--text3)}
 .dp-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:8px}
 
 /* ===== MODAL ===== */
-.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:300;display:none;align-items:center;justify-content:center}
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--shadow-overlay);z-index:300;display:none;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
-.modal{background:var(--bg);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:440px;max-width:92vw;max-height:90vh;overflow-y:auto}
+.modal{background:var(--surface-elevated);border:1px solid var(--surface-elevated-border);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:440px;max-width:92vw;max-height:90vh;overflow-y:auto}
 .modal-header{padding:16px 20px;border-bottom:1px solid var(--border);font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
 .modal-body{padding:20px}
 .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;align-items:center}
@@ -284,7 +320,7 @@ body.resizing *{cursor:col-resize!important}
 .form-group:last-child{margin-bottom:0}
 .form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;letter-spacing:.01em}
 .form-group input,.form-group select,.form-group textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;transition:border-color .15s,box-shadow .15s;box-sizing:border-box}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--blue);box-shadow:var(--focus-ring)}
 .form-group textarea{resize:vertical;min-height:60px}
 .form-row{display:flex;gap:12px}
 .form-row .form-group{flex:1;margin-bottom:0}
@@ -310,10 +346,10 @@ body.resizing *{cursor:col-resize!important}
 .dep-banner-content{display:flex;flex-direction:column;gap:2px;min-width:0}
 .dep-banner-label{font-weight:600;font-size:12px}
 .dep-banner-detail{font-size:11px;opacity:.85}
-.dep-banner.is-dependent{background:#fef3c7;border:1.5px solid #f59e0b;color:#92400e}
-.dep-banner.is-master{background:#bfdbfe;border:1.5px solid #3b82f6;color:#1e3a8a}
-.dep-banner.is-both{background:#ddd6fe;border:1.5px solid #8b5cf6;color:#4c1d95}
-.form-group input:disabled,.form-group input[readonly]{background:var(--bg2);color:var(--text3);cursor:not-allowed}
+.dep-banner.is-dependent{background:var(--dep-dependent-bg);border:1.5px solid var(--dep-dependent-border);color:var(--dep-dependent-text)}
+.dep-banner.is-master{background:var(--dep-master-bg);border:1.5px solid var(--dep-master-border);color:var(--dep-master-text)}
+.dep-banner.is-both{background:var(--dep-both-bg);border:1.5px solid var(--dep-both-border);color:var(--dep-both-text)}
+.form-group input:disabled,.form-group input[readonly]{background:var(--input-disabled-bg);color:var(--text3);cursor:not-allowed}
 .form-group .field-hint{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.3}
 .color-picker{display:flex;gap:6px;flex-wrap:wrap}
 .color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s}
@@ -321,7 +357,7 @@ body.resizing *{cursor:col-resize!important}
 .color-swatch.selected{border-color:var(--text)}
 
 /* ===== AI PANEL ===== */
-.ai-panel{position:fixed;top:0;right:0;width:380px;height:100%;background:var(--bg);z-index:201;box-shadow:-4px 0 24px rgba(0,0,0,.1);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+.ai-panel{position:fixed;top:0;right:0;width:380px;height:100%;background:var(--bg);z-index:201;box-shadow:var(--shadow-panel);border-left:1px solid var(--border);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
 .ai-panel.open{transform:translateX(0)}
 .ai-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .ai-header h3{font-size:15px;display:flex;align-items:center;gap:6px}
@@ -329,7 +365,7 @@ body.resizing *{cursor:col-resize!important}
 .ai-msg{margin-bottom:12px;padding:10px 14px;border-radius:10px;font-size:13px;line-height:1.5;max-width:90%}
 .ai-msg.user{background:var(--blue);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
 .ai-msg.assistant{background:var(--bg2);color:var(--text);border-bottom-left-radius:4px}
-.ai-msg.system{background:#fef3c7;color:#92400e;font-size:12px;text-align:center;max-width:100%;border-radius:6px}
+.ai-msg.system{background:var(--ai-msg-system-bg);color:var(--ai-msg-system-text);border:1px solid var(--ai-msg-system-border);font-size:12px;text-align:center;max-width:100%;border-radius:6px}
 .ai-input-row{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
 .ai-input{flex:1;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;resize:none;height:40px}
 .ai-input:focus{outline:none;border-color:var(--blue)}
@@ -339,14 +375,14 @@ body.resizing *{cursor:col-resize!important}
 .ai-provider-group{display:flex;flex-direction:column;gap:2px;margin-bottom:16px}
 .ai-provider-option{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;border:1.5px solid transparent;transition:all .15s ease;font-size:13px}
 .ai-provider-option:hover{background:var(--bg2)}
-.ai-provider-option.selected{background:var(--blue-light);border-color:var(--blue)}
+.ai-provider-option.selected{background:var(--blue-light);border-color:var(--ai-provider-selected-border)}
 .ai-provider-option input[type="radio"]{accent-color:var(--blue);margin:0;width:16px;height:16px;flex-shrink:0}
 .ai-provider-option .ai-provider-label{display:flex;flex-direction:column;gap:1px;min-width:0}
 .ai-provider-option .ai-provider-name{font-weight:600;color:var(--text);font-size:13px}
 .ai-provider-option .ai-provider-tag{font-size:11px;color:var(--text3);font-weight:400}
 .ai-setup-fields{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
 .ai-setup-fields input{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;box-sizing:border-box;transition:border-color .15s ease}
-.ai-setup-fields input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.ai-setup-fields input:focus{outline:none;border-color:var(--blue);box-shadow:var(--focus-ring)}
 .ai-setup-fields input::placeholder{color:var(--text3)}
 .ai-setup-action{display:flex;flex-direction:column;align-items:stretch;gap:10px}
 .ai-setup-action .btn{width:100%;justify-content:center;padding:10px;font-size:13px;font-weight:600}
@@ -355,18 +391,18 @@ body.resizing *{cursor:col-resize!important}
 .ai-setup-hint a:hover{text-decoration:underline}
 
 /* ===== CONTEXT MENU ===== */
-.ctx-menu{position:fixed;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:500;min-width:160px;padding:4px;display:none}
+.ctx-menu{position:fixed;background:var(--surface-elevated);border:1px solid var(--surface-elevated-border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:500;min-width:160px;padding:4px;display:none}
 .ctx-menu.open{display:block}
 .ctx-item{padding:8px 12px;font-size:13px;cursor:pointer;border-radius:4px;display:flex;align-items:center;gap:8px}
 .ctx-item:hover{background:var(--bg2)}
 .ctx-item.danger{color:var(--red)}
-.ctx-item.danger:hover{background:#fef2f2}
+.ctx-item.danger:hover{background:var(--btn-danger-hover-bg)}
 
 /* ===== SCROLLBAR ===== */
 .timeline-body-wrap::-webkit-scrollbar{width:8px;height:8px}
-.timeline-body-wrap::-webkit-scrollbar-track{background:var(--bg2)}
-.timeline-body-wrap::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px}
-.timeline-body-wrap::-webkit-scrollbar-thumb:hover{background:#9ca3af}
+.timeline-body-wrap::-webkit-scrollbar-track{background:var(--scrollbar-track)}
+.timeline-body-wrap::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:4px}
+.timeline-body-wrap::-webkit-scrollbar-thumb:hover{background:var(--scrollbar-thumb-hover)}
 
 /* ===== EMPTY STATE ===== */
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--text3)}
@@ -374,12 +410,12 @@ body.resizing *{cursor:col-resize!important}
 .empty-state p{font-size:14px;margin-bottom:8px}
 
 /* ===== TOOLTIP ===== */
-.tooltip{position:fixed;background:#1f2937;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;z-index:600;pointer-events:none;white-space:nowrap;transform:translateX(-50%);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tooltip{position:fixed;background:var(--tooltip-bg);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;z-index:600;pointer-events:none;white-space:nowrap;transform:translateX(-50%);box-shadow:var(--tooltip-shadow)}
 
 /* ===== COMMAND PALETTE ===== */
-.cmd-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:400;display:flex;align-items:flex-start;justify-content:center;padding-top:18vh;opacity:0;pointer-events:none;transition:opacity .15s ease}
+.cmd-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--shadow-overlay);z-index:400;display:flex;align-items:flex-start;justify-content:center;padding-top:18vh;opacity:0;pointer-events:none;transition:opacity .15s ease}
 .cmd-bg.open{opacity:1;pointer-events:auto}
-.cmd-palette{background:var(--bg);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow),0 20px 60px rgba(0,0,0,.15);width:480px;max-width:92vw;overflow:hidden;transform:translateY(-8px) scale(.98);transition:transform .15s ease,opacity .15s ease;opacity:0}
+.cmd-palette{background:var(--surface-elevated);border:1px solid var(--surface-elevated-border);border-radius:12px;box-shadow:var(--shadow),var(--shadow-deep);width:480px;max-width:92vw;overflow:hidden;transform:translateY(-8px) scale(.98);transition:transform .15s ease,opacity .15s ease;opacity:0}
 .cmd-bg.open .cmd-palette{transform:translateY(0) scale(1);opacity:1}
 .cmd-input-wrap{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:10px}
 .cmd-input-wrap svg{color:var(--text3);flex-shrink:0}
@@ -389,13 +425,13 @@ body.resizing *{cursor:col-resize!important}
 .cmd-results::-webkit-scrollbar{width:4px}
 .cmd-results::-webkit-scrollbar-thumb{background:var(--text3);border-radius:2px}
 .cmd-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background .1s}
-.cmd-item:hover,.cmd-item.active{background:var(--bg2)}
+.cmd-item:hover,.cmd-item.active{background:var(--bg-hover)}
 .cmd-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .cmd-item-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .cmd-item-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cmd-item-name mark{background:rgba(59,130,246,.15);color:var(--blue);border-radius:2px;padding:0 1px}
+.cmd-item-name mark{background:var(--mark-bg);color:var(--mark-color);border-radius:2px;padding:0 1px}
 .cmd-item-meta{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cmd-item-type{font-size:10px;color:var(--text3);background:var(--bg2);padding:2px 6px;border-radius:4px;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px;font-weight:500}
+.cmd-item-type{font-size:10px;color:var(--text3);background:var(--bg-hover);padding:2px 6px;border-radius:4px;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px;font-weight:500}
 .cmd-empty{padding:24px 16px;text-align:center;color:var(--text3);font-size:13px}
 .cmd-hint{padding:8px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;align-items:center;gap:12px}
 .cmd-hint kbd{background:var(--bg2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:inherit}
@@ -407,10 +443,10 @@ body.resizing *{cursor:col-resize!important}
   <!-- Top Bar -->
   <div class="topbar">
     <h1 style="position:relative">
-      <span id="orgName" class="org-name" onclick="editOrgName()" title="Click to rename organization">Organization</span>
+      <span id="orgName" class="org-name" onclick="Portfolio.editOrgName()" title="Click to rename organization">Organization</span>
       <div class="topbar-title-row">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <div class="portfolio-title-wrap" onclick="togglePortfolioDropdown(event)" title="Switch portfolio">
+        <div class="portfolio-title-wrap" onclick="Portfolio.togglePortfolioDropdown(event)" title="Switch portfolio">
           <span id="projectName" class="project-name" style="padding:0">Project Plan</span>
           <svg class="portfolio-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
@@ -418,32 +454,32 @@ body.resizing *{cursor:col-resize!important}
       </div>
     </h1>
     <div class="topbar-controls">
-      <button class="btn btn-icon" onclick="navigate(-1)" title="Previous">&#9664;</button>
-      <button class="btn today-btn" onclick="goToday()">Today</button>
-      <button class="btn btn-icon" onclick="navigate(1)" title="Next">&#9654;</button>
-      <select class="zoom-select" id="zoomSelect" onchange="setZoom(this.value)">
+      <button class="btn btn-icon" onclick="App.navigate(-1)" title="Previous">&#9664;</button>
+      <button class="btn today-btn" onclick="App.goToday()">Today</button>
+      <button class="btn btn-icon" onclick="App.navigate(1)" title="Next">&#9654;</button>
+      <select class="zoom-select" id="zoomSelect" onchange="App.setZoom(this.value)">
         <option value="days">Days</option>
         <option value="weeks" selected>Weeks</option>
         <option value="months">Months</option>
         <option value="year">Year</option>
       </select>
-      <button class="btn btn-primary btn-icon" onclick="showAddMenu(event)" title="Add">
+      <button class="btn btn-primary btn-icon" onclick="Sidebar.showAddMenu(event)" title="Add">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
-      <button class="btn btn-icon" onclick="exportCSV()" title="Export CSV">
+      <button class="btn btn-icon" onclick="CSV.exportCSV()" title="Export CSV">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       </button>
       <button class="btn btn-icon" onclick="document.getElementById('csvFileInput').click()" title="Import CSV">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       </button>
-      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(this)">
-      <button class="btn btn-icon" onclick="toggleAI()" title="AI Assistant" id="aiBtn">
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="CSV.importCSV(this)">
+      <button class="btn btn-icon" onclick="AI.toggleAI()" title="AI Assistant" id="aiBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 014 4v1h1a3 3 0 013 3v2a3 3 0 01-3 3h-1v3a4 4 0 01-8 0v-3H7a3 3 0 01-3-3v-2a3 3 0 013-3h1V6a4 4 0 014-4z"/><circle cx="9" cy="11" r="1" fill="currentColor"/><circle cx="15" cy="11" r="1" fill="currentColor"/></svg>
       </button>
-      <button class="btn btn-icon" onclick="openCmdPalette()" title="Search (Ctrl+K)" id="searchBtn">
+      <button class="btn btn-icon" onclick="Cmd.openCmdPalette()" title="Search (Ctrl+K)" id="searchBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
-      <button class="btn btn-icon" onclick="toggleDarkMode()" title="Toggle dark mode" id="darkModeBtn">
+      <button class="btn btn-icon" onclick="App.toggleDarkMode()" title="Toggle dark mode" id="darkModeBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 0111.21 3 7 7 0 0012 21a9 9 0 009-8.21z"/></svg>
       </button>
     </div>
@@ -468,14 +504,14 @@ body.resizing *{cursor:col-resize!important}
 </div>
 
 <!-- Panel Overlay -->
-<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="panel-overlay" id="panelOverlay" onclick="Tasks.closePanel()"></div>
 <div class="detail-panel" id="detailPanel"></div>
 
 <!-- AI Panel -->
 <div class="ai-panel" id="aiPanel"></div>
 
 <!-- Modal -->
-<div class="modal-bg" id="modalBg" onclick="event.target===this&&closeModal()">
+<div class="modal-bg" id="modalBg" onclick="event.target===this&&UI.closeModal()">
   <div class="modal" id="modal"></div>
 </div>
 
@@ -486,7 +522,7 @@ body.resizing *{cursor:col-resize!important}
 <div class="tooltip" id="tooltip" style="display:none"></div>
 
 <!-- Command Palette -->
-<div class="cmd-bg" id="cmdBg" onclick="event.target===this&&closeCmdPalette()">
+<div class="cmd-bg" id="cmdBg" onclick="event.target===this&&Cmd.closeCmdPalette()">
   <div class="cmd-palette" id="cmdPalette">
     <div class="cmd-input-wrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -520,7 +556,9 @@ const STATUS_OPTIONS = [
   { value: 'planning', label: 'In Planning', color: '#f59e0b' },
   { value: 'confirmed', label: 'Confirmed', color: '#10b981' }
 ];
-function statusColor(v) { const s = STATUS_OPTIONS.find(o => o.value === v); return s ? s.color : '#9ca3af'; }
+
+// ========== NAMESPACES ==========
+const Utils = {}, UI = {}, Portfolio = {}, Tasks = {}, Deps = {}, Drag = {}, Sidebar = {}, Timeline = {}, AI = {}, Cmd = {}, CSV = {}, App = {};
 
 // ========== STATE ==========
 let state = {
@@ -538,9 +576,14 @@ let state = {
   orgName: 'Organization'
 };
 
-let dragState = null;
-// createDragState removed — task creation only via sidebar buttons
-let depDragState = null;
+Drag.dragState = null;
+Drag.depDragState = null;
+Drag.panState = null;
+Drag.createDragState = null;
+Drag.sidebarResizeState = null;
+Drag.reorderState = null;
+Drag.catReorderState = null;
+Drag.$dragDateLabel = null;
 
 // ========== DOM REFS ==========
 const $sidebarBody = document.getElementById('sidebarBody');
@@ -561,55 +604,55 @@ const $cmdResults = document.getElementById('cmdResults');
 const $portfolioDropdown = document.getElementById('portfolioDropdown');
 
 // ========== UTILITIES ==========
-function uid() { return 'id_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
-function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+Utils.uid = function() { return 'id_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); };
+Utils.clamp = function(v, min, max) { return Math.max(min, Math.min(max, v)); };
 
-function toDate(s) {
+Utils.toDate = function(s) {
   if (s instanceof Date) return new Date(s.getFullYear(), s.getMonth(), s.getDate());
   const [y, m, d] = s.split('-').map(Number);
   return new Date(y, m - 1, d);
-}
+};
 
-function toStr(d) {
+Utils.toStr = function(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${dd}`;
-}
+};
 
-function addDays(d, n) {
+Utils.addDays = function(d, n) {
   const r = new Date(d);
   r.setDate(r.getDate() + n);
   return r;
-}
+};
 
-function diffDays(a, b) {
+Utils.diffDays = function(a, b) {
   const msDay = 86400000;
-  return Math.round((toDate(b) - toDate(a)) / msDay);
-}
+  return Math.round((Utils.toDate(b) - Utils.toDate(a)) / msDay);
+};
 
-function getWeek(d) {
+Utils.getWeek = function(d) {
   const date = new Date(d);
   date.setHours(0, 0, 0, 0);
   date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
   const week1 = new Date(date.getFullYear(), 0, 4);
   return 1 + Math.round(((date - week1) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
-}
+};
 
-function formatDateShort(d) {
+Utils.formatDateShort = function(d) {
   return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
-}
+};
 
-function formatDateLong(d) {
+Utils.formatDateLong = function(d) {
   return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
-}
+};
 
-function todayDate() {
+Utils.todayDate = function() {
   const t = new Date();
   return new Date(t.getFullYear(), t.getMonth(), t.getDate());
-}
+};
 
-function lightenColor(hex, amount = 0.88) {
+Utils.lightenColor = function(hex, amount = 0.88) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
@@ -620,43 +663,59 @@ function lightenColor(hex, amount = 0.88) {
   const lg = Math.round(g + (target - g) * amt);
   const lb = Math.round(b + (target - b) * amt);
   return `rgb(${lr},${lg},${lb})`;
-}
+};
 
-function findCat(catId) { return state.categories.find(c => c.id === catId); }
-function findTask(catId, taskId) {
-  const cat = findCat(catId);
+Utils.findCat = function(catId) { return state.categories.find(c => c.id === catId); };
+Utils.findTask = function(catId, taskId) {
+  const cat = Utils.findCat(catId);
   return cat ? cat.tasks.find(t => t.id === taskId) : null;
-}
+};
+
+Utils.statusColor = function(v) { const s = STATUS_OPTIONS.find(o => o.value === v); return s ? s.color : '#9ca3af'; };
+
+Utils.esc = function(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+};
+
+Utils.escNl = function(s) {
+  return Utils.esc(s).replace(/\n/g, '<br>');
+};
+
+Utils.computeRowHeight = function(numLanes) {
+  return numLanes * LANE_HEIGHT + LANE_PADDING;
+};
 
 // ========== PERSISTENCE (Multi-Portfolio) ==========
-function getPortfolioRegistry() {
+Portfolio.getPortfolioRegistry = function() {
   try { return JSON.parse(localStorage.getItem('rm_portfolios') || '[]'); }
   catch { return []; }
-}
-function savePortfolioRegistry(reg) { localStorage.setItem('rm_portfolios', JSON.stringify(reg)); }
+};
+Portfolio.savePortfolioRegistry = function(reg) { localStorage.setItem('rm_portfolios', JSON.stringify(reg)); };
 
-function getGlobalSettings() {
+Portfolio.getGlobalSettings = function() {
   try { return JSON.parse(localStorage.getItem('rm_global') || '{}'); }
   catch { return {}; }
-}
-function saveGlobalSettings() {
+};
+Portfolio.saveGlobalSettings = function() {
   localStorage.setItem('rm_global', JSON.stringify({
     aiKey: state.aiKey, aiProvider: state.aiProvider,
     aiCustomEndpoint: state.aiCustomEndpoint, aiCustomModel: state.aiCustomModel,
     orgName: state.orgName
   }));
-}
+};
 
-function migrateFromLegacy() {
+Portfolio.migrateFromLegacy = function() {
   try {
     const raw = localStorage.getItem('rm_state');
     if (!raw) return;
     const data = JSON.parse(raw);
-    const id = uid();
+    const id = Utils.uid();
     const name = data.projectName || 'Project Plan';
     const now = new Date().toISOString();
     // Create portfolio registry
-    savePortfolioRegistry([{ id, name, createdAt: now, updatedAt: now }]);
+    Portfolio.savePortfolioRegistry([{ id, name, createdAt: now, updatedAt: now }]);
     // Save portfolio data
     localStorage.setItem('rm_portfolio_' + id, JSON.stringify({
       categories: data.categories || [], projectName: name, aiMessages: []
@@ -669,9 +728,9 @@ function migrateFromLegacy() {
     localStorage.setItem('rm_active', id);
     localStorage.removeItem('rm_state');
   } catch (e) { console.warn('Migration failed', e); }
-}
+};
 
-function migrateTaskData() {
+Portfolio.migrateTaskData = function() {
   for (const cat of state.categories) {
     for (const task of cat.tasks) {
       if (!task.dependencies) task.dependencies = [];
@@ -679,6 +738,7 @@ function migrateTaskData() {
       if (!task.lastUpdated) task.lastUpdated = null;
       if (!task.group) task.group = task.name;
       if (task.status === 'tentative') task.status = 'planning';
+      if (!task.type) task.type = 'task';
     }
   }
   // Enforce dependency date constraints
@@ -687,19 +747,19 @@ function migrateTaskData() {
       if (task.dependencies && task.dependencies.length > 0) {
         for (const predId of task.dependencies) {
           const pred = cat.tasks.find(t => t.id === predId);
-          if (pred && toDate(task.startDate) <= toDate(pred.endDate)) {
-            const minStart = toStr(addDays(toDate(pred.endDate), 1));
-            const shift = diffDays(task.startDate, minStart);
+          if (pred && Utils.toDate(task.startDate) <= Utils.toDate(pred.endDate)) {
+            const minStart = Utils.toStr(Utils.addDays(Utils.toDate(pred.endDate), 1));
+            const shift = Utils.diffDays(task.startDate, minStart);
             task.startDate = minStart;
-            task.endDate = toStr(addDays(toDate(task.endDate), shift));
+            task.endDate = Utils.toStr(Utils.addDays(Utils.toDate(task.endDate), shift));
           }
         }
       }
     }
   }
-}
+};
 
-function loadPortfolio(id) {
+Portfolio.loadPortfolio = function(id) {
   try {
     const raw = localStorage.getItem('rm_portfolio_' + id);
     if (raw) {
@@ -714,164 +774,160 @@ function loadPortfolio(id) {
     }
     state.activePortfolioId = id;
     localStorage.setItem('rm_active', id);
-    migrateTaskData();
+    Portfolio.migrateTaskData();
   } catch (e) { console.warn('Failed to load portfolio', e); }
-}
+};
 
-function saveState() {
+App.saveState = function() {
   if (!state.activePortfolioId) return;
   const data = { categories: state.categories, projectName: state.projectName, aiMessages: state.aiMessages };
   localStorage.setItem('rm_portfolio_' + state.activePortfolioId, JSON.stringify(data));
-  const reg = getPortfolioRegistry();
+  const reg = Portfolio.getPortfolioRegistry();
   const entry = reg.find(p => p.id === state.activePortfolioId);
-  if (entry) { entry.updatedAt = new Date().toISOString(); entry.name = state.projectName; savePortfolioRegistry(reg); }
-  saveGlobalSettings();
-}
+  if (entry) { entry.updatedAt = new Date().toISOString(); entry.name = state.projectName; Portfolio.savePortfolioRegistry(reg); }
+  Portfolio.saveGlobalSettings();
+};
 
-function loadState() {
+Portfolio.loadState = function() {
   try {
     // Migrate legacy single-portfolio data
     if (!localStorage.getItem('rm_portfolios') && localStorage.getItem('rm_state')) {
-      migrateFromLegacy();
+      Portfolio.migrateFromLegacy();
     }
     // Load global settings
-    const global = getGlobalSettings();
+    const global = Portfolio.getGlobalSettings();
     state.aiKey = global.aiKey || '';
     state.aiProvider = global.aiProvider || 'gemini';
     state.aiCustomEndpoint = global.aiCustomEndpoint || '';
     state.aiCustomModel = global.aiCustomModel || '';
     state.orgName = global.orgName || 'Organization';
     // Determine active portfolio
-    const reg = getPortfolioRegistry();
+    const reg = Portfolio.getPortfolioRegistry();
     let activeId = localStorage.getItem('rm_active');
     if (!activeId || !reg.find(p => p.id === activeId)) {
       activeId = reg.length > 0 ? reg[0].id : null;
     }
     if (activeId) {
-      loadPortfolio(activeId);
+      Portfolio.loadPortfolio(activeId);
     } else {
-      createPortfolio('Project Plan', true);
+      Portfolio.createPortfolio('Project Plan', true);
     }
   } catch (e) { console.warn('Failed to load state', e); }
-}
+};
 
-function switchPortfolio(id) {
+Portfolio.switchPortfolio = function(id) {
   if (id === state.activePortfolioId) return;
-  saveState();
-  loadPortfolio(id);
+  App.saveState();
+  Portfolio.loadPortfolio(id);
   state.selectedTask = null;
-  closePanel();
-  closePortfolioDropdown();
-  applyProjectName();
+  Tasks.closePanel();
+  Portfolio.closePortfolioDropdown();
+  Portfolio.applyProjectName();
   state.zoom = 'weeks';
   $zoomSelect.value = 'weeks';
-  goToday();
-}
+  App.goToday();
+};
 
-function createPortfolio(name, loadImmediately) {
-  const id = uid();
+Portfolio.createPortfolio = function(name, loadImmediately) {
+  const id = Utils.uid();
   const now = new Date().toISOString();
-  const reg = getPortfolioRegistry();
+  const reg = Portfolio.getPortfolioRegistry();
   reg.push({ id, name, createdAt: now, updatedAt: now });
-  savePortfolioRegistry(reg);
+  Portfolio.savePortfolioRegistry(reg);
   localStorage.setItem('rm_portfolio_' + id, JSON.stringify({
     categories: [], projectName: name, aiMessages: []
   }));
   if (loadImmediately) {
-    loadPortfolio(id);
+    Portfolio.loadPortfolio(id);
   }
   return id;
-}
+};
 
-function deletePortfolio(id) {
-  const reg = getPortfolioRegistry();
+Portfolio.deletePortfolio = function(id) {
+  const reg = Portfolio.getPortfolioRegistry();
   if (reg.length <= 1) return;
   const idx = reg.findIndex(p => p.id === id);
   if (idx === -1) return;
   reg.splice(idx, 1);
-  savePortfolioRegistry(reg);
+  Portfolio.savePortfolioRegistry(reg);
   localStorage.removeItem('rm_portfolio_' + id);
   if (state.activePortfolioId === id) {
-    switchPortfolio(reg[0].id);
+    Portfolio.switchPortfolio(reg[0].id);
   }
-}
+};
 
-function renamePortfolio(id, newName) {
-  const reg = getPortfolioRegistry();
+Portfolio.renamePortfolio = function(id, newName) {
+  const reg = Portfolio.getPortfolioRegistry();
   const entry = reg.find(p => p.id === id);
-  if (entry) { entry.name = newName; entry.updatedAt = new Date().toISOString(); savePortfolioRegistry(reg); }
+  if (entry) { entry.name = newName; entry.updatedAt = new Date().toISOString(); Portfolio.savePortfolioRegistry(reg); }
   if (state.activePortfolioId === id) {
     state.projectName = newName;
-    applyProjectName();
-    saveState();
+    Portfolio.applyProjectName();
+    App.saveState();
   }
-}
+};
 
-function duplicatePortfolio(id) {
+Portfolio.duplicatePortfolio = function(id) {
   const raw = localStorage.getItem('rm_portfolio_' + id);
   if (!raw) return;
   const data = JSON.parse(raw);
-  const reg = getPortfolioRegistry();
+  const reg = Portfolio.getPortfolioRegistry();
   const source = reg.find(p => p.id === id);
   const newName = (source ? source.name : 'Portfolio') + ' (Copy)';
-  const newId = uid();
+  const newId = Utils.uid();
   const now = new Date().toISOString();
   // Deep clone categories with new IDs
   const clonedData = JSON.parse(raw);
   clonedData.projectName = newName;
   reg.push({ id: newId, name: newName, createdAt: now, updatedAt: now });
-  savePortfolioRegistry(reg);
+  Portfolio.savePortfolioRegistry(reg);
   localStorage.setItem('rm_portfolio_' + newId, JSON.stringify(clonedData));
-  switchPortfolio(newId);
-}
+  Portfolio.switchPortfolio(newId);
+};
 
 // ========== SAMPLE DATA ==========
-function loadSampleData() {
-  const today = todayDate();
+App.loadSampleData = function() {
+  const today = Utils.todayDate();
   state.categories = [
     {
-      id: uid(), name: 'Website Redesign', color: '#3b82f6', collapsed: false,
+      id: Utils.uid(), name: 'Website Redesign', color: '#3b82f6', collapsed: false,
       tasks: [
-        { id: uid(), name: 'UX Research', startDate: toStr(addDays(today, -5)), endDate: toStr(addDays(today, 8)), status: 'confirmed', notes: 'User interviews and competitive analysis', urls: [{title:'Figma Board', url:'https://figma.com/example'}] },
-        { id: uid(), name: 'Wireframing', startDate: toStr(addDays(today, 6)), endDate: toStr(addDays(today, 18)), status: 'confirmed', notes: '', urls: [] },
-        { id: uid(), name: 'Visual Design', startDate: toStr(addDays(today, 15)), endDate: toStr(addDays(today, 30)), status: 'planning', notes: 'Pending wireframe approval', urls: [] }
+        { id: Utils.uid(), name: 'UX Research', startDate: Utils.toStr(Utils.addDays(today, -5)), endDate: Utils.toStr(Utils.addDays(today, 8)), status: 'confirmed', notes: 'User interviews and competitive analysis', urls: [{title:'Figma Board', url:'https://figma.com/example'}] },
+        { id: Utils.uid(), name: 'Wireframing', startDate: Utils.toStr(Utils.addDays(today, 6)), endDate: Utils.toStr(Utils.addDays(today, 18)), status: 'confirmed', notes: '', urls: [] },
+        { id: Utils.uid(), name: 'Visual Design', startDate: Utils.toStr(Utils.addDays(today, 15)), endDate: Utils.toStr(Utils.addDays(today, 30)), status: 'planning', notes: 'Pending wireframe approval', urls: [] }
       ]
     },
     {
-      id: uid(), name: 'Mobile App', color: '#10b981', collapsed: false,
+      id: Utils.uid(), name: 'Mobile App', color: '#10b981', collapsed: false,
       tasks: [
-        { id: uid(), name: 'Sprint Planning', startDate: toStr(addDays(today, -2)), endDate: toStr(addDays(today, 1)), status: 'confirmed', notes: '', urls: [] },
-        { id: uid(), name: 'Development Phase 1', startDate: toStr(addDays(today, 3)), endDate: toStr(addDays(today, 22)), status: 'confirmed', notes: 'Core features implementation', urls: [{title:'GitHub Repo', url:'https://github.com/example/app'}] },
-        { id: uid(), name: 'QA Testing', startDate: toStr(addDays(today, 20)), endDate: toStr(addDays(today, 32)), status: 'draft', notes: '', urls: [] }
+        { id: Utils.uid(), name: 'Sprint Planning', startDate: Utils.toStr(Utils.addDays(today, -2)), endDate: Utils.toStr(Utils.addDays(today, 1)), status: 'confirmed', notes: '', urls: [] },
+        { id: Utils.uid(), name: 'Development Phase 1', startDate: Utils.toStr(Utils.addDays(today, 3)), endDate: Utils.toStr(Utils.addDays(today, 22)), status: 'confirmed', notes: 'Core features implementation', urls: [{title:'GitHub Repo', url:'https://github.com/example/app'}] },
+        { id: Utils.uid(), name: 'QA Testing', startDate: Utils.toStr(Utils.addDays(today, 20)), endDate: Utils.toStr(Utils.addDays(today, 32)), status: 'draft', notes: '', urls: [] }
       ]
     },
     {
-      id: uid(), name: 'Marketing Campaign', color: '#f59e0b', collapsed: false,
+      id: Utils.uid(), name: 'Marketing Campaign', color: '#f59e0b', collapsed: false,
       tasks: [
-        { id: uid(), name: 'Strategy', startDate: toStr(addDays(today, -8)), endDate: toStr(addDays(today, 2)), status: 'confirmed', notes: 'Define target audience and channels', urls: [] },
-        { id: uid(), name: 'Content Creation', startDate: toStr(addDays(today, 1)), endDate: toStr(addDays(today, 16)), status: 'confirmed', notes: '', urls: [] },
-        { id: uid(), name: 'Launch', startDate: toStr(addDays(today, 17)), endDate: toStr(addDays(today, 24)), status: 'planning', notes: 'Dependent on content completion', urls: [] }
+        { id: Utils.uid(), name: 'Strategy', startDate: Utils.toStr(Utils.addDays(today, -8)), endDate: Utils.toStr(Utils.addDays(today, 2)), status: 'confirmed', notes: 'Define target audience and channels', urls: [] },
+        { id: Utils.uid(), name: 'Content Creation', startDate: Utils.toStr(Utils.addDays(today, 1)), endDate: Utils.toStr(Utils.addDays(today, 16)), status: 'confirmed', notes: '', urls: [] },
+        { id: Utils.uid(), name: 'Launch', startDate: Utils.toStr(Utils.addDays(today, 17)), endDate: Utils.toStr(Utils.addDays(today, 24)), status: 'planning', notes: 'Dependent on content completion', urls: [] }
       ]
     },
     {
-      id: uid(), name: 'Infrastructure', color: '#8b5cf6', collapsed: false,
+      id: Utils.uid(), name: 'Infrastructure', color: '#8b5cf6', collapsed: false,
       tasks: [
-        { id: uid(), name: 'Cloud Migration', startDate: toStr(addDays(today, 0)), endDate: toStr(addDays(today, 14)), status: 'confirmed', notes: 'AWS to GCP migration', urls: [] },
-        { id: uid(), name: 'CI/CD Pipeline', startDate: toStr(addDays(today, 10)), endDate: toStr(addDays(today, 20)), status: 'draft', notes: '', urls: [] }
+        { id: Utils.uid(), name: 'Cloud Migration', startDate: Utils.toStr(Utils.addDays(today, 0)), endDate: Utils.toStr(Utils.addDays(today, 14)), status: 'confirmed', notes: 'AWS to GCP migration', urls: [] },
+        { id: Utils.uid(), name: 'CI/CD Pipeline', startDate: Utils.toStr(Utils.addDays(today, 10)), endDate: Utils.toStr(Utils.addDays(today, 20)), status: 'draft', notes: '', urls: [] }
       ]
     }
   ];
-}
+};
 
 // ========== GROUPING ==========
 const LANE_HEIGHT = 28;
 const LANE_PADDING = 6;
 
-function computeRowHeight(numLanes) {
-  return numLanes * LANE_HEIGHT + LANE_PADDING;
-}
-
-function assignLanes(tasks) {
+Timeline.assignLanes = function(tasks) {
   const lanes = new Map();
   if (tasks.length <= 1) {
     if (tasks.length === 1) lanes.set(tasks[0].id, 0);
@@ -880,7 +936,7 @@ function assignLanes(tasks) {
 
   // Helper: check if two tasks overlap in time
   function overlaps(a, b) {
-    return toDate(a.startDate) <= toDate(b.endDate) && toDate(b.startDate) <= toDate(a.endDate);
+    return Utils.toDate(a.startDate) <= Utils.toDate(b.endDate) && Utils.toDate(b.startDate) <= Utils.toDate(a.endDate);
   }
 
   // Helper: find the lowest free lane >= minLane with no temporal overlap
@@ -912,8 +968,8 @@ function assignLanes(tasks) {
   }
   // Seed the sort by start date so independent tasks pack chronologically
   const sorted = [...tasks].sort((a, b) => {
-    const cmp = toDate(a.startDate) - toDate(b.startDate);
-    return cmp !== 0 ? cmp : toDate(a.endDate) - toDate(b.endDate);
+    const cmp = Utils.toDate(a.startDate) - Utils.toDate(b.startDate);
+    return cmp !== 0 ? cmp : Utils.toDate(a.endDate) - Utils.toDate(b.endDate);
   });
   for (const t of sorted) visit(t);
 
@@ -933,9 +989,9 @@ function assignLanes(tasks) {
   let numLanes = 0;
   for (const l of lanes.values()) numLanes = Math.max(numLanes, l + 1);
   return { lanes, numLanes: Math.max(1, numLanes) };
-}
+};
 
-function buildGroups() {
+Timeline.buildGroups = function() {
   const result = [];
   for (const cat of state.categories) {
     if (cat.collapsed) {
@@ -955,40 +1011,40 @@ function buildGroups() {
     const groups = [];
     for (const name of groupOrder) {
       const tasks = groupMap.get(name);
-      const { lanes, numLanes } = assignLanes(tasks);
-      const rowHeight = computeRowHeight(numLanes);
+      const { lanes, numLanes } = Timeline.assignLanes(tasks);
+      const rowHeight = Utils.computeRowHeight(numLanes);
       groups.push({ groupName: name, catId: cat.id, tasks, lanes, numLanes, rowHeight });
     }
     result.push({ cat, groups });
   }
   return result;
-}
+};
 
 // ========== RENDERING ==========
 let cachedGroups = null;
-function render() {
-  cachedGroups = buildGroups();
-  renderSidebar();
-  renderTimeline();
-}
+App.render = function() {
+  cachedGroups = Timeline.buildGroups();
+  Sidebar.renderSidebar();
+  Timeline.renderTimeline();
+};
 
-function renderSidebar() {
+Sidebar.renderSidebar = function() {
   let html = '';
-  const grouped = cachedGroups || buildGroups();
+  const grouped = cachedGroups || Timeline.buildGroups();
   let catIdx = 0;
   for (const { cat, groups } of grouped) {
     catIdx++;
     const collapsed = cat.collapsed;
-    const catBg = lightenColor(cat.color, 0.88);
+    const catBg = Utils.lightenColor(cat.color, 0.88);
     html += `<div class="s-cat" data-cat="${cat.id}">
-      <div class="s-cat-header" style="background:${catBg}" oncontextmenu="showCatCtx(event,'${cat.id}')" onclick="toggleCat('${cat.id}')">
-        <div class="s-cat-grip" onmousedown="onCatGripMouseDown(event,'${cat.id}',${catIdx - 1})"><svg width="6" height="10" viewBox="0 0 6 10"><circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="8.5" r="1" fill="currentColor"/></svg></div>
+      <div class="s-cat-header" style="background:${catBg}" oncontextmenu="Sidebar.showCatCtx(event,'${cat.id}')" onclick="Sidebar.toggleCat('${cat.id}')">
+        <div class="s-cat-grip" onmousedown="Drag.onCatGripMouseDown(event,'${cat.id}',${catIdx - 1})"><svg width="6" height="10" viewBox="0 0 6 10"><circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="8.5" r="1" fill="currentColor"/></svg></div>
         <div class="s-cat-color" style="background:${cat.color}"></div>
         <div class="s-cat-toggle ${collapsed ? 'collapsed' : ''}">&#9660;</div>
-        <div class="s-cat-name"><span class="s-num">${catIdx}</span>${esc(cat.name)}</div>
+        <div class="s-cat-name"><span class="s-num">${catIdx}</span>${Utils.esc(cat.name)}</div>
         <div class="s-cat-actions">
-          <button class="s-action" onclick="event.stopPropagation();showEditCatModal('${cat.id}')" title="Edit">&#9998;</button>
-          <button class="s-action" onclick="event.stopPropagation();deleteCat('${cat.id}')" title="Delete">&#10005;</button>
+          <button class="s-action" onclick="event.stopPropagation();Sidebar.showEditCatModal('${cat.id}')" title="Edit">&#9998;</button>
+          <button class="s-action" onclick="event.stopPropagation();Sidebar.deleteCat('${cat.id}')" title="Delete">&#10005;</button>
         </div>
       </div>`;
     if (!collapsed) {
@@ -998,35 +1054,35 @@ function renderSidebar() {
         const firstTask = group.tasks[0];
         const sel = state.selectedTask && group.tasks.some(t => t.id === state.selectedTask.taskId) ? ' selected' : '';
         const countBadge = group.tasks.length > 1 ? ` <span style="color:var(--text3);font-weight:400;font-size:11px">(${group.tasks.length})</span>` : '';
-        html += `<div class="s-task${sel}" style="height:${group.rowHeight}px" data-cat="${cat.id}" data-task="${firstTask.id}" data-group="${encodeURIComponent(group.groupName)}" data-gidx="${groupIdx - 1}" onclick="openPanel('${cat.id}','${firstTask.id}')" oncontextmenu="showTaskCtx(event,'${cat.id}','${firstTask.id}')">
-          <div class="s-task-grip" onmousedown="onGripMouseDown(event,'${cat.id}','${encodeURIComponent(group.groupName)}',${groupIdx - 1})"><svg width="6" height="10" viewBox="0 0 6 10"><circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="8.5" r="1" fill="currentColor"/></svg></div>
+        html += `<div class="s-task${sel}" style="height:${group.rowHeight}px" data-cat="${cat.id}" data-task="${firstTask.id}" data-group="${encodeURIComponent(group.groupName)}" data-gidx="${groupIdx - 1}" onclick="Tasks.openPanel('${cat.id}','${firstTask.id}')" oncontextmenu="Sidebar.showTaskCtx(event,'${cat.id}','${firstTask.id}')">
+          <div class="s-task-grip" onmousedown="Drag.onGripMouseDown(event,'${cat.id}','${encodeURIComponent(group.groupName)}',${groupIdx - 1})"><svg width="6" height="10" viewBox="0 0 6 10"><circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="8.5" r="1" fill="currentColor"/></svg></div>
           <div class="s-task-dot" style="background:${cat.color}"></div>
-          <div class="s-task-name"><span class="s-num">${catIdx}.${groupIdx}</span>${esc(group.groupName)}${countBadge}</div>
+          <div class="s-task-name"><span class="s-num">${catIdx}.${groupIdx}</span>${Utils.esc(group.groupName)}${countBadge}</div>
           <div class="s-task-actions">
-            <button class="s-action" onclick="event.stopPropagation();showAddToGroupModal('${cat.id}','${encodeURIComponent(group.groupName)}')" title="Add task to this row">&#43;</button>
-            <button class="s-action" onclick="event.stopPropagation();showEditTaskModal('${cat.id}','${firstTask.id}')" title="Edit">&#9998;</button>
-            <button class="s-action" onclick="event.stopPropagation();deleteTask('${cat.id}','${firstTask.id}')" title="Delete">&#10005;</button>
+            <button class="s-action" onclick="event.stopPropagation();Tasks.showAddToGroupModal('${cat.id}','${encodeURIComponent(group.groupName)}')" title="Add task to this row">&#43;</button>
+            <button class="s-action" onclick="event.stopPropagation();Tasks.showEditTaskModal('${cat.id}','${firstTask.id}')" title="Edit">&#9998;</button>
+            <button class="s-action" onclick="event.stopPropagation();Tasks.deleteTask('${cat.id}','${firstTask.id}')" title="Delete">&#10005;</button>
           </div>
         </div>`;
       }
-      html += `<div class="s-add-row" onclick="showAddTaskModal('${cat.id}')">+ Add Project</div>`;
+      html += `<div class="s-add-row" onclick="Tasks.showAddTaskModal('${cat.id}')">+ Add Project</div>`;
     }
     html += `</div>`;
   }
-  html += `<div class="s-add-cat" onclick="showAddCatModal()">
+  html += `<div class="s-add-cat" onclick="Sidebar.showAddCatModal()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Add program
   </div>`;
   $sidebarBody.innerHTML = html;
-}
+};
 
-function renderTimeline() {
+Timeline.renderTimeline = function() {
   const cfg = ZOOM_CFG[state.zoom];
   const dayW = cfg.dayWidth;
   const totalDays = cfg.totalDays;
   const start = state.viewStart;
   const totalWidth = totalDays * dayW;
-  const today = todayDate();
+  const today = Utils.todayDate();
 
   // ----- HEADER -----
   let row1 = '', row2 = '';
@@ -1034,20 +1090,20 @@ function renderTimeline() {
     // Row 1: Year groups, Row 2: Month columns
     let i = 0;
     while (i < totalDays) {
-      const d = addDays(start, i);
+      const d = Utils.addDays(start, i);
       const yr = d.getFullYear();
       let span = 0;
-      while (i + span < totalDays && addDays(start, i + span).getFullYear() === yr) span++;
+      while (i + span < totalDays && Utils.addDays(start, i + span).getFullYear() === yr) span++;
       row1 += `<div class="t-group" style="width:${span * dayW}px"><span class="t-group-label">${yr}</span></div>`;
       i += span;
     }
     i = 0;
     while (i < totalDays) {
-      const d = addDays(start, i);
+      const d = Utils.addDays(start, i);
       const mo = d.getMonth();
       let span = 0;
       while (i + span < totalDays) {
-        const d2 = addDays(start, i + span);
+        const d2 = Utils.addDays(start, i + span);
         if (d2.getMonth() !== mo || d2.getFullYear() !== d.getFullYear()) break;
         span++;
       }
@@ -1060,11 +1116,11 @@ function renderTimeline() {
     // Row 1: Month groups, Row 2: Day numbers
     let i = 0;
     while (i < totalDays) {
-      const d = addDays(start, i);
+      const d = Utils.addDays(start, i);
       const mo = d.getMonth();
       let span = 0;
       while (i + span < totalDays) {
-        const d2 = addDays(start, i + span);
+        const d2 = Utils.addDays(start, i + span);
         if (d2.getMonth() !== mo || d2.getFullYear() !== d.getFullYear()) break;
         span++;
       }
@@ -1073,7 +1129,7 @@ function renderTimeline() {
       i += span;
     }
     for (let j = 0; j < totalDays; j++) {
-      const d = addDays(start, j);
+      const d = Utils.addDays(start, j);
       const isWe = d.getDay() === 0 || d.getDay() === 6;
       const isT = d.getTime() === today.getTime();
       row2 += `<div class="t-col${isWe ? ' weekend' : ''}${isT ? ' today' : ''}" style="width:${dayW}px">${d.getDate()}</div>`;
@@ -1082,11 +1138,11 @@ function renderTimeline() {
     // Days & Weeks: Row 1: Month group, Row 2: Day name + date
     let i = 0;
     while (i < totalDays) {
-      const d = addDays(start, i);
+      const d = Utils.addDays(start, i);
       const mo = d.getMonth();
       let span = 0;
       while (i + span < totalDays) {
-        const d2 = addDays(start, i + span);
+        const d2 = Utils.addDays(start, i + span);
         if (d2.getMonth() !== mo || d2.getFullYear() !== d.getFullYear()) break;
         span++;
       }
@@ -1098,7 +1154,7 @@ function renderTimeline() {
       i += span;
     }
     for (let j = 0; j < totalDays; j++) {
-      const d = addDays(start, j);
+      const d = Utils.addDays(start, j);
       const isWe = d.getDay() === 0 || d.getDay() === 6;
       const isT = d.getTime() === today.getTime();
       const label = state.zoom === 'days'
@@ -1118,12 +1174,12 @@ function renderTimeline() {
   {
     let mi = 0;
     while (mi < totalDays) {
-      const d0 = addDays(start, mi);
+      const d0 = Utils.addDays(start, mi);
       const mo = d0.getMonth();
       const yr = d0.getFullYear();
       let span = 0;
       while (mi + span < totalDays) {
-        const d2 = addDays(start, mi + span);
+        const d2 = Utils.addDays(start, mi + span);
         if (d2.getMonth() !== mo || d2.getFullYear() !== yr) break;
         span++;
       }
@@ -1135,7 +1191,7 @@ function renderTimeline() {
   }
   // Weekend columns
   for (let j = 0; j < totalDays; j++) {
-    const d = addDays(start, j);
+    const d = Utils.addDays(start, j);
     if (d.getDay() === 0 || d.getDay() === 6) {
       gridHTML += `<div class="t-weekend" style="left:${j * dayW}px;width:${dayW}px"></div>`;
     }
@@ -1145,7 +1201,7 @@ function renderTimeline() {
     gridHTML += `<div class="t-gridline" style="left:${j * dayW}px"></div>`;
   }
   // Today line
-  const todayOff = diffDays(toStr(start), toStr(today));
+  const todayOff = Utils.diffDays(Utils.toStr(start), Utils.toStr(today));
   if (todayOff >= 0 && todayOff < totalDays) {
     gridHTML += `<div class="t-today-line" style="left:${todayOff * dayW + dayW / 2}px"></div>`;
   }
@@ -1153,10 +1209,10 @@ function renderTimeline() {
   let rowsHTML = '';
   const taskPositions = new Map();
   let currentY = 0;
-  const grouped = cachedGroups || buildGroups();
+  const grouped = cachedGroups || Timeline.buildGroups();
 
   for (const { cat, groups } of grouped) {
-    const catLightBg = lightenColor(cat.color, 0.88);
+    const catLightBg = Utils.lightenColor(cat.color, 0.88);
     rowsHTML += `<div class="t-row cat-row" data-cat="${cat.id}" style="width:${totalWidth}px;background:${catLightBg}"></div>`;
     currentY += 32; // cat-row-h
     if (!cat.collapsed) {
@@ -1164,33 +1220,55 @@ function renderTimeline() {
         const groupTop = currentY;
         rowsHTML += `<div class="t-row task-row" data-cat="${cat.id}" data-group="${encodeURIComponent(group.groupName)}" style="width:${totalWidth}px;height:${group.rowHeight}px">`;
         for (const task of group.tasks) {
-          const tStart = diffDays(toStr(start), task.startDate);
-          const tDur = diffDays(task.startDate, task.endDate) + 1;
+          const tStart = Utils.diffDays(Utils.toStr(start), task.startDate);
+          const tDur = Utils.diffDays(task.startDate, task.endDate) + 1;
           const barLeft = tStart * dayW;
           const barWidth = Math.max(tDur * dayW - 2, 20);
           const vis = (tStart + tDur > 0 && tStart < totalDays);
           const lane = group.lanes.get(task.id);
           const barTop = lane * LANE_HEIGHT + 4;
 
-          taskPositions.set(task.id, {
-            left: barLeft,
-            right: barLeft + barWidth,
-            centerY: groupTop + barTop + 10
-          });
+          if (task.type === 'milestone') {
+            taskPositions.set(task.id, {
+              left: barLeft + 8,
+              right: barLeft + 8,
+              centerY: groupTop + barTop + 10
+            });
+          } else {
+            taskPositions.set(task.id, {
+              left: barLeft,
+              right: barLeft + barWidth,
+              centerY: groupTop + barTop + 10
+            });
+          }
 
           if (vis) {
-            rowsHTML += `<div class="task-bar" data-cat="${cat.id}" data-task="${task.id}"
-              style="left:${barLeft}px;width:${barWidth}px;top:${barTop}px;height:20px;background:${cat.color}"
-              onmousedown="onBarMouseDown(event,'${cat.id}','${task.id}')"
-              onclick="event.stopPropagation();openPanel('${cat.id}','${task.id}')"
-              onmouseenter="showBarTooltip(event,'${cat.id}','${task.id}')"
-              onmouseleave="hideTooltip()">
-              <div class="resize-handle left"></div>
-              <span class="status-dot" style="background:${statusColor(task.status)}"></span>
-              <span class="task-bar-label">${esc(task.name)}</span>
-              <div class="resize-handle right"></div>
-              <div class="dep-bubble" onmousedown="onDepBubbleMouseDown(event,'${cat.id}','${task.id}')"></div>
-            </div>`;
+            if (task.type === 'milestone') {
+              const diamondTop = lane * LANE_HEIGHT + 4;
+              rowsHTML += `<div class="milestone-diamond" data-cat="${cat.id}" data-task="${task.id}"
+                style="left:${barLeft}px;top:${diamondTop}px"
+                onmousedown="Drag.onBarMouseDown(event,'${cat.id}','${task.id}')"
+                onclick="event.stopPropagation();Tasks.openPanel('${cat.id}','${task.id}')"
+                onmouseenter="UI.showBarTooltip(event,'${cat.id}','${task.id}')"
+                onmouseleave="UI.hideTooltip()">
+                <div class="diamond-shape" style="background:${cat.color}"></div>
+                <span class="milestone-label">${Utils.esc(task.name)}</span>
+                <div class="dep-bubble" onmousedown="Deps.onDepBubbleMouseDown(event,'${cat.id}','${task.id}')"></div>
+              </div>`;
+            } else {
+              rowsHTML += `<div class="task-bar" data-cat="${cat.id}" data-task="${task.id}"
+                style="left:${barLeft}px;width:${barWidth}px;top:${barTop}px;height:20px;background:${cat.color}"
+                onmousedown="Drag.onBarMouseDown(event,'${cat.id}','${task.id}')"
+                onclick="event.stopPropagation();Tasks.openPanel('${cat.id}','${task.id}')"
+                onmouseenter="UI.showBarTooltip(event,'${cat.id}','${task.id}')"
+                onmouseleave="UI.hideTooltip()">
+                <div class="resize-handle left"></div>
+                <span class="status-dot" style="background:${Utils.statusColor(task.status)}"></span>
+                <span class="task-bar-label">${Utils.esc(task.name)}</span>
+                <div class="resize-handle right"></div>
+                <div class="dep-bubble" onmousedown="Deps.onDepBubbleMouseDown(event,'${cat.id}','${task.id}')"></div>
+              </div>`;
+            }
           }
         }
         rowsHTML += `</div>`;
@@ -1233,7 +1311,8 @@ function renderTimeline() {
         }
         depSVG += `<path class="dep-arrow" d="${pathD}"
           data-from="${predId}" data-to="${task.id}" data-cat="${cat.id}"
-          oncontextmenu="showDepCtx(event,'${cat.id}','${predId}','${task.id}')"/>`;
+          oncontextmenu="Deps.showDepCtx(event,'${cat.id}','${predId}','${task.id}')"/>`;
+
       }
     }
   }
@@ -1241,40 +1320,34 @@ function renderTimeline() {
 
   $timelineBody.style.width = totalWidth + 'px';
   $timelineBody.innerHTML = `<div class="t-grid">${gridHTML}</div><div class="t-rows">${rowsHTML}${depSVG}</div>`;
-}
-
-function esc(s) {
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
+};
 
 // ========== NAVIGATION ==========
-function navigate(dir) {
+App.navigate = function(dir) {
   const step = ZOOM_CFG[state.zoom].navStep;
-  state.viewStart = addDays(state.viewStart, step * dir);
-  render();
-}
+  state.viewStart = Utils.addDays(state.viewStart, step * dir);
+  App.render();
+};
 
-function goToday() {
-  const today = todayDate();
+App.goToday = function() {
+  const today = Utils.todayDate();
   const totalDays = ZOOM_CFG[state.zoom].totalDays;
-  state.viewStart = addDays(today, -Math.floor(totalDays / 4));
-  render();
+  state.viewStart = Utils.addDays(today, -Math.floor(totalDays / 4));
+  App.render();
   // Scroll to bring today into view
   const dayW = ZOOM_CFG[state.zoom].dayWidth;
-  const todayOff = diffDays(toStr(state.viewStart), toStr(today));
+  const todayOff = Utils.diffDays(Utils.toStr(state.viewStart), Utils.toStr(today));
   $timelineWrap.scrollLeft = Math.max(0, todayOff * dayW - $timelineWrap.clientWidth / 3);
-}
+};
 
-function setZoom(z) {
+App.setZoom = function(z) {
   state.zoom = z;
   $zoomSelect.value = z;
-  goToday();
-}
+  App.goToday();
+};
 
 // ========== SCROLL SYNC ==========
-function updateStickyLabels() {
+Timeline.updateStickyLabels = function() {
   const scrollLeft = $timelineWrap.scrollLeft;
   const labels = $timelineHeader.querySelectorAll('.t-group-label');
   labels.forEach(label => {
@@ -1291,11 +1364,11 @@ function updateStickyLabels() {
       label.style.transform = '';
     }
   });
-}
+};
 $timelineWrap.addEventListener('scroll', () => {
   $timelineHeader.scrollLeft = $timelineWrap.scrollLeft;
   $sidebarBody.scrollTop = $timelineWrap.scrollTop;
-  updateStickyLabels();
+  Timeline.updateStickyLabels();
 });
 $sidebarBody.addEventListener('scroll', () => {
   $timelineWrap.scrollTop = $sidebarBody.scrollTop;
@@ -1304,228 +1377,145 @@ $sidebarBody.addEventListener('scroll', () => {
 // ========== SIDEBAR RESIZE ==========
 const $sidebar = document.getElementById('sidebar');
 const $sidebarResize = document.getElementById('sidebarResize');
-let sidebarResizeState = null;
 $sidebarResize.addEventListener('mousedown', (e) => {
   e.preventDefault();
-  sidebarResizeState = { startX: e.clientX, startW: $sidebar.offsetWidth };
+  Drag.sidebarResizeState = { startX: e.clientX, startW: $sidebar.offsetWidth };
   $sidebarResize.classList.add('active');
   document.body.style.cursor = 'col-resize';
   document.body.style.userSelect = 'none';
 });
-document.addEventListener('mousemove', (e) => {
-  if (!sidebarResizeState) return;
-  const newW = Math.max(120, Math.min(500, sidebarResizeState.startW + (e.clientX - sidebarResizeState.startX)));
-  $sidebar.style.width = newW + 'px';
-});
-document.addEventListener('mouseup', () => {
-  if (sidebarResizeState) {
-    sidebarResizeState = null;
-    $sidebarResize.classList.remove('active');
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-  }
-});
 
 // ========== TIMELINE PAN + DRAG-TO-CREATE ==========
-let panState = null;
-let createDragState = null;
 
 $timelineWrap.addEventListener('mousedown', (e) => {
-  if (e.target.closest('.task-bar') || e.target.closest('.dep-bubble')) return;
+  if (e.target.closest('.task-bar') || e.target.closest('.milestone-diamond') || e.target.closest('.dep-bubble')) return;
   if (e.button !== 0) return;
 
   // Strategy B: drag on a task row = create task, drag elsewhere = pan
   const taskRow = e.target.closest('.t-row.task-row');
-  if (taskRow && !e.target.closest('.task-bar')) {
+  if (taskRow && !e.target.closest('.task-bar') && !e.target.closest('.milestone-diamond')) {
     const catId = taskRow.dataset.cat;
-    const cat = findCat(catId);
+    const cat = Utils.findCat(catId);
     if (!cat) return;
-    const px = timelinePixelX(e);
-    createDragState = {
+    const px = Drag.timelinePixelX(e);
+    Drag.createDragState = {
       catId, startX: e.clientX, pixelX: px, taskRow,
       ghostBar: null, moved: false, color: cat.color
     };
   } else {
-    panState = { startX: e.clientX, startY: e.clientY, scrollLeft: $timelineWrap.scrollLeft, scrollTop: $timelineWrap.scrollTop, moved: false };
+    Drag.panState = { startX: e.clientX, startY: e.clientY, scrollLeft: $timelineWrap.scrollLeft, scrollTop: $timelineWrap.scrollTop, moved: false };
   }
 });
 
-document.addEventListener('mousemove', (e) => {
-  // Create-drag on task row
-  if (createDragState) {
-    const dx = e.clientX - createDragState.startX;
-    if (!createDragState.moved && Math.abs(dx) < 4) return;
-    createDragState.moved = true;
-
-    const currentPx = timelinePixelX(e);
-    const leftPx = Math.min(createDragState.pixelX, currentPx);
-    const widthPx = Math.max(Math.abs(currentPx - createDragState.pixelX), ZOOM_CFG[state.zoom].dayWidth);
-
-    // Create or update ghost bar
-    if (!createDragState.ghostBar) {
-      const ghost = document.createElement('div');
-      ghost.className = 'ghost-bar';
-      ghost.style.background = createDragState.color;
-      createDragState.taskRow.appendChild(ghost);
-      createDragState.ghostBar = ghost;
-      document.body.style.cursor = 'crosshair';
-    }
-    createDragState.ghostBar.style.left = leftPx + 'px';
-    createDragState.ghostBar.style.width = widthPx + 'px';
-
-    // Show date label
-    const startDate = pixelToDate(Math.min(createDragState.pixelX, currentPx));
-    const endDate = pixelToDate(Math.max(createDragState.pixelX, currentPx));
-    const dur = diffDays(startDate, endDate) + 1;
-    showDragLabel(e.clientX, createDragState.taskRow.getBoundingClientRect().top,
-      `${formatDateShort(toDate(startDate))} → ${formatDateShort(toDate(endDate))}  (${dur}d)`);
-    return;
-  }
-
-  // Pan
-  if (!panState) return;
-  const dx = e.clientX - panState.startX;
-  const dy = e.clientY - panState.startY;
-  if (!panState.moved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
-  panState.moved = true;
-  $timelineWrap.scrollLeft = panState.scrollLeft - dx;
-  $timelineWrap.scrollTop = panState.scrollTop - dy;
-});
-
-document.addEventListener('mouseup', (e) => {
-  if (createDragState) {
-    const { catId, moved, ghostBar, pixelX } = createDragState;
-    if (ghostBar) ghostBar.remove();
-    hideDragLabel();
-    document.body.style.cursor = '';
-
-    if (moved) {
-      const currentPx = timelinePixelX(e);
-      const startDate = pixelToDate(Math.min(pixelX, currentPx));
-      const endDate = pixelToDate(Math.max(pixelX, currentPx));
-      const group = createDragState.taskRow.dataset.group;
-      createDragState = null;
-      if (group) {
-        showAddToGroupModal(catId, group, startDate, endDate);
-      } else {
-        showAddTaskModal(catId, startDate, endDate);
-      }
-    } else {
-      createDragState = null;
-    }
-    return;
-  }
-  panState = null;
-});
 
 // Double-click on empty task row → add task at that date
 $timelineWrap.addEventListener('dblclick', (e) => {
   const taskRow = e.target.closest('.t-row.task-row');
-  if (!taskRow || e.target.closest('.task-bar')) return;
+  if (!taskRow || e.target.closest('.task-bar') || e.target.closest('.milestone-diamond')) return;
   const catId = taskRow.dataset.cat;
   const group = taskRow.dataset.group;
-  const px = timelinePixelX(e);
-  const clickDate = pixelToDate(px);
+  const px = Drag.timelinePixelX(e);
+  const clickDate = Drag.pixelToDate(px);
   if (group) {
-    showAddToGroupModal(catId, group, clickDate);
+    Tasks.showAddToGroupModal(catId, group, clickDate);
   } else {
-    showAddTaskModal(catId, clickDate);
+    Tasks.showAddTaskModal(catId, clickDate);
   }
 });
 
 // Right-click on empty task row → context menu with "Add Task here"
 $timelineWrap.addEventListener('contextmenu', (e) => {
   const taskRow = e.target.closest('.t-row.task-row');
-  if (!taskRow || e.target.closest('.task-bar')) return;
+  if (!taskRow || e.target.closest('.task-bar') || e.target.closest('.milestone-diamond')) return;
   e.preventDefault();
   e.stopPropagation();
   const catId = taskRow.dataset.cat;
   const group = taskRow.dataset.group;
-  const cat = findCat(catId);
+  const cat = Utils.findCat(catId);
   if (!cat) return;
-  const px = timelinePixelX(e);
-  const clickDate = pixelToDate(px);
+  const px = Drag.timelinePixelX(e);
+  const clickDate = Drag.pixelToDate(px);
   const addAction = group
-    ? () => showAddToGroupModal(catId, group, clickDate)
-    : () => showAddTaskModal(catId, clickDate);
-  showCtxMenu(e.clientX, e.clientY, [
+    ? () => Tasks.showAddToGroupModal(catId, group, clickDate)
+    : () => Tasks.showAddTaskModal(catId, clickDate);
+  UI.showCtxMenu(e.clientX, e.clientY, [
     { label: 'Add Task here', action: addAction }
   ]);
 });
 
 // ========== CATEGORY CRUD ==========
-function toggleCat(catId) {
-  const cat = findCat(catId);
-  if (cat) { cat.collapsed = !cat.collapsed; render(); saveState(); }
-}
+Sidebar.toggleCat = function(catId) {
+  const cat = Utils.findCat(catId);
+  if (cat) { cat.collapsed = !cat.collapsed; App.render(); App.saveState(); }
+};
 
-function showAddCatModal() {
+Sidebar.showAddCatModal = function() {
   const html = `
-    <div class="modal-header">Add Program<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-header">Add Program<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
     <div class="modal-body">
       <div class="form-group"><label>Name</label><input id="mCatName" placeholder="Program name" autofocus></div>
       <div class="form-group"><label>Color</label><div class="color-picker" id="mColorPicker">
-        ${COLORS.map((c, i) => `<div class="color-swatch${i === 0 ? ' selected' : ''}" style="background:${c}" data-color="${c}" onclick="pickColor(this)"></div>`).join('')}
+        ${COLORS.map((c, i) => `<div class="color-swatch${i === 0 ? ' selected' : ''}" style="background:${c}" data-color="${c}" onclick="UI.pickColor(this)"></div>`).join('')}
       </div></div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="doAddCat()">Add</button>
+      <button class="btn" onclick="UI.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Sidebar.doAddCat()">Add</button>
     </div>`;
-  openModal(html);
+  UI.openModal(html);
   setTimeout(() => document.getElementById('mCatName')?.focus(), 100);
-}
+};
 
-function doAddCat() {
+Sidebar.doAddCat = function() {
   const name = document.getElementById('mCatName').value.trim();
   if (!name) return;
   const color = document.querySelector('#mColorPicker .selected')?.dataset.color || COLORS[0];
-  state.categories.push({ id: uid(), name, color, collapsed: false, tasks: [] });
-  closeModal(); render(); saveState();
-}
+  state.categories.push({ id: Utils.uid(), name, color, collapsed: false, tasks: [] });
+  UI.closeModal(); App.render(); App.saveState();
+};
 
-function showEditCatModal(catId) {
-  const cat = findCat(catId);
+Sidebar.showEditCatModal = function(catId) {
+  const cat = Utils.findCat(catId);
   if (!cat) return;
   const html = `
-    <div class="modal-header">Edit Program<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-header">Edit Program<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
     <div class="modal-body">
-      <div class="form-group"><label>Name</label><input id="mCatName" value="${esc(cat.name)}"></div>
+      <div class="form-group"><label>Name</label><input id="mCatName" value="${Utils.esc(cat.name)}"></div>
       <div class="form-group"><label>Color</label><div class="color-picker" id="mColorPicker">
-        ${COLORS.map(c => `<div class="color-swatch${c === cat.color ? ' selected' : ''}" style="background:${c}" data-color="${c}" onclick="pickColor(this)"></div>`).join('')}
+        ${COLORS.map(c => `<div class="color-swatch${c === cat.color ? ' selected' : ''}" style="background:${c}" data-color="${c}" onclick="UI.pickColor(this)"></div>`).join('')}
       </div></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" onclick="closeModal();deleteCat('${catId}')">Delete</button>
+      <button class="btn btn-danger" onclick="UI.closeModal();Sidebar.deleteCat('${catId}')">Delete</button>
       <div style="flex:1"></div>
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="doEditCat('${catId}')">Save</button>
+      <button class="btn" onclick="UI.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Sidebar.doEditCat('${catId}')">Save</button>
     </div>`;
-  openModal(html);
-}
+  UI.openModal(html);
+};
 
-function doEditCat(catId) {
-  const cat = findCat(catId);
+Sidebar.doEditCat = function(catId) {
+  const cat = Utils.findCat(catId);
   if (!cat) return;
   cat.name = document.getElementById('mCatName').value.trim() || cat.name;
   cat.color = document.querySelector('#mColorPicker .selected')?.dataset.color || cat.color;
-  closeModal(); render(); saveState();
-}
+  UI.closeModal(); App.render(); App.saveState();
+};
 
-function deleteCat(catId) {
-  const cat = findCat(catId);
+Sidebar.deleteCat = function(catId) {
+  const cat = Utils.findCat(catId);
   if (!cat) return;
-  showConfirmModal('Delete Program', `Are you sure you want to delete "${esc(cat.name)}" and all its tasks? This cannot be undone.`, () => {
+  UI.showConfirmModal('Delete Program', `Are you sure you want to delete "${Utils.esc(cat.name)}" and all its tasks? This cannot be undone.`, () => {
     state.categories = state.categories.filter(c => c.id !== catId);
-    if (state.selectedTask?.catId === catId) closePanel();
-    render(); saveState();
+    if (state.selectedTask?.catId === catId) Tasks.closePanel();
+    App.render(); App.saveState();
   });
-}
+};
 
 // ========== TASK CRUD ==========
 let modalLinks = [];
 
-function renderModalLinks() {
+Tasks.renderModalLinks = function() {
   const container = document.getElementById('mLinksContainer');
   if (!container) return;
   let html = '';
@@ -1534,22 +1524,22 @@ function renderModalLinks() {
     for (let i = 0; i < modalLinks.length; i++) {
       const link = modalLinks[i];
       html += `<div class="modal-link-item">
-        <span class="link-title">${esc(link.title || 'Link')}</span>
-        <span class="link-url">${esc(link.url)}</span>
-        <button class="s-action" onclick="removeModalLink(${i})" title="Remove">&#10005;</button>
+        <span class="link-title">${Utils.esc(link.title || 'Link')}</span>
+        <span class="link-url">${Utils.esc(link.url)}</span>
+        <button class="s-action" onclick="Tasks.removeModalLink(${i})" title="Remove">&#10005;</button>
       </div>`;
     }
     html += '</div>';
   }
   html += `<div class="modal-link-add">
     <input id="mLinkTitle" placeholder="Title" style="flex:0.35">
-    <input id="mLinkUrl" placeholder="https://..." style="flex:0.65" onkeydown="if(event.key==='Enter'){event.preventDefault();addModalLink()}">
-    <button onclick="addModalLink()">+ Add</button>
+    <input id="mLinkUrl" placeholder="https://..." style="flex:0.65" onkeydown="if(event.key==='Enter'){event.preventDefault();Tasks.addModalLink()}">
+    <button onclick="Tasks.addModalLink()">+ Add</button>
   </div>`;
   container.innerHTML = html;
 }
 
-function addModalLink() {
+Tasks.addModalLink = function() {
   const titleEl = document.getElementById('mLinkTitle');
   const urlEl = document.getElementById('mLinkUrl');
   if (!urlEl) return;
@@ -1557,19 +1547,19 @@ function addModalLink() {
   if (!url) return;
   const title = titleEl?.value.trim() || 'Link';
   modalLinks.push({ title, url });
-  renderModalLinks();
-}
+  Tasks.renderModalLinks();
+};
 
-function removeModalLink(idx) {
+Tasks.removeModalLink = function(idx) {
   modalLinks.splice(idx, 1);
-  renderModalLinks();
-}
+  Tasks.renderModalLinks();
+};
 
-function buildTaskModalBody(opts = {}) {
-  const { name, startDate, endDate, status, notes, isEdit, lastUpdated, predecessors, dependents } = opts;
-  const today = toStr(todayDate());
+Tasks.buildTaskModalBody = function(opts = {}) {
+  const { name, startDate, endDate, status, notes, isEdit, lastUpdated, predecessors, dependents, type } = opts;
+  const today = Utils.toStr(Utils.todayDate());
   const startVal = startDate || today;
-  const endVal = endDate || toStr(addDays(toDate(startVal), 6));
+  const endVal = endDate || Utils.toStr(Utils.addDays(Utils.toDate(startVal), 6));
 
   // Dependency banners
   let depBannerHtml = '';
@@ -1580,17 +1570,17 @@ function buildTaskModalBody(opts = {}) {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
       <div class="dep-banner-content">
         <span class="dep-banner-label">Dependency Chain</span>
-        <span class="dep-banner-detail">Depends on: ${predecessors.map(p => esc(p.name)).join(', ')}</span>
-        <span class="dep-banner-detail">Blocks: ${dependents.map(d => esc(d.name)).join(', ')}</span>
+        <span class="dep-banner-detail">Depends on: ${predecessors.map(p => Utils.esc(p.name)).join(', ')}</span>
+        <span class="dep-banner-detail">Blocks: ${dependents.map(d => Utils.esc(d.name)).join(', ')}</span>
       </div>
     </div>`;
   } else if (hasPreds) {
-    const latestPred = predecessors.reduce((a, b) => toDate(a.endDate) > toDate(b.endDate) ? a : b);
+    const latestPred = predecessors.reduce((a, b) => Utils.toDate(a.endDate) > Utils.toDate(b.endDate) ? a : b);
     depBannerHtml = `<div class="dep-banner is-dependent">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
       <div class="dep-banner-content">
         <span class="dep-banner-label">Dependent Task</span>
-        <span class="dep-banner-detail">Depends on: ${predecessors.map(p => esc(p.name)).join(', ')} &mdash; cannot start before ${formatDateShort(addDays(toDate(latestPred.endDate), 1))}</span>
+        <span class="dep-banner-detail">Depends on: ${predecessors.map(p => Utils.esc(p.name)).join(', ')} &mdash; cannot start before ${Utils.formatDateShort(Utils.addDays(Utils.toDate(latestPred.endDate), 1))}</span>
       </div>
     </div>`;
   } else if (hasDeps) {
@@ -1598,7 +1588,7 @@ function buildTaskModalBody(opts = {}) {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
       <div class="dep-banner-content">
         <span class="dep-banner-label">Master Task</span>
-        <span class="dep-banner-detail">Blocks: ${dependents.map(d => esc(d.name)).join(', ')} &mdash; changing dates will cascade</span>
+        <span class="dep-banner-detail">Blocks: ${dependents.map(d => Utils.esc(d.name)).join(', ')} &mdash; changing dates will cascade</span>
       </div>
     </div>`;
   }
@@ -1607,17 +1597,26 @@ function buildTaskModalBody(opts = {}) {
   let minStartAttr = '';
   let startHint = '';
   if (hasPreds) {
-    const latestPred = predecessors.reduce((a, b) => toDate(a.endDate) > toDate(b.endDate) ? a : b);
-    const minDate = toStr(addDays(toDate(latestPred.endDate), 1));
-    minStartAttr = ` min="${minDate}" onchange="clampModalStartDate('${minDate}')"`;
-    startHint = `<div class="field-hint">Earliest: ${formatDateShort(toDate(minDate))}</div>`;
+    const latestPred = predecessors.reduce((a, b) => Utils.toDate(a.endDate) > Utils.toDate(b.endDate) ? a : b);
+    const minDate = Utils.toStr(Utils.addDays(Utils.toDate(latestPred.endDate), 1));
+    minStartAttr = ` min="${minDate}" onchange="Tasks.clampModalStartDate('${minDate}')"`;
+    startHint = `<div class="field-hint">Earliest: ${Utils.formatDateShort(Utils.toDate(minDate))}</div>`;
   }
 
   return `
     ${depBannerHtml}
     <div class="form-group">
       <label>Task Name</label>
-      <input id="mTaskName" value="${esc(name || '')}" placeholder="Enter task name" ${!isEdit ? 'autofocus' : ''}>
+      <input id="mTaskName" value="${Utils.esc(name || '')}" placeholder="Enter task name" ${!isEdit ? 'autofocus' : ''}>
+    </div>
+    <div class="form-row" style="margin-bottom:16px">
+      <div class="form-group" style="flex:1">
+        <label>Type</label>
+        <select id="mType" onchange="Tasks.onTypeChange(this.value)">
+          <option value="task"${(!type || type === 'task') ? ' selected' : ''}>Task</option>
+          <option value="milestone"${type === 'milestone' ? ' selected' : ''}>Milestone</option>
+        </select>
+      </div>
     </div>
     <div class="form-row" style="margin-bottom:16px">
       <div class="form-group">
@@ -1625,58 +1624,73 @@ function buildTaskModalBody(opts = {}) {
         <input id="mStartDate" type="date" value="${startVal}"${minStartAttr}>
         ${startHint}
       </div>
-      <div class="form-group">
+      <div class="form-group" id="mEndDateGroup"${type === 'milestone' ? ' style="display:none"' : ''}>
         <label>End Date</label>
-        <input id="mEndDate" type="date" value="${endVal}">
+        <input id="mEndDate" type="date" value="${type === 'milestone' ? startVal : endVal}">
       </div>
     </div>
     <div class="form-row" style="margin-bottom:16px">
       <div class="form-group" style="flex:1">
         <label>Status</label>
         <div class="status-select-wrap">
-          <span class="status-dot" id="mStatusDot" style="background:${statusColor(status || 'draft')}"></span>
-          <select id="mStatus" style="color:${statusColor(status || 'draft')};font-weight:600" onchange="this.style.color=statusColor(this.value);document.getElementById('mStatusDot').style.background=statusColor(this.value)">${STATUS_OPTIONS.map(s => `<option value="${s.value}" style="color:${s.color}"${s.value === (status || 'draft') ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
+          <span class="status-dot" id="mStatusDot" style="background:${Utils.statusColor(status || 'draft')}"></span>
+          <select id="mStatus" style="color:${Utils.statusColor(status || 'draft')};font-weight:600" onchange="this.style.color=Utils.statusColor(this.value);document.getElementById('mStatusDot').style.background=Utils.statusColor(this.value)">${STATUS_OPTIONS.map(s => `<option value="${s.value}" style="color:${s.color}"${s.value === (status || 'draft') ? ' selected' : ''}>${s.label}</option>`).join('')}</select>
         </div>
       </div>
     </div>
     <div class="form-group">
       <label>Notes</label>
-      <textarea id="mNotes" rows="2" placeholder="Add notes...">${esc(notes || '')}</textarea>
+      <textarea id="mNotes" rows="2" placeholder="Add notes...">${Utils.esc(notes || '')}</textarea>
     </div>
     <div class="form-group" style="margin-bottom:0">
       <label>Links</label>
       <div id="mLinksContainer"></div>
     </div>
     ${lastUpdated ? `<div class="modal-meta">Last updated: ${new Date(lastUpdated).toLocaleString()}</div>` : ''}`;
-}
+};
 
-function showAddTaskModal(catId, prefillStart, prefillEnd) {
+Tasks.onTypeChange = function(val) {
+  const endGroup = document.getElementById('mEndDateGroup');
+  if (!endGroup) return;
+  if (val === 'milestone') {
+    endGroup.style.display = 'none';
+    document.getElementById('mEndDate').value = document.getElementById('mStartDate').value;
+  } else {
+    endGroup.style.display = '';
+  }
+};
+
+Tasks.showAddTaskModal = function(catId, prefillStart, prefillEnd) {
   modalLinks = [];
   const html = `
-    <div class="modal-header">New Project<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-header">New Project<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
     <div class="modal-body">
-      ${buildTaskModalBody({ startDate: prefillStart, endDate: prefillEnd })}
+      ${Tasks.buildTaskModalBody({ startDate: prefillStart, endDate: prefillEnd })}
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="doAddTask('${catId}')">Add Project</button>
+      <button class="btn" onclick="UI.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Tasks.doAddTask('${catId}')">Add Project</button>
     </div>`;
-  openModal(html);
-  renderModalLinks();
+  UI.openModal(html);
+  Tasks.renderModalLinks();
   setTimeout(() => document.getElementById('mTaskName')?.focus(), 100);
-}
+};
 
-function doAddTask(catId, groupOverride) {
-  const cat = findCat(catId);
+Tasks.doAddTask = function(catId, groupOverride) {
+  const cat = Utils.findCat(catId);
   if (!cat) return;
   const name = document.getElementById('mTaskName').value.trim();
   if (!name) return;
+  const type = document.getElementById('mType')?.value || 'task';
+  const startDate = document.getElementById('mStartDate').value;
+  const endDate = type === 'milestone' ? startDate : document.getElementById('mEndDate').value;
   cat.tasks.push({
-    id: uid(),
+    id: Utils.uid(),
     name,
+    type,
     group: groupOverride || name,
-    startDate: document.getElementById('mStartDate').value,
-    endDate: document.getElementById('mEndDate').value,
+    startDate,
+    endDate,
     status: document.getElementById('mStatus').value,
     notes: document.getElementById('mNotes').value,
     urls: [...modalLinks],
@@ -1684,79 +1698,83 @@ function doAddTask(catId, groupOverride) {
     lastUpdated: new Date().toISOString()
   });
   modalLinks = [];
-  closeModal(); render(); saveState();
-}
+  UI.closeModal(); App.render(); App.saveState();
+};
 
-function showAddToGroupModal(catId, encodedGroupName, prefillStart, prefillEnd) {
+Tasks.showAddToGroupModal = function(catId, encodedGroupName, prefillStart, prefillEnd) {
   modalLinks = [];
   const groupName = decodeURIComponent(encodedGroupName);
   const safeGroup = groupName.replace(/'/g, "\\'");
   const html = `
-    <div class="modal-header">Add Task to "${esc(groupName)}"<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-header">Add Task to "${Utils.esc(groupName)}"<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
     <div class="modal-body">
-      ${buildTaskModalBody({ startDate: prefillStart, endDate: prefillEnd })}
+      ${Tasks.buildTaskModalBody({ startDate: prefillStart, endDate: prefillEnd })}
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="doAddTask('${catId}','${safeGroup}')">Add Task</button>
+      <button class="btn" onclick="UI.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Tasks.doAddTask('${catId}','${safeGroup}')">Add Task</button>
     </div>`;
-  openModal(html);
-  renderModalLinks();
+  UI.openModal(html);
+  Tasks.renderModalLinks();
   setTimeout(() => document.getElementById('mTaskName')?.focus(), 100);
-}
+};
 
-function getTaskDepInfo(catId, taskId) {
-  const cat = findCat(catId);
-  const task = findTask(catId, taskId);
+Tasks.getTaskDepInfo = function(catId, taskId) {
+  const cat = Utils.findCat(catId);
+  const task = Utils.findTask(catId, taskId);
   if (!cat || !task) return { predecessors: [], dependents: [] };
-  const predecessors = (task.dependencies || []).map(id => findTask(catId, id)).filter(Boolean);
+  const predecessors = (task.dependencies || []).map(id => Utils.findTask(catId, id)).filter(Boolean);
   const dependents = cat.tasks.filter(t => t.dependencies && t.dependencies.includes(taskId));
   return { predecessors, dependents };
-}
+};
 
-function clampModalStartDate(minDate) {
+Tasks.clampModalStartDate = function(minDate) {
   const el = document.getElementById('mStartDate');
   if (!el) return;
   if (el.value < minDate) el.value = minDate;
-}
+};
 
-function showEditTaskModal(catId, taskId) {
-  const task = findTask(catId, taskId);
+Tasks.showEditTaskModal = function(catId, taskId) {
+  const task = Utils.findTask(catId, taskId);
   if (!task) return;
   modalLinks = [...(task.urls || [])];
-  const { predecessors, dependents } = getTaskDepInfo(catId, taskId);
+  const { predecessors, dependents } = Tasks.getTaskDepInfo(catId, taskId);
   const html = `
-    <div class="modal-header">Edit Task<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-header">Edit Task<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
     <div class="modal-body">
-      ${buildTaskModalBody({ name: task.name, startDate: task.startDate, endDate: task.endDate, status: task.status, notes: task.notes, isEdit: true, lastUpdated: task.lastUpdated, predecessors, dependents })}
+      ${Tasks.buildTaskModalBody({ name: task.name, startDate: task.startDate, endDate: task.endDate, status: task.status, notes: task.notes, isEdit: true, lastUpdated: task.lastUpdated, predecessors, dependents, type: task.type })}
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" onclick="closeModal();deleteTask('${catId}','${taskId}')">Delete</button>
+      <button class="btn btn-danger" onclick="UI.closeModal();Tasks.deleteTask('${catId}','${taskId}')">Delete</button>
       <div style="flex:1"></div>
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="doEditTask('${catId}','${taskId}')">Save</button>
+      <button class="btn" onclick="UI.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Tasks.doEditTask('${catId}','${taskId}')">Save</button>
     </div>`;
-  openModal(html);
-  renderModalLinks();
-}
+  UI.openModal(html);
+  Tasks.renderModalLinks();
+};
 
-function doEditTask(catId, taskId) {
-  const task = findTask(catId, taskId);
+Tasks.doEditTask = function(catId, taskId) {
+  const task = Utils.findTask(catId, taskId);
   if (!task) return;
   task.name = document.getElementById('mTaskName').value.trim() || task.name;
+  const newType = document.getElementById('mType')?.value || task.type || 'task';
+  task.type = newType;
   let newStart = document.getElementById('mStartDate').value;
   let newEnd = document.getElementById('mEndDate').value;
+  if (task.type === 'milestone') newEnd = newStart;
   // Enforce: dependent task cannot start before predecessor ends
-  const { predecessors } = getTaskDepInfo(catId, taskId);
+  const { predecessors } = Tasks.getTaskDepInfo(catId, taskId);
   if (predecessors.length > 0) {
-    const latestPredEnd = predecessors.reduce((a, b) => toDate(a.endDate) > toDate(b.endDate) ? a : b).endDate;
-    const minStart = toStr(addDays(toDate(latestPredEnd), 1));
+    const latestPredEnd = predecessors.reduce((a, b) => Utils.toDate(a.endDate) > Utils.toDate(b.endDate) ? a : b).endDate;
+    const minStart = Utils.toStr(Utils.addDays(Utils.toDate(latestPredEnd), 1));
     if (newStart < minStart) {
-      const shift = diffDays(newStart, minStart);
+      const shift = Utils.diffDays(newStart, minStart);
       newStart = minStart;
-      newEnd = toStr(addDays(toDate(newEnd), shift));
+      newEnd = Utils.toStr(Utils.addDays(Utils.toDate(newEnd), shift));
     }
   }
+  if (task.type === 'milestone') newEnd = newStart;
   task.startDate = newStart;
   task.endDate = newEnd;
   task.status = document.getElementById('mStatus').value;
@@ -1764,17 +1782,17 @@ function doEditTask(catId, taskId) {
   task.urls = [...modalLinks];
   task.lastUpdated = new Date().toISOString();
   modalLinks = [];
-  enforceAllDependencies(catId, taskId);
-  closeModal(); render(); saveState();
-  if (state.selectedTask?.taskId === taskId) renderPanel();
-}
+  Deps.enforceAllDependencies(catId, taskId);
+  UI.closeModal(); App.render(); App.saveState();
+  if (state.selectedTask?.taskId === taskId) Tasks.renderPanel();
+};
 
-function deleteTask(catId, taskId) {
-  const cat = findCat(catId);
+Tasks.deleteTask = function(catId, taskId) {
+  const cat = Utils.findCat(catId);
   if (!cat) return;
-  const task = findTask(catId, taskId);
+  const task = Utils.findTask(catId, taskId);
   if (!task) return;
-  showConfirmModal('Delete Task', `Are you sure you want to delete "${esc(task.name)}"? This cannot be undone.`, () => {
+  UI.showConfirmModal('Delete Task', `Are you sure you want to delete "${Utils.esc(task.name)}"? This cannot be undone.`, () => {
     // Clean up dependency references
     for (const t of cat.tasks) {
       if (t.dependencies) {
@@ -1782,89 +1800,99 @@ function deleteTask(catId, taskId) {
       }
     }
     cat.tasks = cat.tasks.filter(t => t.id !== taskId);
-    if (state.selectedTask?.taskId === taskId) closePanel();
-    render(); saveState();
+    if (state.selectedTask?.taskId === taskId) Tasks.closePanel();
+    App.render(); App.saveState();
   });
-}
+};
 
 // ========== DETAIL PANEL ==========
-function openPanel(catId, taskId) {
-  hideTooltip();
+Tasks.openPanel = function(catId, taskId) {
+  UI.hideTooltip();
   state.selectedTask = { catId, taskId };
-  renderPanel();
+  Tasks.renderPanel();
   $panelOverlay.classList.add('open');
   $detailPanel.classList.add('open');
-  render();
-}
+  App.render();
+};
 
-function closePanel() {
+Tasks.closePanel = function() {
   state.selectedTask = null;
   $panelOverlay.classList.remove('open');
   $detailPanel.classList.remove('open');
-  render();
-}
+  App.render();
+};
 
-function renderPanel() {
+Tasks.renderPanel = function() {
   if (!state.selectedTask) return;
   const { catId, taskId } = state.selectedTask;
-  const cat = findCat(catId);
-  const task = findTask(catId, taskId);
-  if (!cat || !task) { closePanel(); return; }
+  const cat = Utils.findCat(catId);
+  const task = Utils.findTask(catId, taskId);
+  if (!cat || !task) { Tasks.closePanel(); return; }
 
   const statusOpt = STATUS_OPTIONS.find(s => s.value === task.status) || STATUS_OPTIONS[0];
 
   $detailPanel.innerHTML = `
     <div class="dp-header">
-      <span class="dp-breadcrumb">${esc(cat.name)} / ${esc(task.name)}</span>
-      <button class="s-action" onclick="closePanel()">&#10005;</button>
+      <span class="dp-breadcrumb">${Utils.esc(cat.name)} / ${Utils.esc(task.name)}</span>
+      <button class="s-action" onclick="Tasks.closePanel()">&#10005;</button>
     </div>
     <div class="dp-title-row">
       <div class="dp-color-dot" style="background:${cat.color}"></div>
-      <input class="dp-title-input" value="${esc(task.name)}" onchange="panelUpdate('name',this.value)">
+      <input class="dp-title-input" value="${Utils.esc(task.name)}" onchange="Tasks.panelUpdate('name',this.value)">
     </div>
     <div class="dp-body">
       <div class="dp-field">
         <label class="dp-label">Status</label>
         <div class="status-select-wrap">
-          <span class="status-dot" id="dpStatusDot" style="background:${statusColor(task.status)}"></span>
-          <select class="dp-select" style="color:${statusColor(task.status)};font-weight:600" onchange="this.style.color=statusColor(this.value);document.getElementById('dpStatusDot').style.background=statusColor(this.value);panelUpdate('status',this.value)">
+          <span class="status-dot" id="dpStatusDot" style="background:${Utils.statusColor(task.status)}"></span>
+          <select class="dp-select" style="color:${Utils.statusColor(task.status)};font-weight:600" onchange="this.style.color=Utils.statusColor(this.value);document.getElementById('dpStatusDot').style.background=Utils.statusColor(this.value);Tasks.panelUpdate('status',this.value)">
             ${STATUS_OPTIONS.map(s => `<option value="${s.value}" style="color:${s.color}"${s.value === task.status ? ' selected' : ''}>${s.label}</option>`).join('')}
           </select>
         </div>
       </div>
+      ${task.type === 'milestone' ? `
+      <div class="dp-field">
+        <label class="dp-label">Date</label>
+        <div class="dp-date-row">
+          <input class="dp-input" type="date" value="${task.startDate}" onchange="Tasks.panelUpdate('startDate',this.value);Tasks.panelUpdate('endDate',this.value)" style="flex:1">
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">Milestone</div>
+      </div>
+      ` : `
       <div class="dp-field">
         <label class="dp-label">Dates</label>
         <div class="dp-date-row">
-          <input class="dp-input" type="date" value="${task.startDate}" onchange="panelUpdate('startDate',this.value)" style="flex:1">
+          <input class="dp-input" type="date" value="${task.startDate}" onchange="Tasks.panelUpdate('startDate',this.value)" style="flex:1">
           <span>&rarr;</span>
-          <input class="dp-input" type="date" value="${task.endDate}" onchange="panelUpdate('endDate',this.value)" style="flex:1">
+          <input class="dp-input" type="date" value="${task.endDate}" onchange="Tasks.panelUpdate('endDate',this.value)" style="flex:1">
         </div>
-        <div style="font-size:12px;color:var(--text3);margin-top:4px">${diffDays(task.startDate, task.endDate) + 1} days</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">${Utils.diffDays(task.startDate, task.endDate) + 1} days</div>
       </div>
+      `}
       <div class="dp-field">
         <label class="dp-label">Notes</label>
-        <textarea class="dp-textarea" onchange="panelUpdate('notes',this.value)">${esc(task.notes)}</textarea>
+        <textarea class="dp-textarea" onchange="Tasks.panelUpdate('notes',this.value)">${Utils.esc(task.notes)}</textarea>
       </div>
       ${task.lastUpdated ? `<div style="font-size:11px;color:var(--text3);padding:0 0 8px">Last updated: ${new Date(task.lastUpdated).toLocaleString()}</div>` : ''}
       <div class="dp-field">
         <label class="dp-label">Links</label>
         <div class="url-list" id="dpUrlList">
           ${(task.urls || []).map((u, i) => `<div class="url-item">
-            <span class="url-item-title">${esc(u.title || 'Link')}</span>
-            <a href="${esc(u.url)}" target="_blank" rel="noopener">${esc(u.url)}</a>
-            <button class="s-action" onclick="removeUrl(${i})" title="Remove">&#10005;</button>
+            <span class="url-item-title">${Utils.esc(u.title || 'Link')}</span>
+            <a href="${Utils.esc(u.url)}" target="_blank" rel="noopener">${Utils.esc(u.url)}</a>
+            <button class="s-action" onclick="Tasks.removeUrl(${i})" title="Remove">&#10005;</button>
           </div>`).join('')}
         </div>
         <div class="url-add-row">
           <div class="url-add-inputs">
             <input id="dpUrlTitle" placeholder="Title" style="flex:0.4">
             <input id="dpUrlValue" placeholder="https://..." style="flex:0.6">
-            <button class="btn btn-icon" onclick="addUrlFromPanel()" title="Add link" style="flex-shrink:0">+</button>
+            <button class="btn btn-icon" onclick="Tasks.addUrlFromPanel()" title="Add link" style="flex-shrink:0">+</button>
           </div>
         </div>
       </div>
       ${(() => {
-        const predecessors = (task.dependencies || []).map(id => findTask(catId, id)).filter(Boolean);
+        const predecessors = (task.dependencies || []).map(id => Utils.findTask(catId, id)).filter(Boolean);
         const dependents = cat.tasks.filter(t => t.dependencies && t.dependencies.includes(task.id));
         if (predecessors.length === 0 && dependents.length === 0) return '';
         let depHtml = '<div class="dp-field"><label class="dp-label">Dependencies</label>';
@@ -1872,15 +1900,15 @@ function renderPanel() {
           depHtml += '<div style="font-size:11px;color:var(--text3);margin-bottom:4px">Depends on:</div>';
           for (const p of predecessors) {
             depHtml += `<div style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:2px">
-              <span style="color:var(--text2)">${esc(p.name)} (${formatDateShort(toDate(p.endDate))})</span>
-              <button class="s-action" onclick="removeDep('${catId}','${task.id}','${p.id}')" title="Remove">&#10005;</button>
+              <span style="color:var(--text2)">${Utils.esc(p.name)} (${Utils.formatDateShort(Utils.toDate(p.endDate))})</span>
+              <button class="s-action" onclick="Tasks.removeDep('${catId}','${task.id}','${p.id}')" title="Remove">&#10005;</button>
             </div>`;
           }
         }
         if (dependents.length > 0) {
           depHtml += '<div style="font-size:11px;color:var(--text3);margin-bottom:4px;margin-top:6px">Blocks:</div>';
           for (const d of dependents) {
-            depHtml += `<div style="font-size:12px;color:var(--text2);margin-bottom:2px">${esc(d.name)} (${formatDateShort(toDate(d.startDate))})</div>`;
+            depHtml += `<div style="font-size:12px;color:var(--text2);margin-bottom:2px">${Utils.esc(d.name)} (${Utils.formatDateShort(Utils.toDate(d.startDate))})</div>`;
           }
         }
         depHtml += '</div>';
@@ -1888,96 +1916,99 @@ function renderPanel() {
       })()}
     </div>
     <div class="dp-footer">
-      <button class="btn btn-danger" onclick="closePanel();deleteTask('${catId}','${taskId}')">Delete</button>
-      <button class="btn btn-primary" onclick="closePanel()">Done</button>
+      <button class="btn btn-danger" onclick="Tasks.closePanel();Tasks.deleteTask('${catId}','${taskId}')">Delete</button>
+      <button class="btn btn-primary" onclick="Tasks.closePanel()">Done</button>
     </div>`;
-}
+};
 
-function panelUpdate(key, value) {
+Tasks.panelUpdate = function(key, value) {
   if (!state.selectedTask) return;
-  const task = findTask(state.selectedTask.catId, state.selectedTask.taskId);
+  const task = Utils.findTask(state.selectedTask.catId, state.selectedTask.taskId);
   if (!task) return;
   // Clamp start date for dependent tasks
   if (key === 'startDate' && task.dependencies && task.dependencies.length > 0) {
-    const { predecessors } = getTaskDepInfo(state.selectedTask.catId, state.selectedTask.taskId);
+    const { predecessors } = Tasks.getTaskDepInfo(state.selectedTask.catId, state.selectedTask.taskId);
     if (predecessors.length > 0) {
-      const latestPredEnd = predecessors.reduce((a, b) => toDate(a.endDate) > toDate(b.endDate) ? a : b).endDate;
-      const minStart = toStr(addDays(toDate(latestPredEnd), 1));
+      const latestPredEnd = predecessors.reduce((a, b) => Utils.toDate(a.endDate) > Utils.toDate(b.endDate) ? a : b).endDate;
+      const minStart = Utils.toStr(Utils.addDays(Utils.toDate(latestPredEnd), 1));
       if (value < minStart) value = minStart;
     }
   }
   task[key] = value;
+  if (task.type === 'milestone' && (key === 'startDate' || key === 'endDate')) {
+    task.startDate = task.endDate = value;
+  }
   task.lastUpdated = new Date().toISOString();
   if (key === 'startDate' || key === 'endDate') {
-    enforceAllDependencies(state.selectedTask.catId, state.selectedTask.taskId);
+    Deps.enforceAllDependencies(state.selectedTask.catId, state.selectedTask.taskId);
   }
-  render(); saveState();
-  renderPanel();
-}
+  App.render(); App.saveState();
+  Tasks.renderPanel();
+};
 
-function addUrlFromPanel() {
+Tasks.addUrlFromPanel = function() {
   if (!state.selectedTask) return;
-  const task = findTask(state.selectedTask.catId, state.selectedTask.taskId);
+  const task = Utils.findTask(state.selectedTask.catId, state.selectedTask.taskId);
   if (!task) return;
   const title = document.getElementById('dpUrlTitle')?.value.trim() || 'Link';
   const url = document.getElementById('dpUrlValue')?.value.trim();
   if (!url) return;
   if (!task.urls) task.urls = [];
   task.urls.push({ title, url });
-  render(); saveState();
-  renderPanel();
-}
+  App.render(); App.saveState();
+  Tasks.renderPanel();
+};
 
-function removeDep(catId, taskId, predId) {
-  const task = findTask(catId, taskId);
+Tasks.removeDep = function(catId, taskId, predId) {
+  const task = Utils.findTask(catId, taskId);
   if (!task || !task.dependencies) return;
   task.dependencies = task.dependencies.filter(id => id !== predId);
-  render(); saveState();
-  renderPanel();
-}
+  App.render(); App.saveState();
+  Tasks.renderPanel();
+};
 
-function removeUrl(idx) {
+Tasks.removeUrl = function(idx) {
   if (!state.selectedTask) return;
-  const task = findTask(state.selectedTask.catId, state.selectedTask.taskId);
+  const task = Utils.findTask(state.selectedTask.catId, state.selectedTask.taskId);
   if (!task || !task.urls) return;
   task.urls.splice(idx, 1);
-  render(); saveState();
-  renderPanel();
-}
+  App.render(); App.saveState();
+  Tasks.renderPanel();
+};
 
 // ========== MODAL ==========
-function openModal(html) {
-  hideTooltip();
+UI.openModal = function(html) {
+  UI.hideTooltip();
   $modal.innerHTML = html;
   $modalBg.classList.add('open');
-}
-function closeModal() { $modalBg.classList.remove('open'); }
+};
+UI.closeModal = function() { $modalBg.classList.remove('open'); };
 
 let _confirmCb = null;
-function showConfirmModal(title, message, onConfirm) {
+UI.showConfirmModal = function(title, message, onConfirm) {
   _confirmCb = onConfirm;
   const html = `
-    <div class="modal-header" style="color:var(--red)">${title}<button class="s-action" onclick="closeModal()">&#10005;</button></div>
+    <div class="modal-header" style="color:var(--red)">${title}<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
     <div class="modal-body">
       <p style="font-size:13px;color:var(--text2);margin:0">${message}</p>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-danger" onclick="_confirmCb&&_confirmCb();closeModal()">Delete</button>
+      <button class="btn" onclick="UI.closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="_confirmCb&&_confirmCb();UI.closeModal()">Delete</button>
     </div>`;
-  openModal(html);
-}
+  UI.openModal(html);
+};
 
-function pickColor(el) {
+UI.pickColor = function(el) {
   el.parentElement.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
   el.classList.add('selected');
-}
+};
 
 // ========== PROJECT NAME ==========
 const $projectName = document.getElementById('projectName');
 
-function editProjectName() {
-  closePortfolioDropdown();
+Portfolio.editProjectName = function() {
+  Portfolio.closePortfolioDropdown();
   const wrap = document.querySelector('.portfolio-title-wrap');
   const current = state.projectName;
   const input = document.createElement('input');
@@ -1994,8 +2025,8 @@ function editProjectName() {
     state.projectName = val;
     input.remove();
     wrap.style.display = '';
-    applyProjectName();
-    saveState();
+    Portfolio.applyProjectName();
+    App.saveState();
   }
 
   input.addEventListener('blur', commit);
@@ -2003,20 +2034,20 @@ function editProjectName() {
     if (e.key === 'Enter') input.blur();
     if (e.key === 'Escape') { input.value = current; input.blur(); }
   });
-}
+};
 
-function applyProjectName() {
+Portfolio.applyProjectName = function() {
   const span = document.getElementById('projectName');
   if (span) span.textContent = state.projectName;
   document.title = `Resource Manager - ${state.projectName}`;
-}
+};
 
-function applyOrgName() {
+Portfolio.applyOrgName = function() {
   const el = document.getElementById('orgName');
   if (el) el.textContent = state.orgName;
-}
+};
 
-function editOrgName() {
+Portfolio.editOrgName = function() {
   const el = document.getElementById('orgName');
   if (!el) return;
   const current = state.orgName;
@@ -2036,9 +2067,9 @@ function editOrgName() {
     newEl.className = 'org-name';
     newEl.textContent = val;
     newEl.title = 'Click to rename organization';
-    newEl.onclick = editOrgName;
+    newEl.onclick = Portfolio.editOrgName;
     input.replaceWith(newEl);
-    saveGlobalSettings();
+    Portfolio.saveGlobalSettings();
   }
 
   input.addEventListener('blur', commit);
@@ -2046,106 +2077,106 @@ function editOrgName() {
     if (e.key === 'Enter') input.blur();
     if (e.key === 'Escape') { input.value = current; input.blur(); }
   });
-}
+};
 
 // ========== PORTFOLIO DROPDOWN ==========
 let portfolioDropdownOpen = false;
 
-function togglePortfolioDropdown(e) {
+Portfolio.togglePortfolioDropdown = function(e) {
   e.stopPropagation();
-  if (portfolioDropdownOpen) { closePortfolioDropdown(); }
-  else { openPortfolioDropdown(); }
-}
+  if (portfolioDropdownOpen) { Portfolio.closePortfolioDropdown(); }
+  else { Portfolio.openPortfolioDropdown(); }
+};
 
-function openPortfolioDropdown() {
-  renderPortfolioDropdown();
+Portfolio.openPortfolioDropdown = function() {
+  Portfolio.renderPortfolioDropdown();
   $portfolioDropdown.style.display = '';
   portfolioDropdownOpen = true;
-  setTimeout(() => document.addEventListener('click', closePortfolioDropdownOutside), 0);
-}
+  setTimeout(() => document.addEventListener('click', Portfolio.closePortfolioDropdownOutside), 0);
+};
 
-function closePortfolioDropdown() {
+Portfolio.closePortfolioDropdown = function() {
   $portfolioDropdown.style.display = 'none';
   portfolioDropdownOpen = false;
-  document.removeEventListener('click', closePortfolioDropdownOutside);
-}
+  document.removeEventListener('click', Portfolio.closePortfolioDropdownOutside);
+};
 
-function closePortfolioDropdownOutside(e) {
+Portfolio.closePortfolioDropdownOutside = function(e) {
   if (!$portfolioDropdown.contains(e.target) && !e.target.closest('.portfolio-title-wrap')) {
-    closePortfolioDropdown();
+    Portfolio.closePortfolioDropdown();
   }
-}
+};
 
-function renderPortfolioDropdown() {
-  const reg = getPortfolioRegistry();
+Portfolio.renderPortfolioDropdown = function() {
+  const reg = Portfolio.getPortfolioRegistry();
   let html = '';
   for (const p of reg) {
     const isActive = p.id === state.activePortfolioId;
     const check = isActive ? '<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' : '<span style="width:14px;display:inline-block"></span>';
-    html += `<div class="portfolio-item${isActive ? ' active' : ''}" onclick="handlePortfolioClick('${p.id}')">${check}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</span></div>`;
+    html += `<div class="portfolio-item${isActive ? ' active' : ''}" onclick="Portfolio.handlePortfolioClick('${p.id}')">${check}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${Utils.esc(p.name)}</span></div>`;
   }
   html += '<div class="portfolio-divider"></div>';
-  html += '<div class="portfolio-action" onclick="handleNewPortfolio()">+ New Portfolio</div>';
-  html += '<div class="portfolio-action" onclick="handleRenamePortfolio()">Rename</div>';
-  html += '<div class="portfolio-action" onclick="handleDuplicatePortfolio()">Duplicate</div>';
+  html += '<div class="portfolio-action" onclick="Portfolio.handleNewPortfolio()">+ New Portfolio</div>';
+  html += '<div class="portfolio-action" onclick="Portfolio.handleRenamePortfolio()">Rename</div>';
+  html += '<div class="portfolio-action" onclick="Portfolio.handleDuplicatePortfolio()">Duplicate</div>';
   if (reg.length > 1) {
-    html += `<div class="portfolio-action" style="color:var(--red)" onclick="handleDeletePortfolio()">Delete</div>`;
+    html += `<div class="portfolio-action" style="color:var(--red)" onclick="Portfolio.handleDeletePortfolio()">Delete</div>`;
   }
   $portfolioDropdown.innerHTML = html;
-}
+};
 
-function handlePortfolioClick(id) {
-  closePortfolioDropdown();
-  if (id !== state.activePortfolioId) switchPortfolio(id);
-}
+Portfolio.handlePortfolioClick = function(id) {
+  Portfolio.closePortfolioDropdown();
+  if (id !== state.activePortfolioId) Portfolio.switchPortfolio(id);
+};
 
-function handleNewPortfolio() {
-  closePortfolioDropdown();
+Portfolio.handleNewPortfolio = function() {
+  Portfolio.closePortfolioDropdown();
   const name = prompt('New portfolio name:', 'New Portfolio');
   if (!name || !name.trim()) return;
-  saveState();
-  createPortfolio(name.trim(), true);
-  applyProjectName();
+  App.saveState();
+  Portfolio.createPortfolio(name.trim(), true);
+  Portfolio.applyProjectName();
   state.zoom = 'weeks';
   $zoomSelect.value = 'weeks';
-  goToday();
-}
+  App.goToday();
+};
 
-function handleRenamePortfolio() {
-  closePortfolioDropdown();
-  editProjectName();
-}
+Portfolio.handleRenamePortfolio = function() {
+  Portfolio.closePortfolioDropdown();
+  Portfolio.editProjectName();
+};
 
-function handleDuplicatePortfolio() {
-  closePortfolioDropdown();
-  saveState();
-  duplicatePortfolio(state.activePortfolioId);
-}
+Portfolio.handleDuplicatePortfolio = function() {
+  Portfolio.closePortfolioDropdown();
+  App.saveState();
+  Portfolio.duplicatePortfolio(state.activePortfolioId);
+};
 
-function handleDeletePortfolio() {
-  closePortfolioDropdown();
-  const reg = getPortfolioRegistry();
+Portfolio.handleDeletePortfolio = function() {
+  Portfolio.closePortfolioDropdown();
+  const reg = Portfolio.getPortfolioRegistry();
   if (reg.length <= 1) return;
   const entry = reg.find(p => p.id === state.activePortfolioId);
   if (!confirm(`Delete portfolio "${entry ? entry.name : ''}"? This cannot be undone.`)) return;
-  deletePortfolio(state.activePortfolioId);
-}
+  Portfolio.deletePortfolio(state.activePortfolioId);
+};
 
 // ========== ADD MENU ==========
-function showAddMenu(e) {
+Sidebar.showAddMenu = function(e) {
   e.stopPropagation();
   const items = [
-    { label: '+ New Program', action: () => showAddCatModal() },
+    { label: '+ New Program', action: () => Sidebar.showAddCatModal() },
     ...state.categories.map(c => ({
       label: `+ Task in "${c.name}"`,
-      action: () => showAddTaskModal(c.id)
+      action: () => Tasks.showAddTaskModal(c.id)
     }))
   ];
-  showCtxMenu(e.clientX, e.clientY, items);
-}
+  UI.showCtxMenu(e.clientX, e.clientY, items);
+};
 
 // ========== CONTEXT MENU ==========
-function showCtxMenu(x, y, items) {
+UI.showCtxMenu = function(x, y, items) {
   let html = '';
   for (const item of items) {
     html += `<div class="ctx-item${item.danger ? ' danger' : ''}" data-idx="${items.indexOf(item)}">${item.label}</div>`;
@@ -2158,46 +2189,44 @@ function showCtxMenu(x, y, items) {
   $ctxMenu.querySelectorAll('.ctx-item').forEach(el => {
     el.addEventListener('click', () => {
       items[Number(el.dataset.idx)].action();
-      closeCtxMenu();
+      UI.closeCtxMenu();
     });
   });
-}
+};
 
-function closeCtxMenu() { $ctxMenu.classList.remove('open'); }
+UI.closeCtxMenu = function() { $ctxMenu.classList.remove('open'); };
 
-function showCatCtx(e, catId) {
+Sidebar.showCatCtx = function(e, catId) {
   e.preventDefault(); e.stopPropagation();
-  showCtxMenu(e.clientX, e.clientY, [
-    { label: 'Add Task', action: () => showAddTaskModal(catId) },
-    { label: 'Edit Program', action: () => showEditCatModal(catId) },
-    { label: 'Delete Program', danger: true, action: () => deleteCat(catId) }
+  UI.showCtxMenu(e.clientX, e.clientY, [
+    { label: 'Add Task', action: () => Tasks.showAddTaskModal(catId) },
+    { label: 'Edit Program', action: () => Sidebar.showEditCatModal(catId) },
+    { label: 'Delete Program', danger: true, action: () => Sidebar.deleteCat(catId) }
   ]);
-}
+};
 
-function showTaskCtx(e, catId, taskId) {
+Sidebar.showTaskCtx = function(e, catId, taskId) {
   e.preventDefault(); e.stopPropagation();
-  showCtxMenu(e.clientX, e.clientY, [
-    { label: 'Add Task', action: () => showAddTaskModal(catId) },
-    { label: 'Edit Task', action: () => showEditTaskModal(catId, taskId) },
-    { label: 'Open Details', action: () => openPanel(catId, taskId) },
-    { label: 'Delete Task', danger: true, action: () => deleteTask(catId, taskId) }
+  UI.showCtxMenu(e.clientX, e.clientY, [
+    { label: 'Add Task', action: () => Tasks.showAddTaskModal(catId) },
+    { label: 'Edit Task', action: () => Tasks.showEditTaskModal(catId, taskId) },
+    { label: 'Open Details', action: () => Tasks.openPanel(catId, taskId) },
+    { label: 'Delete Task', danger: true, action: () => Tasks.deleteTask(catId, taskId) }
   ]);
-}
+};
 
-document.addEventListener('click', () => closeCtxMenu());
+document.addEventListener('click', () => UI.closeCtxMenu());
 document.addEventListener('contextmenu', (e) => {
-  if (!e.target.closest('.s-cat-header') && !e.target.closest('.s-task')) closeCtxMenu();
+  if (!e.target.closest('.s-cat-header') && !e.target.closest('.s-task')) UI.closeCtxMenu();
 });
 
 // ========== SIDEBAR REORDER ==========
-let reorderState = null;
-
-function onGripMouseDown(e, catId, encodedGroupName, groupIdx) {
+Drag.onGripMouseDown = function(e, catId, encodedGroupName, groupIdx) {
   e.stopPropagation();
   e.preventDefault();
   const row = e.target.closest('.s-task');
   if (!row) return;
-  reorderState = {
+  Drag.reorderState = {
     catId,
     groupName: decodeURIComponent(encodedGroupName),
     fromIdx: groupIdx,
@@ -2206,65 +2235,11 @@ function onGripMouseDown(e, catId, encodedGroupName, groupIdx) {
     started: false,
     indicator: null
   };
-}
+};
 
-document.addEventListener('mousemove', (e) => {
-  if (!reorderState) return;
-  if (!reorderState.started) {
-    if (Math.abs(e.clientY - reorderState.startY) < 4) return;
-    reorderState.started = true;
-    reorderState.row.classList.add('drag-ghost');
-    document.body.style.cursor = 'grabbing';
-  }
-  // Find all .s-task rows in the same category
-  const catEl = reorderState.row.closest('.s-cat');
-  if (!catEl) return;
-  const rows = [...catEl.querySelectorAll('.s-task')];
-  // Remove old indicator
-  if (reorderState.indicator) reorderState.indicator.remove();
-  // Find insertion point
-  let insertIdx = rows.length;
-  for (let i = 0; i < rows.length; i++) {
-    const rect = rows[i].getBoundingClientRect();
-    if (e.clientY < rect.top + rect.height / 2) {
-      insertIdx = i;
-      break;
-    }
-  }
-  reorderState.insertIdx = insertIdx;
-  // Show indicator line
-  const indicator = document.createElement('div');
-  indicator.className = 's-reorder-line';
-  if (insertIdx < rows.length) {
-    rows[insertIdx].style.position = 'relative';
-    indicator.style.top = '0px';
-    rows[insertIdx].prepend(indicator);
-  } else if (rows.length > 0) {
-    rows[rows.length - 1].style.position = 'relative';
-    indicator.style.bottom = '0px';
-    indicator.style.top = 'auto';
-    rows[rows.length - 1].append(indicator);
-  }
-  reorderState.indicator = indicator;
-});
 
-document.addEventListener('mouseup', (e) => {
-  if (!reorderState) return;
-  if (reorderState.indicator) reorderState.indicator.remove();
-  reorderState.row.classList.remove('drag-ghost');
-  document.body.style.cursor = '';
-  if (reorderState.started && reorderState.insertIdx !== undefined) {
-    const fromIdx = reorderState.fromIdx;
-    let toIdx = reorderState.insertIdx;
-    if (fromIdx !== toIdx && fromIdx !== toIdx - 1) {
-      reorderGroup(reorderState.catId, reorderState.groupName, fromIdx, toIdx > fromIdx ? toIdx - 1 : toIdx);
-    }
-  }
-  reorderState = null;
-});
-
-function reorderGroup(catId, groupName, fromGroupIdx, toGroupIdx) {
-  const cat = findCat(catId);
+Drag.reorderGroup = function(catId, groupName, fromGroupIdx, toGroupIdx) {
+  const cat = Utils.findCat(catId);
   if (!cat) return;
   // Build ordered list of unique group keys (same as buildGroups logic)
   const groupOrder = [];
@@ -2292,19 +2267,17 @@ function reorderGroup(catId, groupName, fromGroupIdx, toGroupIdx) {
   for (const gKey of groupOrder) {
     cat.tasks.push(...tasksByGroup.get(gKey));
   }
-  render();
-  saveState();
-}
+  App.render();
+  App.saveState();
+};
 
 // ========== DRAG: REORDER CATEGORIES ==========
-let catReorderState = null;
-
-function onCatGripMouseDown(e, catId, catIdx) {
+Drag.onCatGripMouseDown = function(e, catId, catIdx) {
   e.stopPropagation();
   e.preventDefault();
   const catEl = e.target.closest('.s-cat');
   if (!catEl) return;
-  catReorderState = {
+  Drag.catReorderState = {
     catId,
     fromIdx: catIdx,
     catEl,
@@ -2312,18 +2285,277 @@ function onCatGripMouseDown(e, catId, catIdx) {
     started: false,
     indicator: null
   };
-}
+};
 
-document.addEventListener('mousemove', (e) => {
-  if (!catReorderState) return;
-  if (!catReorderState.started) {
-    if (Math.abs(e.clientY - catReorderState.startY) < 4) return;
-    catReorderState.started = true;
-    catReorderState.catEl.classList.add('cat-drag-ghost');
+
+// ========== DRAG: HELPERS ==========
+
+Drag.showDragLabel = function(x, y, text) {
+  if (!Drag.$dragDateLabel) {
+    Drag.$dragDateLabel = document.createElement('div');
+    Drag.$dragDateLabel.className = 'drag-date-label';
+    document.body.appendChild(Drag.$dragDateLabel);
+  }
+  Drag.$dragDateLabel.textContent = text;
+  Drag.$dragDateLabel.style.left = x + 'px';
+  Drag.$dragDateLabel.style.top = y + 'px';
+  Drag.$dragDateLabel.style.display = 'block';
+};
+
+Drag.hideDragLabel = function() {
+  if (Drag.$dragDateLabel) Drag.$dragDateLabel.style.display = 'none';
+};
+
+Drag.calcBarPos = function(startDate, endDate) {
+  const dayW = ZOOM_CFG[state.zoom].dayWidth;
+  const tStart = Utils.diffDays(Utils.toStr(state.viewStart), startDate);
+  const tDur = Utils.diffDays(startDate, endDate) + 1;
+  return { left: tStart * dayW, width: Math.max(tDur * dayW - 2, 20) };
+};
+
+Drag.pixelToDate = function(pixelX) {
+  const dayW = ZOOM_CFG[state.zoom].dayWidth;
+  const dayOffset = Math.floor(pixelX / dayW);
+  return Utils.toStr(Utils.addDays(state.viewStart, dayOffset));
+};
+
+Drag.timelinePixelX = function(e) {
+  const rect = $timelineWrap.getBoundingClientRect();
+  return e.clientX - rect.left + $timelineWrap.scrollLeft;
+};
+
+// ========== DRAG: MOVE/RESIZE TASK BARS ==========
+Drag.onBarMouseDown = function(e, catId, taskId) {
+  if (e.button !== 0) return;
+  e.stopPropagation();
+  e.preventDefault();
+  const bar = e.target.closest('.task-bar') || e.target.closest('.milestone-diamond');
+  if (!bar) return;
+  const task = Utils.findTask(catId, taskId);
+  if (!task) return;
+
+  const isLeft = e.target.classList.contains('left');
+  const isRight = e.target.classList.contains('right');
+  const mode = (task.type === 'milestone') ? 'move' : (isLeft ? 'resize-start' : isRight ? 'resize-end' : 'move');
+
+  Drag.dragState = {
+    catId, taskId, mode,
+    startX: e.clientX,
+    startY: e.clientY,
+    origStart: task.startDate,
+    origEnd: task.endDate,
+    dayWidth: ZOOM_CFG[state.zoom].dayWidth,
+    bar,
+    hasMoved: false,
+    lastDayDelta: 0
+  };
+};
+
+// (drag-to-create removed — use sidebar "+" buttons to add tasks)
+
+
+// ========== DEPENDENCIES ==========
+Deps.enforceDependency = function(catId, predId, depId) {
+  const pred = Utils.findTask(catId, predId);
+  const dep = Utils.findTask(catId, depId);
+  if (!pred || !dep) return;
+  const minStart = Utils.toStr(Utils.addDays(Utils.toDate(pred.endDate), 1));
+  if (Utils.toDate(dep.startDate) < Utils.toDate(minStart)) {
+    const shift = Utils.diffDays(dep.startDate, minStart);
+    dep.startDate = minStart;
+    dep.endDate = Utils.toStr(Utils.addDays(Utils.toDate(dep.endDate), shift));
+    Deps.cascadeDependencies(catId, dep.id);
+  }
+};
+
+Deps.cascadeDependencies = function(catId, movedTaskId) {
+  const cat = Utils.findCat(catId);
+  if (!cat) return;
+  for (const task of cat.tasks) {
+    if (task.dependencies && task.dependencies.includes(movedTaskId)) {
+      Deps.enforceDependency(catId, movedTaskId, task.id);
+    }
+  }
+};
+
+Deps.enforceAllDependencies = function(catId, taskId) {
+  Deps.cascadeDependencies(catId, taskId);
+};
+
+Deps.wouldCreateCycle = function(catId, fromId, toId) {
+  const visited = new Set();
+  function dfs(taskId) {
+    if (taskId === toId) return true;
+    if (visited.has(taskId)) return false;
+    visited.add(taskId);
+    const task = Utils.findTask(catId, taskId);
+    if (!task || !task.dependencies) return false;
+    for (const depId of task.dependencies) {
+      if (dfs(depId)) return true;
+    }
+    return false;
+  }
+  return dfs(fromId);
+};
+
+Deps.onDepBubbleMouseDown = function(e, catId, taskId) {
+  e.stopPropagation();
+  e.preventDefault();
+  const bar = e.target.closest('.task-bar') || e.target.closest('.milestone-diamond');
+  if (!bar) return;
+  const barRect = bar.getBoundingClientRect();
+  Drag.depDragState = {
+    catId,
+    fromTaskId: taskId,
+    startX: barRect.right,
+    startY: barRect.top + barRect.height / 2,
+    svgLine: null,
+    started: false
+  };
+};
+
+Deps.showDepCtx = function(e, catId, fromId, toId) {
+  e.preventDefault();
+  e.stopPropagation();
+  UI.showCtxMenu(e.clientX, e.clientY, [
+    { label: 'Remove dependency', danger: true, action: () => {
+      const depTask = Utils.findTask(catId, toId);
+      if (depTask && depTask.dependencies) {
+        depTask.dependencies = depTask.dependencies.filter(id => id !== fromId);
+        App.render(); App.saveState();
+      }
+    }}
+  ]);
+};
+
+// ========== UNIFIED MOUSE DISPATCH ==========
+Drag.handleSidebarResizeMove = function(e) {
+  const newW = Math.max(120, Math.min(500, Drag.sidebarResizeState.startW + (e.clientX - Drag.sidebarResizeState.startX)));
+  $sidebar.style.width = newW + 'px';
+};
+Drag.handleSidebarResizeUp = function() {
+  Drag.sidebarResizeState = null;
+  $sidebarResize.classList.remove('active');
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+};
+Drag.handleCreateDragMove = function(e) {
+  const dx = e.clientX - Drag.createDragState.startX;
+  if (!Drag.createDragState.moved && Math.abs(dx) < 4) return;
+  Drag.createDragState.moved = true;
+
+  const currentPx = Drag.timelinePixelX(e);
+  const leftPx = Math.min(Drag.createDragState.pixelX, currentPx);
+  const widthPx = Math.max(Math.abs(currentPx - Drag.createDragState.pixelX), ZOOM_CFG[state.zoom].dayWidth);
+
+  // Create or update ghost bar
+  if (!Drag.createDragState.ghostBar) {
+    const ghost = document.createElement('div');
+    ghost.className = 'ghost-bar';
+    ghost.style.background = Drag.createDragState.color;
+    Drag.createDragState.taskRow.appendChild(ghost);
+    Drag.createDragState.ghostBar = ghost;
+    document.body.style.cursor = 'crosshair';
+  }
+  Drag.createDragState.ghostBar.style.left = leftPx + 'px';
+  Drag.createDragState.ghostBar.style.width = widthPx + 'px';
+
+  // Show date label
+  const startDate = Drag.pixelToDate(Math.min(Drag.createDragState.pixelX, currentPx));
+  const endDate = Drag.pixelToDate(Math.max(Drag.createDragState.pixelX, currentPx));
+  const dur = Utils.diffDays(startDate, endDate) + 1;
+  Drag.showDragLabel(e.clientX, Drag.createDragState.taskRow.getBoundingClientRect().top,
+    `${Utils.formatDateShort(Utils.toDate(startDate))} → ${Utils.formatDateShort(Utils.toDate(endDate))}  (${dur}d)`);
+};
+Drag.handlePanMove = function(e) {
+  const dx = e.clientX - Drag.panState.startX;
+  const dy = e.clientY - Drag.panState.startY;
+  if (!Drag.panState.moved && Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+  Drag.panState.moved = true;
+  $timelineWrap.scrollLeft = Drag.panState.scrollLeft - dx;
+  $timelineWrap.scrollTop = Drag.panState.scrollTop - dy;
+};
+Drag.handleCreateDragUp = function(e) {
+  const { catId, moved, ghostBar, pixelX } = Drag.createDragState;
+  if (ghostBar) ghostBar.remove();
+  Drag.hideDragLabel();
+  document.body.style.cursor = '';
+
+  if (moved) {
+    const currentPx = Drag.timelinePixelX(e);
+    const startDate = Drag.pixelToDate(Math.min(pixelX, currentPx));
+    const endDate = Drag.pixelToDate(Math.max(pixelX, currentPx));
+    const group = Drag.createDragState.taskRow.dataset.group;
+    Drag.createDragState = null;
+    if (group) {
+      Tasks.showAddToGroupModal(catId, group, startDate, endDate);
+    } else {
+      Tasks.showAddTaskModal(catId, startDate, endDate);
+    }
+  } else {
+    Drag.createDragState = null;
+  }
+};
+Drag.handleTaskReorderMove = function(e) {
+  if (!Drag.reorderState.started) {
+    if (Math.abs(e.clientY - Drag.reorderState.startY) < 4) return;
+    Drag.reorderState.started = true;
+    Drag.reorderState.row.classList.add('drag-ghost');
+    document.body.style.cursor = 'grabbing';
+  }
+  // Find all .s-task rows in the same category
+  const catEl = Drag.reorderState.row.closest('.s-cat');
+  if (!catEl) return;
+  const rows = [...catEl.querySelectorAll('.s-task')];
+  // Remove old indicator
+  if (Drag.reorderState.indicator) Drag.reorderState.indicator.remove();
+  // Find insertion point
+  let insertIdx = rows.length;
+  for (let i = 0; i < rows.length; i++) {
+    const rect = rows[i].getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      insertIdx = i;
+      break;
+    }
+  }
+  Drag.reorderState.insertIdx = insertIdx;
+  // Show indicator line
+  const indicator = document.createElement('div');
+  indicator.className = 's-reorder-line';
+  if (insertIdx < rows.length) {
+    rows[insertIdx].style.position = 'relative';
+    indicator.style.top = '0px';
+    rows[insertIdx].prepend(indicator);
+  } else if (rows.length > 0) {
+    rows[rows.length - 1].style.position = 'relative';
+    indicator.style.bottom = '0px';
+    indicator.style.top = 'auto';
+    rows[rows.length - 1].append(indicator);
+  }
+  Drag.reorderState.indicator = indicator;
+};
+Drag.handleTaskReorderUp = function(e) {
+  if (Drag.reorderState.indicator) Drag.reorderState.indicator.remove();
+  Drag.reorderState.row.classList.remove('drag-ghost');
+  document.body.style.cursor = '';
+  if (Drag.reorderState.started && Drag.reorderState.insertIdx !== undefined) {
+    const fromIdx = Drag.reorderState.fromIdx;
+    let toIdx = Drag.reorderState.insertIdx;
+    if (fromIdx !== toIdx && fromIdx !== toIdx - 1) {
+      Drag.reorderGroup(Drag.reorderState.catId, Drag.reorderState.groupName, fromIdx, toIdx > fromIdx ? toIdx - 1 : toIdx);
+    }
+  }
+  Drag.reorderState = null;
+};
+Drag.handleCatReorderMove = function(e) {
+  if (!Drag.catReorderState.started) {
+    if (Math.abs(e.clientY - Drag.catReorderState.startY) < 4) return;
+    Drag.catReorderState.started = true;
+    Drag.catReorderState.catEl.classList.add('cat-drag-ghost');
     document.body.style.cursor = 'grabbing';
   }
   const allCats = [...$sidebarBody.querySelectorAll('.s-cat')];
-  if (catReorderState.indicator) catReorderState.indicator.remove();
+  if (Drag.catReorderState.indicator) Drag.catReorderState.indicator.remove();
   // Find insertion point
   let insertIdx = allCats.length;
   for (let i = 0; i < allCats.length; i++) {
@@ -2333,7 +2565,7 @@ document.addEventListener('mousemove', (e) => {
       break;
     }
   }
-  catReorderState.insertIdx = insertIdx;
+  Drag.catReorderState.insertIdx = insertIdx;
   // Show indicator line
   const indicator = document.createElement('div');
   indicator.className = 's-cat-reorder-line';
@@ -2347,437 +2579,335 @@ document.addEventListener('mousemove', (e) => {
     indicator.style.top = 'auto';
     allCats[allCats.length - 1].append(indicator);
   }
-  catReorderState.indicator = indicator;
-});
-
-document.addEventListener('mouseup', () => {
-  if (!catReorderState) return;
-  if (catReorderState.indicator) catReorderState.indicator.remove();
-  catReorderState.catEl.classList.remove('cat-drag-ghost');
+  Drag.catReorderState.indicator = indicator;
+};
+Drag.handleCatReorderUp = function() {
+  if (Drag.catReorderState.indicator) Drag.catReorderState.indicator.remove();
+  Drag.catReorderState.catEl.classList.remove('cat-drag-ghost');
   document.body.style.cursor = '';
-  if (catReorderState.started && catReorderState.insertIdx !== undefined) {
-    const fromIdx = catReorderState.fromIdx;
-    let toIdx = catReorderState.insertIdx;
+  if (Drag.catReorderState.started && Drag.catReorderState.insertIdx !== undefined) {
+    const fromIdx = Drag.catReorderState.fromIdx;
+    let toIdx = Drag.catReorderState.insertIdx;
     if (fromIdx !== toIdx && fromIdx !== toIdx - 1) {
       const adjustedTo = toIdx > fromIdx ? toIdx - 1 : toIdx;
       const [moved] = state.categories.splice(fromIdx, 1);
       state.categories.splice(adjustedTo, 0, moved);
-      render();
-      saveState();
+      App.render();
+      App.saveState();
     }
   }
-  catReorderState = null;
-});
+  Drag.catReorderState = null;
+};
+Drag.handleBarDragMove = function(e) {
+  const dx = e.clientX - Drag.dragState.startX;
 
-// ========== DRAG: HELPERS ==========
-let $dragDateLabel = null;
-
-function showDragLabel(x, y, text) {
-  if (!$dragDateLabel) {
-    $dragDateLabel = document.createElement('div');
-    $dragDateLabel.className = 'drag-date-label';
-    document.body.appendChild($dragDateLabel);
-  }
-  $dragDateLabel.textContent = text;
-  $dragDateLabel.style.left = x + 'px';
-  $dragDateLabel.style.top = y + 'px';
-  $dragDateLabel.style.display = 'block';
-}
-
-function hideDragLabel() {
-  if ($dragDateLabel) $dragDateLabel.style.display = 'none';
-}
-
-function calcBarPos(startDate, endDate) {
-  const dayW = ZOOM_CFG[state.zoom].dayWidth;
-  const tStart = diffDays(toStr(state.viewStart), startDate);
-  const tDur = diffDays(startDate, endDate) + 1;
-  return { left: tStart * dayW, width: Math.max(tDur * dayW - 2, 20) };
-}
-
-function pixelToDate(pixelX) {
-  const dayW = ZOOM_CFG[state.zoom].dayWidth;
-  const dayOffset = Math.floor(pixelX / dayW);
-  return toStr(addDays(state.viewStart, dayOffset));
-}
-
-function timelinePixelX(e) {
-  const rect = $timelineWrap.getBoundingClientRect();
-  return e.clientX - rect.left + $timelineWrap.scrollLeft;
-}
-
-// ========== DRAG: MOVE/RESIZE TASK BARS ==========
-function onBarMouseDown(e, catId, taskId) {
-  if (e.button !== 0) return;
-  e.stopPropagation();
-  e.preventDefault();
-  const bar = e.target.closest('.task-bar');
-  if (!bar) return;
-  const task = findTask(catId, taskId);
-  if (!task) return;
-
-  const isLeft = e.target.classList.contains('left');
-  const isRight = e.target.classList.contains('right');
-  const mode = isLeft ? 'resize-start' : isRight ? 'resize-end' : 'move';
-
-  dragState = {
-    catId, taskId, mode,
-    startX: e.clientX,
-    startY: e.clientY,
-    origStart: task.startDate,
-    origEnd: task.endDate,
-    dayWidth: ZOOM_CFG[state.zoom].dayWidth,
-    bar,
-    hasMoved: false,
-    lastDayDelta: 0
-  };
-}
-
-// (drag-to-create removed — use sidebar "+" buttons to add tasks)
-
-document.addEventListener('mousemove', (e) => {
-  // ---- Task bar move/resize ----
-  if (dragState) {
-    const dx = e.clientX - dragState.startX;
-
-    // Detect if drag threshold crossed
-    if (!dragState.hasMoved) {
-      if (Math.abs(dx) > 3) {
-        dragState.hasMoved = true;
-        dragState.bar.classList.add('dragging');
-        document.body.classList.add(dragState.mode === 'move' ? 'dragging' : 'resizing');
-        hideTooltip();
-      } else {
-        return;
-      }
-    }
-
-    const dayDelta = Math.round(dx / dragState.dayWidth);
-    if (dayDelta === dragState.lastDayDelta) {
-      // Only update label position, skip DOM changes
-      const task = findTask(dragState.catId, dragState.taskId);
-      if (task) {
-        const dur = diffDays(task.startDate, task.endDate) + 1;
-        showDragLabel(e.clientX, dragState.bar.getBoundingClientRect().top,
-          `${formatDateShort(toDate(task.startDate))} \u2192 ${formatDateShort(toDate(task.endDate))}  (${dur}d)`);
-      }
+  // Detect if drag threshold crossed
+  if (!Drag.dragState.hasMoved) {
+    if (Math.abs(dx) > 3) {
+      Drag.dragState.hasMoved = true;
+      Drag.dragState.bar.classList.add('dragging');
+      document.body.classList.add(Drag.dragState.mode === 'move' ? 'dragging' : 'resizing');
+      UI.hideTooltip();
+    } else {
       return;
     }
-    dragState.lastDayDelta = dayDelta;
+  }
 
-    // Compute new dates
-    let newStart, newEnd;
-    if (dragState.mode === 'move') {
-      newStart = toStr(addDays(toDate(dragState.origStart), dayDelta));
-      newEnd = toStr(addDays(toDate(dragState.origEnd), dayDelta));
-    } else if (dragState.mode === 'resize-start') {
-      newStart = toStr(addDays(toDate(dragState.origStart), dayDelta));
-      newEnd = dragState.origEnd;
-      if (toDate(newStart) > toDate(newEnd)) newStart = newEnd;
-    } else {
-      newStart = dragState.origStart;
-      newEnd = toStr(addDays(toDate(dragState.origEnd), dayDelta));
-      if (toDate(newEnd) < toDate(newStart)) newEnd = newStart;
+  const dayDelta = Math.round(dx / Drag.dragState.dayWidth);
+  if (dayDelta === Drag.dragState.lastDayDelta) {
+    // Only update label position, skip DOM changes
+    const task = Utils.findTask(Drag.dragState.catId, Drag.dragState.taskId);
+    if (task) {
+      if (task.type === 'milestone') {
+        Drag.showDragLabel(e.clientX, Drag.dragState.bar.getBoundingClientRect().top,
+          `${Utils.formatDateShort(Utils.toDate(task.startDate))}`);
+      } else {
+        const dur = Utils.diffDays(task.startDate, task.endDate) + 1;
+        Drag.showDragLabel(e.clientX, Drag.dragState.bar.getBoundingClientRect().top,
+          `${Utils.formatDateShort(Utils.toDate(task.startDate))} \u2192 ${Utils.formatDateShort(Utils.toDate(task.endDate))}  (${dur}d)`);
+      }
     }
+    return;
+  }
+  Drag.dragState.lastDayDelta = dayDelta;
 
-    // Clamp: dependent task cannot start before predecessor ends
-    const dragTask = findTask(dragState.catId, dragState.taskId);
-    if (dragTask && dragTask.dependencies && dragTask.dependencies.length > 0) {
-      const cat = findCat(dragState.catId);
-      if (cat) {
-        let latestPredEnd = null;
-        for (const predId of dragTask.dependencies) {
-          const pred = cat.tasks.find(t => t.id === predId);
-          if (pred) {
-            const pe = toDate(pred.endDate);
-            if (!latestPredEnd || pe > latestPredEnd) latestPredEnd = pe;
+  // Compute new dates
+  let newStart, newEnd;
+  if (Drag.dragState.mode === 'move') {
+    newStart = Utils.toStr(Utils.addDays(Utils.toDate(Drag.dragState.origStart), dayDelta));
+    newEnd = Utils.toStr(Utils.addDays(Utils.toDate(Drag.dragState.origEnd), dayDelta));
+  } else if (Drag.dragState.mode === 'resize-start') {
+    newStart = Utils.toStr(Utils.addDays(Utils.toDate(Drag.dragState.origStart), dayDelta));
+    newEnd = Drag.dragState.origEnd;
+    if (Utils.toDate(newStart) > Utils.toDate(newEnd)) newStart = newEnd;
+  } else {
+    newStart = Drag.dragState.origStart;
+    newEnd = Utils.toStr(Utils.addDays(Utils.toDate(Drag.dragState.origEnd), dayDelta));
+    if (Utils.toDate(newEnd) < Utils.toDate(newStart)) newEnd = newStart;
+  }
+
+  // Milestones: endDate always equals startDate
+  const dragTaskForType = Utils.findTask(Drag.dragState.catId, Drag.dragState.taskId);
+  if (dragTaskForType && dragTaskForType.type === 'milestone') {
+    newEnd = newStart;
+  }
+
+  // Clamp: dependent task cannot start before predecessor ends
+  const dragTask = dragTaskForType;
+  if (dragTask && dragTask.dependencies && dragTask.dependencies.length > 0) {
+    const cat = Utils.findCat(Drag.dragState.catId);
+    if (cat) {
+      let latestPredEnd = null;
+      for (const predId of dragTask.dependencies) {
+        const pred = cat.tasks.find(t => t.id === predId);
+        if (pred) {
+          const pe = Utils.toDate(pred.endDate);
+          if (!latestPredEnd || pe > latestPredEnd) latestPredEnd = pe;
+        }
+      }
+      if (latestPredEnd) {
+        const minStart = Utils.toStr(Utils.addDays(latestPredEnd, 1));
+        if (newStart < minStart) {
+          if (Drag.dragState.mode === 'move') {
+            const shift = Utils.diffDays(newStart, minStart);
+            newStart = minStart;
+            newEnd = Utils.toStr(Utils.addDays(Utils.toDate(newEnd), shift));
+          } else {
+            newStart = minStart;
           }
         }
-        if (latestPredEnd) {
-          const minStart = toStr(addDays(latestPredEnd, 1));
-          if (newStart < minStart) {
-            if (dragState.mode === 'move') {
-              const shift = diffDays(newStart, minStart);
-              newStart = minStart;
-              newEnd = toStr(addDays(toDate(newEnd), shift));
-            } else {
-              newStart = minStart;
+      }
+    }
+  }
+
+  // For milestones re-sync after clamping
+  if (dragTaskForType && dragTaskForType.type === 'milestone') {
+    newEnd = newStart;
+  }
+
+  // Update bar position directly (no re-render)
+  const pos = Drag.calcBarPos(newStart, newEnd);
+  if (dragTaskForType && dragTaskForType.type === 'milestone') {
+    Drag.dragState.bar.style.left = pos.left + 'px';
+  } else {
+    Drag.dragState.bar.style.left = pos.left + 'px';
+    Drag.dragState.bar.style.width = pos.width + 'px';
+  }
+
+  // Store computed dates on dragState for commit on mouseup
+  Drag.dragState.newStart = newStart;
+  Drag.dragState.newEnd = newEnd;
+
+  // Show floating date label
+  if (dragTaskForType && dragTaskForType.type === 'milestone') {
+    Drag.showDragLabel(e.clientX, Drag.dragState.bar.getBoundingClientRect().top,
+      `${Utils.formatDateShort(Utils.toDate(newStart))}`);
+  } else {
+    const dur = Utils.diffDays(newStart, newEnd) + 1;
+    Drag.showDragLabel(e.clientX, Drag.dragState.bar.getBoundingClientRect().top,
+      `${Utils.formatDateShort(Utils.toDate(newStart))} \u2192 ${Utils.formatDateShort(Utils.toDate(newEnd))}  (${dur}d)`);
+  }
+};
+Drag.handleDepDragMove = function(e) {
+  if (!Drag.depDragState.started) {
+    Drag.depDragState.started = true;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:500';
+    svg.innerHTML = `<line x1="${Drag.depDragState.startX}" y1="${Drag.depDragState.startY}" x2="${e.clientX}" y2="${e.clientY}" stroke="#6b7280" stroke-width="2" stroke-dasharray="6,3"/>`;
+    document.body.appendChild(svg);
+    Drag.depDragState.svgLine = svg;
+  }
+  if (Drag.depDragState.svgLine) {
+    const line = Drag.depDragState.svgLine.querySelector('line');
+    line.setAttribute('x2', e.clientX);
+    line.setAttribute('y2', e.clientY);
+  }
+};
+Drag.handleBarDragUp = function(e) {
+  const wasClick = !Drag.dragState.hasMoved;
+  const catId = Drag.dragState.catId;
+  const taskId = Drag.dragState.taskId;
+
+  // Clean up visual state
+  Drag.dragState.bar.classList.remove('dragging');
+  document.body.classList.remove('dragging', 'resizing');
+  Drag.hideDragLabel();
+
+  if (wasClick) {
+    Drag.dragState = null;
+    Tasks.openPanel(catId, taskId);
+  } else {
+    // Commit the date changes to state
+    const task = Utils.findTask(catId, taskId);
+    if (task && Drag.dragState.newStart && Drag.dragState.newEnd) {
+      task.startDate = Drag.dragState.newStart;
+      task.endDate = Drag.dragState.newEnd;
+      Deps.enforceAllDependencies(catId, taskId);
+    }
+    Drag.dragState = null;
+    App.render();
+    App.saveState();
+  }
+};
+Drag.handleDepDragUp = function(e) {
+  if (Drag.depDragState.svgLine) Drag.depDragState.svgLine.remove();
+  if (Drag.depDragState.started) {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const targetBar = el?.closest('.task-bar') || el?.closest('.milestone-diamond');
+    if (targetBar) {
+      const toTaskId = targetBar.dataset.task;
+      const toCatId = targetBar.dataset.cat;
+      if (toTaskId && toTaskId !== Drag.depDragState.fromTaskId && toCatId === Drag.depDragState.catId) {
+        const fromTask = Utils.findTask(Drag.depDragState.catId, Drag.depDragState.fromTaskId);
+        const toTask = Utils.findTask(toCatId, toTaskId);
+        if (fromTask && toTask && (fromTask.group || fromTask.name) === (toTask.group || toTask.name)) {
+          if (!Deps.wouldCreateCycle(Drag.depDragState.catId, Drag.depDragState.fromTaskId, toTaskId)) {
+            if (!toTask.dependencies) toTask.dependencies = [];
+            if (!toTask.dependencies.includes(Drag.depDragState.fromTaskId)) {
+              toTask.dependencies.push(Drag.depDragState.fromTaskId);
+              Deps.enforceDependency(Drag.depDragState.catId, Drag.depDragState.fromTaskId, toTaskId);
+              App.render(); App.saveState();
             }
           }
         }
       }
     }
-
-    // Update bar position directly (no re-render)
-    const pos = calcBarPos(newStart, newEnd);
-    dragState.bar.style.left = pos.left + 'px';
-    dragState.bar.style.width = pos.width + 'px';
-
-    // Store computed dates on dragState for commit on mouseup
-    dragState.newStart = newStart;
-    dragState.newEnd = newEnd;
-
-    // Show floating date label
-    const dur = diffDays(newStart, newEnd) + 1;
-    showDragLabel(e.clientX, dragState.bar.getBoundingClientRect().top,
-      `${formatDateShort(toDate(newStart))} \u2192 ${formatDateShort(toDate(newEnd))}  (${dur}d)`);
   }
+  Drag.depDragState = null;
+};
+Drag.handleTooltipMove = function(e) {
+  if ($tooltip.style.display === 'block') UI.positionTooltip(e);
+};
 
-  // ---- Dependency bubble drag ----
-  if (depDragState) {
-    if (!depDragState.started) {
-      depDragState.started = true;
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:500';
-      svg.innerHTML = `<line x1="${depDragState.startX}" y1="${depDragState.startY}" x2="${e.clientX}" y2="${e.clientY}" stroke="#6b7280" stroke-width="2" stroke-dasharray="6,3"/>`;
-      document.body.appendChild(svg);
-      depDragState.svgLine = svg;
-    }
-    if (depDragState.svgLine) {
-      const line = depDragState.svgLine.querySelector('line');
-      line.setAttribute('x2', e.clientX);
-      line.setAttribute('y2', e.clientY);
-    }
-  }
+document.addEventListener('mousemove', (e) => {
+  if (Drag.sidebarResizeState) { Drag.handleSidebarResizeMove(e); return; }
+  if (Drag.createDragState) { Drag.handleCreateDragMove(e); return; }
+  if (Drag.panState) { Drag.handlePanMove(e); return; }
+  if (Drag.reorderState) { Drag.handleTaskReorderMove(e); return; }
+  if (Drag.catReorderState) { Drag.handleCatReorderMove(e); return; }
+  if (Drag.dragState) Drag.handleBarDragMove(e);
+  if (Drag.depDragState) Drag.handleDepDragMove(e);
+  Drag.handleTooltipMove(e);
 });
 
 document.addEventListener('mouseup', (e) => {
-  if (dragState) {
-    const wasClick = !dragState.hasMoved;
-    const catId = dragState.catId;
-    const taskId = dragState.taskId;
-
-    // Clean up visual state
-    dragState.bar.classList.remove('dragging');
-    document.body.classList.remove('dragging', 'resizing');
-    hideDragLabel();
-
-    if (wasClick) {
-      dragState = null;
-      openPanel(catId, taskId);
-    } else {
-      // Commit the date changes to state
-      const task = findTask(catId, taskId);
-      if (task && dragState.newStart && dragState.newEnd) {
-        task.startDate = dragState.newStart;
-        task.endDate = dragState.newEnd;
-        enforceAllDependencies(catId, taskId);
-      }
-      dragState = null;
-      render();
-      saveState();
-    }
-  }
-  if (depDragState) {
-    if (depDragState.svgLine) depDragState.svgLine.remove();
-    if (depDragState.started) {
-      const el = document.elementFromPoint(e.clientX, e.clientY);
-      const targetBar = el?.closest('.task-bar');
-      if (targetBar) {
-        const toTaskId = targetBar.dataset.task;
-        const toCatId = targetBar.dataset.cat;
-        if (toTaskId && toTaskId !== depDragState.fromTaskId && toCatId === depDragState.catId) {
-          const fromTask = findTask(depDragState.catId, depDragState.fromTaskId);
-          const toTask = findTask(toCatId, toTaskId);
-          if (fromTask && toTask && (fromTask.group || fromTask.name) === (toTask.group || toTask.name)) {
-            if (!wouldCreateCycle(depDragState.catId, depDragState.fromTaskId, toTaskId)) {
-              if (!toTask.dependencies) toTask.dependencies = [];
-              if (!toTask.dependencies.includes(depDragState.fromTaskId)) {
-                toTask.dependencies.push(depDragState.fromTaskId);
-                enforceDependency(depDragState.catId, depDragState.fromTaskId, toTaskId);
-                render(); saveState();
-              }
-            }
-          }
-        }
-      }
-    }
-    depDragState = null;
-  }
+  if (Drag.sidebarResizeState) Drag.handleSidebarResizeUp();
+  if (Drag.createDragState) Drag.handleCreateDragUp(e);
+  if (Drag.panState) { Drag.panState = null; }
+  if (Drag.reorderState) Drag.handleTaskReorderUp(e);
+  if (Drag.catReorderState) Drag.handleCatReorderUp();
+  if (Drag.dragState) Drag.handleBarDragUp(e);
+  if (Drag.depDragState) Drag.handleDepDragUp(e);
 });
-
-// ========== DEPENDENCIES ==========
-function enforceDependency(catId, predId, depId) {
-  const pred = findTask(catId, predId);
-  const dep = findTask(catId, depId);
-  if (!pred || !dep) return;
-  const minStart = toStr(addDays(toDate(pred.endDate), 1));
-  if (toDate(dep.startDate) < toDate(minStart)) {
-    const shift = diffDays(dep.startDate, minStart);
-    dep.startDate = minStart;
-    dep.endDate = toStr(addDays(toDate(dep.endDate), shift));
-    cascadeDependencies(catId, dep.id);
-  }
-}
-
-function cascadeDependencies(catId, movedTaskId) {
-  const cat = findCat(catId);
-  if (!cat) return;
-  for (const task of cat.tasks) {
-    if (task.dependencies && task.dependencies.includes(movedTaskId)) {
-      enforceDependency(catId, movedTaskId, task.id);
-    }
-  }
-}
-
-function enforceAllDependencies(catId, taskId) {
-  cascadeDependencies(catId, taskId);
-}
-
-function wouldCreateCycle(catId, fromId, toId) {
-  const visited = new Set();
-  function dfs(taskId) {
-    if (taskId === toId) return true;
-    if (visited.has(taskId)) return false;
-    visited.add(taskId);
-    const task = findTask(catId, taskId);
-    if (!task || !task.dependencies) return false;
-    for (const depId of task.dependencies) {
-      if (dfs(depId)) return true;
-    }
-    return false;
-  }
-  return dfs(fromId);
-}
-
-function onDepBubbleMouseDown(e, catId, taskId) {
-  e.stopPropagation();
-  e.preventDefault();
-  const bar = e.target.closest('.task-bar');
-  if (!bar) return;
-  const barRect = bar.getBoundingClientRect();
-  depDragState = {
-    catId,
-    fromTaskId: taskId,
-    startX: barRect.right,
-    startY: barRect.top + barRect.height / 2,
-    svgLine: null,
-    started: false
-  };
-}
-
-function showDepCtx(e, catId, fromId, toId) {
-  e.preventDefault();
-  e.stopPropagation();
-  showCtxMenu(e.clientX, e.clientY, [
-    { label: 'Remove dependency', danger: true, action: () => {
-      const depTask = findTask(catId, toId);
-      if (depTask && depTask.dependencies) {
-        depTask.dependencies = depTask.dependencies.filter(id => id !== fromId);
-        render(); saveState();
-      }
-    }}
-  ]);
-}
 
 // ========== TOOLTIP ==========
-function showBarTooltip(e, catId, taskId) {
+UI.showBarTooltip = function(e, catId, taskId) {
   if ($panelOverlay.classList.contains('open') || $modalBg.classList.contains('open') || $aiPanel.classList.contains('open')) return;
-  const task = findTask(catId, taskId);
-  const cat = findCat(catId);
+  const task = Utils.findTask(catId, taskId);
+  const cat = Utils.findCat(catId);
   if (!task || !cat) return;
-  const dur = diffDays(task.startDate, task.endDate) + 1;
   const sOpt = STATUS_OPTIONS.find(s => s.value === task.status);
   const sLabel = sOpt ? sOpt.label : task.status;
-  $tooltip.textContent = `${task.name} | ${sLabel} | ${formatDateShort(toDate(task.startDate))} - ${formatDateShort(toDate(task.endDate))} (${dur}d)`;
+  if (task.type === 'milestone') {
+    $tooltip.textContent = `\u25C6 ${task.name} | ${sLabel} | ${Utils.formatDateShort(Utils.toDate(task.startDate))}`;
+  } else {
+    const dur = Utils.diffDays(task.startDate, task.endDate) + 1;
+    $tooltip.textContent = `${task.name} | ${sLabel} | ${Utils.formatDateShort(Utils.toDate(task.startDate))} - ${Utils.formatDateShort(Utils.toDate(task.endDate))} (${dur}d)`;
+  }
   $tooltip.style.display = 'block';
-  positionTooltip(e);
-}
+  UI.positionTooltip(e);
+};
 
-function positionTooltip(e) {
+UI.positionTooltip = function(e) {
   $tooltip.style.left = e.clientX + 'px';
   $tooltip.style.top = (e.clientY - 36) + 'px';
-}
+};
 
-function hideTooltip() { $tooltip.style.display = 'none'; }
-
-document.addEventListener('mousemove', (e) => {
-  if ($tooltip.style.display === 'block') positionTooltip(e);
-});
+UI.hideTooltip = function() { $tooltip.style.display = 'none'; };
 
 // ========== KEYBOARD ==========
 document.addEventListener('keydown', (e) => {
   // Ctrl/Cmd+K to toggle command palette
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
-    if ($cmdBg.classList.contains('open')) closeCmdPalette();
-    else openCmdPalette();
+    if ($cmdBg.classList.contains('open')) Cmd.closeCmdPalette();
+    else Cmd.openCmdPalette();
     return;
   }
 
   // Escape: close layers in priority order
   if (e.key === 'Escape') {
-    if ($cmdBg.classList.contains('open')) { closeCmdPalette(); return; }
-    closeModal(); closePanel(); closeCtxMenu(); closeAI();
+    if ($cmdBg.classList.contains('open')) { Cmd.closeCmdPalette(); return; }
+    UI.closeModal(); Tasks.closePanel(); UI.closeCtxMenu(); AI.closeAI();
     return;
   }
 
   // Command palette keyboard nav
   if ($cmdBg.classList.contains('open')) {
     const query = $cmdInput.value.trim();
-    const results = searchAll(query);
+    const results = Cmd.searchAll(query);
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       cmdActiveIdx = Math.min(cmdActiveIdx + 1, results.length - 1);
-      renderCmdResults(query);
+      Cmd.renderCmdResults(query);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       cmdActiveIdx = Math.max(cmdActiveIdx - 1, 0);
-      renderCmdResults(query);
+      Cmd.renderCmdResults(query);
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      cmdSelect(cmdActiveIdx);
+      Cmd.cmdSelect(cmdActiveIdx);
     }
     return;
   }
 
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-  if (e.key === 'ArrowLeft') navigate(-1);
-  if (e.key === 'ArrowRight') navigate(1);
-  if (e.key === 't' || e.key === 'T') goToday();
+  if (e.key === 'ArrowLeft') App.navigate(-1);
+  if (e.key === 'ArrowRight') App.navigate(1);
+  if (e.key === 't' || e.key === 'T') App.goToday();
 });
 
 // ========== DARK MODE ==========
-function toggleDarkMode() {
+App.toggleDarkMode = function() {
   const isDark = document.documentElement.classList.toggle('dark');
   state.darkMode = isDark;
-  updateDarkModeIcon(isDark);
+  App.updateDarkModeIcon(isDark);
   localStorage.setItem('rm_darkMode', isDark ? '1' : '0');
-  render();
-}
+  App.render();
+};
 
-function updateDarkModeIcon(isDark) {
+App.updateDarkModeIcon = function(isDark) {
   const btn = document.getElementById('darkModeBtn');
   if (!btn) return;
   btn.innerHTML = isDark
     ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
     : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 0111.21 3 7 7 0 0012 21a9 9 0 009-8.21z"/></svg>';
   btn.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
-}
+};
 
-function initDarkMode() {
+App.initDarkMode = function() {
   const saved = localStorage.getItem('rm_darkMode');
   const isDark = saved === '1';
   state.darkMode = isDark;
   if (isDark) document.documentElement.classList.add('dark');
-  updateDarkModeIcon(isDark);
-}
+  App.updateDarkModeIcon(isDark);
+};
 
 // ========== AI PANEL ==========
-function toggleAI() {
-  if ($aiPanel.classList.contains('open')) closeAI();
-  else openAI();
-}
+AI.toggleAI = function() {
+  if ($aiPanel.classList.contains('open')) AI.closeAI();
+  else AI.openAI();
+};
 
-function openAI() {
-  closePanel();
-  renderAIPanel();
+AI.openAI = function() {
+  Tasks.closePanel();
+  AI.renderAIPanel();
   $aiPanel.classList.add('open');
-}
+};
 
-function closeAI() { $aiPanel.classList.remove('open'); }
+AI.closeAI = function() { $aiPanel.classList.remove('open'); };
 
-function renderAIPanel() {
+AI.renderAIPanel = function() {
   let msgsHtml = '';
   if (!state.aiKey) {
     const gemSel = state.aiProvider === 'gemini' ? ' checked' : '';
@@ -2787,11 +2917,11 @@ function renderAIPanel() {
       <div class="ai-setup-desc">Choose a provider and enter your API key to get started.</div>
       <div class="ai-provider-group">
         <label class="ai-provider-option${state.aiProvider === 'gemini' ? ' selected' : ''}">
-          <input type="radio" name="aiProvider" value="gemini"${gemSel} onchange="state.aiProvider='gemini';renderAIPanel()">
+          <input type="radio" name="aiProvider" value="gemini"${gemSel} onchange="state.aiProvider='gemini';AI.renderAIPanel()">
           <div class="ai-provider-label"><span class="ai-provider-name">Google Gemini</span><span class="ai-provider-tag">Free tier available</span></div>
         </label>
         <label class="ai-provider-option${state.aiProvider === 'custom' ? ' selected' : ''}">
-          <input type="radio" name="aiProvider" value="custom"${custSel} onchange="state.aiProvider='custom';renderAIPanel()">
+          <input type="radio" name="aiProvider" value="custom"${custSel} onchange="state.aiProvider='custom';AI.renderAIPanel()">
           <div class="ai-provider-label"><span class="ai-provider-name">Custom LLM</span><span class="ai-provider-tag">OpenAI, Anthropic, Groq, Ollama, etc.</span></div>
         </label>
       </div>
@@ -2800,17 +2930,17 @@ function renderAIPanel() {
           <input id="aiKeyInput" type="password" placeholder="Paste your Gemini API key">
         </div>
         <div class="ai-setup-action">
-          <button class="btn btn-primary" onclick="saveAIKey()">Save Key</button>
+          <button class="btn btn-primary" onclick="AI.saveAIKey()">Save Key</button>
           <span class="ai-setup-hint"><a href="https://aistudio.google.com/app/apikey" target="_blank">Get a free API key from Google AI Studio &rarr;</a></span>
         </div>
       ` : `
         <div class="ai-setup-fields">
-          <input id="aiCustomEndpointInput" type="text" placeholder="API Endpoint URL" value="${esc(state.aiCustomEndpoint)}">
-          <input id="aiCustomModelInput" type="text" placeholder="Model name (e.g. gpt-4o)" value="${esc(state.aiCustomModel)}">
+          <input id="aiCustomEndpointInput" type="text" placeholder="API Endpoint URL" value="${Utils.esc(state.aiCustomEndpoint)}">
+          <input id="aiCustomModelInput" type="text" placeholder="Model name (e.g. gpt-4o)" value="${Utils.esc(state.aiCustomModel)}">
           <input id="aiKeyInput" type="password" placeholder="API Key">
         </div>
         <div class="ai-setup-action">
-          <button class="btn btn-primary" onclick="saveAIKey()">Save Key</button>
+          <button class="btn btn-primary" onclick="AI.saveAIKey()">Save Key</button>
           <span class="ai-setup-hint">Works with any OpenAI-compatible API endpoint</span>
         </div>
       `}
@@ -2820,7 +2950,7 @@ function renderAIPanel() {
       msgsHtml = `<div class="ai-msg system">AI Assistant ready. Ask questions about your projects, request schedule analysis, or get resource allocation suggestions.</div>`;
     }
     for (const msg of state.aiMessages) {
-      msgsHtml += `<div class="ai-msg ${msg.role}">${escNl(msg.text)}</div>`;
+      msgsHtml += `<div class="ai-msg ${msg.role}">${Utils.escNl(msg.text)}</div>`;
     }
   }
 
@@ -2828,14 +2958,14 @@ function renderAIPanel() {
     <div class="ai-header">
       <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 014 4v1h1a3 3 0 013 3v2a3 3 0 01-3 3h-1v3a4 4 0 01-8 0v-3H7a3 3 0 01-3-3v-2a3 3 0 013-3h1V6a4 4 0 014-4z"/><circle cx="9" cy="11" r="1" fill="currentColor"/><circle cx="15" cy="11" r="1" fill="currentColor"/></svg> AI Assistant</h3>
       <div style="display:flex;gap:4px">
-        ${state.aiKey ? `<button class="s-action" onclick="state.aiKey='';state.aiProvider='gemini';state.aiCustomEndpoint='';state.aiCustomModel='';state.aiMessages=[];saveState();renderAIPanel()" title="Reset API Key">&#9881;</button>` : ''}
-        <button class="s-action" onclick="closeAI()">&#10005;</button>
+        ${state.aiKey ? `<button class="s-action" onclick="state.aiKey='';state.aiProvider='gemini';state.aiCustomEndpoint='';state.aiCustomModel='';state.aiMessages=[];App.saveState();AI.renderAIPanel()" title="Reset API Key">&#9881;</button>` : ''}
+        <button class="s-action" onclick="AI.closeAI()">&#10005;</button>
       </div>
     </div>
     <div class="ai-messages" id="aiMessages">${msgsHtml}</div>
     ${state.aiKey ? `<div class="ai-input-row">
-      <input class="ai-input" id="aiInput" placeholder="Ask about your projects..." onkeydown="if(event.key==='Enter')sendAI()">
-      <button class="btn btn-primary btn-icon" onclick="sendAI()">&#10148;</button>
+      <input class="ai-input" id="aiInput" placeholder="Ask about your projects..." onkeydown="if(event.key==='Enter')AI.sendAI()">
+      <button class="btn btn-primary btn-icon" onclick="AI.sendAI()">&#10148;</button>
     </div>` : ''}`;
 
   // Scroll to bottom
@@ -2843,13 +2973,9 @@ function renderAIPanel() {
     const el = document.getElementById('aiMessages');
     if (el) el.scrollTop = el.scrollHeight;
   }, 50);
-}
+};
 
-function escNl(s) {
-  return esc(s).replace(/\n/g, '<br>');
-}
-
-function saveAIKey() {
+AI.saveAIKey = function() {
   const key = document.getElementById('aiKeyInput')?.value.trim();
   if (!key) return;
   state.aiKey = key;
@@ -2858,11 +2984,11 @@ function saveAIKey() {
     state.aiCustomModel = document.getElementById('aiCustomModelInput')?.value.trim() || '';
     if (!state.aiCustomEndpoint) { alert('Please enter an API endpoint URL.'); return; }
   }
-  saveState();
-  renderAIPanel();
-}
+  App.saveState();
+  AI.renderAIPanel();
+};
 
-async function sendAI() {
+AI.sendAI = async function() {
   const input = document.getElementById('aiInput');
   if (!input) return;
   const text = input.value.trim();
@@ -2872,30 +2998,30 @@ async function sendAI() {
   if (!state.aiKey) {
     state.aiMessages.push({ role: 'user', text });
     state.aiMessages.push({ role: 'assistant', text: 'Please set up your API key in the AI Settings above before sending messages.' });
-    saveState(); renderAIPanel();
+    App.saveState(); AI.renderAIPanel();
     return;
   }
   if (state.aiProvider === 'custom' && !state.aiCustomEndpoint) {
     state.aiMessages.push({ role: 'user', text });
     state.aiMessages.push({ role: 'assistant', text: 'Please enter your custom LLM endpoint URL in the AI Settings above.' });
-    saveState(); renderAIPanel();
+    App.saveState(); AI.renderAIPanel();
     return;
   }
 
   input.value = '';
   state.aiMessages.push({ role: 'user', text });
-  renderAIPanel();
+  AI.renderAIPanel();
 
   // Build context
   const projectCtx = state.categories.map(c => {
     const tasks = c.tasks.map(t => {
-      const dur = diffDays(t.startDate, t.endDate) + 1;
+      const dur = Utils.diffDays(t.startDate, t.endDate) + 1;
       return `  - ${t.name}: ${t.startDate} to ${t.endDate} (${dur} days), Status: ${t.status}, Links: ${(t.urls||[]).length}`;
     }).join('\n');
     return `Program: ${c.name}\n${tasks || '  (no tasks)'}`;
   }).join('\n\n');
 
-  const today = toStr(todayDate());
+  const today = Utils.toStr(Utils.todayDate());
   const systemPrompt = `You are an AI assistant for a project resource manager application. Today's date is ${today}. Here is the current project data:\n\n${projectCtx}\n\nHelp the user with project scheduling, resource analysis, timeline calculations, budget summaries, and planning suggestions. Be concise and practical. Format numbers clearly. If asked for calculations, show your work briefly.`;
 
   try {
@@ -2947,27 +3073,27 @@ async function sendAI() {
     state.aiMessages.push({ role: 'assistant', text: 'Error: ' + err.message + '. Please check your API key and settings.' });
   }
 
-  saveState();
-  renderAIPanel();
-}
+  App.saveState();
+  AI.renderAIPanel();
+};
 
 // ========== EXPORT CSV ==========
-function csvEscape(val) {
+CSV.csvEscape = function(val) {
   if (val == null) return '';
   const str = String(val);
   if (str.includes(',') || str.includes('"') || str.includes('\n')) {
     return '"' + str.replace(/"/g, '""') + '"';
   }
   return str;
-}
+};
 
-function exportCSV() {
-  const headers = ['Program', 'Program Color', 'Task Name', 'Group', 'Start Date', 'End Date', 'Duration (days)', 'Status', 'Notes', 'Links', 'Dependencies'];
-  const rows = [headers.map(csvEscape).join(',')];
+CSV.exportCSV = function() {
+  const headers = ['Program', 'Program Color', 'Type', 'Task Name', 'Group', 'Start Date', 'End Date', 'Duration (days)', 'Status', 'Notes', 'Links', 'Dependencies'];
+  const rows = [headers.map(CSV.csvEscape).join(',')];
 
   for (const cat of state.categories) {
     for (const task of cat.tasks) {
-      const dur = diffDays(task.startDate, task.endDate) + 1;
+      const dur = Utils.diffDays(task.startDate, task.endDate) + 1;
       const links = (task.urls || []).map(u => u.title ? u.title + ': ' + u.url : u.url).join('; ');
       const deps = (task.dependencies || []).map(depId => {
         const depTask = cat.tasks.find(t => t.id === depId);
@@ -2975,17 +3101,18 @@ function exportCSV() {
       }).join('; ');
 
       rows.push([
-        csvEscape(cat.name),
-        csvEscape(cat.color),
-        csvEscape(task.name),
-        csvEscape(task.group),
-        csvEscape(task.startDate),
-        csvEscape(task.endDate),
-        csvEscape(dur),
-        csvEscape(task.status),
-        csvEscape(task.notes),
-        csvEscape(links),
-        csvEscape(deps)
+        CSV.csvEscape(cat.name),
+        CSV.csvEscape(cat.color),
+        CSV.csvEscape(task.type || 'task'),
+        CSV.csvEscape(task.name),
+        CSV.csvEscape(task.group),
+        CSV.csvEscape(task.startDate),
+        CSV.csvEscape(task.endDate),
+        CSV.csvEscape(dur),
+        CSV.csvEscape(task.status),
+        CSV.csvEscape(task.notes),
+        CSV.csvEscape(links),
+        CSV.csvEscape(deps)
       ].join(','));
     }
   }
@@ -3000,10 +3127,10 @@ function exportCSV() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-}
+};
 
 // ========== IMPORT CSV ==========
-function parseCSVRow(line) {
+CSV.parseCSVRow = function(line) {
   const cells = [];
   let cur = '', inQuotes = false;
   for (let i = 0; i < line.length; i++) {
@@ -3020,9 +3147,9 @@ function parseCSVRow(line) {
   }
   cells.push(cur);
   return cells;
-}
+};
 
-function importCSV(input) {
+CSV.importCSV = function(input) {
   const file = input.files[0];
   if (!file) return;
   input.value = '';
@@ -3033,7 +3160,7 @@ function importCSV(input) {
     const lines = text.split(/\r?\n/).filter(l => l.trim());
     if (lines.length < 2) { alert('CSV file is empty or has no data rows.'); return; }
 
-    const headerRow = parseCSVRow(lines[0]);
+    const headerRow = CSV.parseCSVRow(lines[0]);
     const hMap = {};
     headerRow.forEach((h, i) => hMap[h.trim()] = i);
 
@@ -3052,12 +3179,13 @@ function importCSV(input) {
     const notesIdx = hMap['Notes'];
     const linksIdx = hMap['Links'];
     const depsIdx = hMap['Dependencies'];
+    const typeIdx = hMap['Type'];
 
     const catMap = new Map();
     const taskRows = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const cells = parseCSVRow(lines[i]);
+      const cells = CSV.parseCSVRow(lines[i]);
       const catName = (cells[catIdx] || '').trim();
       const taskName = (cells[nameIdx] || '').trim();
       if (!catName || !taskName) continue;
@@ -3069,7 +3197,7 @@ function importCSV(input) {
       if (!catMap.has(catName)) {
         const color = colorIdx !== undefined ? (cells[colorIdx] || '').trim() : '';
         catMap.set(catName, {
-          id: uid(), name: catName,
+          id: Utils.uid(), name: catName,
           color: /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0'),
           collapsed: false, tasks: []
         });
@@ -3095,11 +3223,14 @@ function importCSV(input) {
         });
       }
 
+      const taskType = typeIdx !== undefined ? ((cells[typeIdx] || '').trim().toLowerCase() || 'task') : 'task';
+      const resolvedEndDate = taskType === 'milestone' ? startDate : endDate;
       const task = {
-        id: uid(),
+        id: Utils.uid(),
         name: taskName,
+        type: taskType,
         group: groupIdx !== undefined && cells[groupIdx] ? cells[groupIdx].trim() : taskName,
-        startDate, endDate, status,
+        startDate, endDate: resolvedEndDate, status,
         notes: notesIdx !== undefined ? (cells[notesIdx] || '') : '',
         urls,
         dependencies: [],
@@ -3142,35 +3273,35 @@ function importCSV(input) {
       }
     }
 
-    render();
-    saveState();
-    goToday();
+    App.render();
+    App.saveState();
+    App.goToday();
   };
   reader.readAsText(file);
-}
+};
 
 // ========== COMMAND PALETTE ==========
 let cmdActiveIdx = -1;
 
-function openCmdPalette() {
+Cmd.openCmdPalette = function() {
   $cmdBg.classList.add('open');
   $cmdInput.value = '';
   cmdActiveIdx = -1;
-  renderCmdResults('');
+  Cmd.renderCmdResults('');
   setTimeout(() => $cmdInput.focus(), 50);
-}
+};
 
-function closeCmdPalette() {
+Cmd.closeCmdPalette = function() {
   $cmdBg.classList.remove('open');
   $cmdInput.blur();
-}
+};
 
-function searchAll(query) {
+Cmd.searchAll = function(query) {
   const q = query.toLowerCase().trim();
   if (!q) return [];
   const results = [];
   // Search portfolios (other than active)
-  const reg = getPortfolioRegistry();
+  const reg = Portfolio.getPortfolioRegistry();
   for (const p of reg) {
     if (p.id !== state.activePortfolioId && p.name.toLowerCase().includes(q)) {
       results.push({
@@ -3191,33 +3322,33 @@ function searchAll(query) {
     }
     for (const task of cat.tasks) {
       if (task.name.toLowerCase().includes(q)) {
-        const dur = diffDays(task.startDate, task.endDate) + 1;
+        const dur = Utils.diffDays(task.startDate, task.endDate) + 1;
         results.push({
           type: 'task', catId: cat.id, taskId: task.id,
           name: task.name, color: cat.color,
-          meta: cat.name + ' \u00b7 ' + formatDateShort(toDate(task.startDate)) + ' \u2013 ' + formatDateShort(toDate(task.endDate)) + ' (' + dur + 'd)'
+          meta: cat.name + ' \u00b7 ' + Utils.formatDateShort(Utils.toDate(task.startDate)) + ' \u2013 ' + Utils.formatDateShort(Utils.toDate(task.endDate)) + ' (' + dur + 'd)'
         });
       }
     }
   }
   return results;
-}
+};
 
-function highlightMatch(text, query) {
-  if (!query) return esc(text);
+Cmd.highlightMatch = function(text, query) {
+  if (!query) return Utils.esc(text);
   const idx = text.toLowerCase().indexOf(query.toLowerCase());
-  if (idx === -1) return esc(text);
-  return esc(text.slice(0, idx)) + '<mark>' + esc(text.slice(idx, idx + query.length)) + '</mark>' + esc(text.slice(idx + query.length));
-}
+  if (idx === -1) return Utils.esc(text);
+  return Utils.esc(text.slice(0, idx)) + '<mark>' + Utils.esc(text.slice(idx, idx + query.length)) + '</mark>' + Utils.esc(text.slice(idx + query.length));
+};
 
-function renderCmdResults(query) {
-  const results = searchAll(query);
+Cmd.renderCmdResults = function(query) {
+  const results = Cmd.searchAll(query);
   if (!query.trim()) {
     $cmdResults.innerHTML = '<div class="cmd-empty">Type to search tasks, programs, and portfolios\u2026</div>';
     return;
   }
   if (results.length === 0) {
-    $cmdResults.innerHTML = '<div class="cmd-empty">No results for \u201c' + esc(query) + '\u201d</div>';
+    $cmdResults.innerHTML = '<div class="cmd-empty">No results for \u201c' + Utils.esc(query) + '\u201d</div>';
     return;
   }
   if (cmdActiveIdx >= results.length) cmdActiveIdx = results.length - 1;
@@ -3226,11 +3357,11 @@ function renderCmdResults(query) {
   for (let i = 0; i < results.length; i++) {
     const r = results[i];
     const active = i === cmdActiveIdx ? ' active' : '';
-    html += '<div class="cmd-item' + active + '" data-idx="' + i + '" onmouseenter="cmdHover(' + i + ')" onclick="cmdSelect(' + i + ')">';
+    html += '<div class="cmd-item' + active + '" data-idx="' + i + '" onmouseenter="Cmd.cmdHover(' + i + ')" onclick="Cmd.cmdSelect(' + i + ')">';
     html += '<div class="cmd-item-dot" style="background:' + r.color + '"></div>';
     html += '<div class="cmd-item-info">';
-    html += '<div class="cmd-item-name">' + highlightMatch(r.name, query) + '</div>';
-    html += '<div class="cmd-item-meta">' + esc(r.meta) + '</div>';
+    html += '<div class="cmd-item-name">' + Cmd.highlightMatch(r.name, query) + '</div>';
+    html += '<div class="cmd-item-meta">' + Utils.esc(r.meta) + '</div>';
     html += '</div>';
     html += '<div class="cmd-item-type">' + (r.type === 'category' ? 'program' : r.type === 'portfolio' ? 'portfolio' : r.type) + '</div>';
     html += '</div>';
@@ -3238,56 +3369,56 @@ function renderCmdResults(query) {
   $cmdResults.innerHTML = html;
   const activeEl = $cmdResults.querySelector('.cmd-item.active');
   if (activeEl) activeEl.scrollIntoView({ block: 'nearest' });
-}
+};
 
-function cmdHover(idx) {
+Cmd.cmdHover = function(idx) {
   cmdActiveIdx = idx;
   $cmdResults.querySelectorAll('.cmd-item').forEach((el, i) => {
     el.classList.toggle('active', i === idx);
   });
-}
+};
 
-function cmdSelect(idx) {
+Cmd.cmdSelect = function(idx) {
   const query = $cmdInput.value.trim();
-  const results = searchAll(query);
+  const results = Cmd.searchAll(query);
   if (idx < 0 || idx >= results.length) return;
   const r = results[idx];
-  closeCmdPalette();
+  Cmd.closeCmdPalette();
 
   if (r.type === 'portfolio') {
-    switchPortfolio(r.portfolioId);
+    Portfolio.switchPortfolio(r.portfolioId);
     return;
   }
   if (r.type === 'category') {
-    const cat = findCat(r.catId);
-    if (cat && cat.collapsed) { cat.collapsed = false; render(); saveState(); }
+    const cat = Utils.findCat(r.catId);
+    if (cat && cat.collapsed) { cat.collapsed = false; App.render(); App.saveState(); }
     setTimeout(() => {
       const el = $sidebarBody.querySelector('[data-cat="' + r.catId + '"] .s-cat-header');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 50);
   } else {
-    const cat = findCat(r.catId);
-    if (cat && cat.collapsed) { cat.collapsed = false; render(); saveState(); }
-    scrollToTask(r.catId, r.taskId);
-    setTimeout(() => openPanel(r.catId, r.taskId), 100);
+    const cat = Utils.findCat(r.catId);
+    if (cat && cat.collapsed) { cat.collapsed = false; App.render(); App.saveState(); }
+    Cmd.scrollToTask(r.catId, r.taskId);
+    setTimeout(() => Tasks.openPanel(r.catId, r.taskId), 100);
   }
-}
+};
 
-function scrollToTask(catId, taskId) {
-  const task = findTask(catId, taskId);
+Cmd.scrollToTask = function(catId, taskId) {
+  const task = Utils.findTask(catId, taskId);
   if (!task) return;
   const dayW = ZOOM_CFG[state.zoom].dayWidth;
   const totalDays = ZOOM_CFG[state.zoom].totalDays;
-  const startOff = diffDays(toStr(state.viewStart), task.startDate);
-  const endOff = diffDays(toStr(state.viewStart), task.endDate);
+  const startOff = Utils.diffDays(Utils.toStr(state.viewStart), task.startDate);
+  const endOff = Utils.diffDays(Utils.toStr(state.viewStart), task.endDate);
   const midOff = (startOff + endOff) / 2;
 
   if (midOff < 0 || midOff > totalDays) {
-    const midDate = addDays(toDate(task.startDate), Math.floor(diffDays(task.startDate, task.endDate) / 2));
-    state.viewStart = addDays(midDate, -Math.floor(totalDays / 3));
-    render();
-    const newStartOff = diffDays(toStr(state.viewStart), task.startDate);
-    const newEndOff = diffDays(toStr(state.viewStart), task.endDate);
+    const midDate = Utils.addDays(Utils.toDate(task.startDate), Math.floor(Utils.diffDays(task.startDate, task.endDate) / 2));
+    state.viewStart = Utils.addDays(midDate, -Math.floor(totalDays / 3));
+    App.render();
+    const newStartOff = Utils.diffDays(Utils.toStr(state.viewStart), task.startDate);
+    const newEndOff = Utils.diffDays(Utils.toStr(state.viewStart), task.endDate);
     const newMidPx = ((newStartOff + newEndOff) / 2) * dayW;
     $timelineWrap.scrollLeft = Math.max(0, newMidPx - $timelineWrap.clientWidth / 2);
   } else {
@@ -3296,27 +3427,27 @@ function scrollToTask(catId, taskId) {
 
   const taskRow = $sidebarBody.querySelector('.s-task[data-task="' + taskId + '"]');
   if (taskRow) taskRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
+};
 
 $cmdInput.addEventListener('input', () => {
   cmdActiveIdx = 0;
-  renderCmdResults($cmdInput.value);
+  Cmd.renderCmdResults($cmdInput.value);
 });
 
 // ========== INIT ==========
-function init() {
-  loadState();
-  initDarkMode();
-  if (state.categories.length === 0) loadSampleData();
+App.init = function() {
+  Portfolio.loadState();
+  App.initDarkMode();
+  if (state.categories.length === 0) App.loadSampleData();
 
-  applyProjectName();
-  applyOrgName();
+  Portfolio.applyProjectName();
+  Portfolio.applyOrgName();
 
   // Set initial view
   state.zoom = 'weeks';
   $zoomSelect.value = 'weeks';
-  goToday();
-}
+  App.goToday();
+};
 
 // Handle enter in modal inputs
 document.addEventListener('keydown', (e) => {
@@ -3326,7 +3457,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-init();
+App.init();
 </script>
 </body>
 </html>
