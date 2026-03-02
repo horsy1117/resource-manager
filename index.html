@@ -191,8 +191,10 @@ input[type="date"]{color-scheme:var(--color-scheme)}
 .s-action{width:24px;height:24px;border:none;background:transparent;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px}
 .s-action:hover{background:var(--border);color:var(--text)}
 
-.s-task{min-height:var(--row-h);display:flex;align-items:center;padding:0 6px 0 8px;border-bottom:1px solid var(--border-subtle);position:relative;cursor:pointer}
+.s-task{min-height:var(--row-h);display:flex;align-items:center;padding:0 6px 0 8px;border-bottom:1px solid var(--border-subtle);position:relative;cursor:default}
 .s-task:hover{background:var(--bg2)}
+.s-task.row-focused{background:rgba(59,130,246,.07);box-shadow:inset 2px 0 0 #3b82f6}
+.s-task.row-focused:hover{background:rgba(59,130,246,.11)}
 .s-task-grip{width:16px;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:grab;opacity:0;transition:opacity .15s;color:var(--text3);font-size:10px;letter-spacing:1px}
 .s-task:hover .s-task-grip{opacity:.6}
 .s-task-grip:hover{opacity:1!important}
@@ -201,7 +203,9 @@ input[type="date"]{color-scheme:var(--color-scheme)}
 .s-task.drag-ghost{opacity:.4}
 .s-task.selected{background:var(--blue-light)}
 .s-task-dot{width:7px;height:7px;border-radius:50%;margin-right:6px;flex-shrink:0}
-.s-task-name{flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-task-name{flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:3px}
+.s-task-name-link{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border-radius:2px;padding:1px 2px;margin:-1px -2px}
+.s-task-name-link:hover{text-decoration:underline;text-underline-offset:2px}
 .s-task-actions{opacity:0;display:flex;gap:2px;transition:opacity .15s}
 .s-task:hover .s-task-actions{opacity:1}
 
@@ -236,6 +240,8 @@ input[type="date"]{color-scheme:var(--color-scheme)}
 .t-row.cat-row{height:var(--cat-row-h);background:var(--bg2);border-bottom:1px solid var(--border)}
 .t-row.task-row{cursor:default}
 .t-row.task-row:hover{background:var(--row-hover-bg)}
+.t-row.task-row.row-focused{background:rgba(59,130,246,.05)}
+.t-row.task-row.row-focused:hover{background:rgba(59,130,246,.08)}
 
 /* ===== GHOST BAR (drag-to-create) ===== */
 .ghost-bar{position:absolute;height:20px;top:4px;border-radius:6px;opacity:.35;pointer-events:none;z-index:5}
@@ -435,6 +441,8 @@ body.resizing *{cursor:col-resize!important}
 .cmd-empty{padding:24px 16px;text-align:center;color:var(--text3);font-size:13px}
 .cmd-hint{padding:8px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;align-items:center;gap:12px}
 .cmd-hint kbd{background:var(--bg2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:inherit}
+.fs-btn{position:relative}.fs-dot{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:#9ca3af;border:1.5px solid var(--bg)}.fs-dot.on{background:#10b981}
+.fs-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:7px 16px;border-radius:20px;font-size:12px;font-weight:500;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -479,6 +487,7 @@ body.resizing *{cursor:col-resize!important}
       <button class="btn btn-icon" onclick="Cmd.openCmdPalette()" title="Search (Ctrl+K)" id="searchBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
+      <button class="btn btn-icon fs-btn" onclick="FileStorage.selectFolder()" title="Connect folder (saves to data.json)" id="fsBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><span class="fs-dot" id="fsDot"></span></button>
       <button class="btn btn-icon" onclick="App.toggleDarkMode()" title="Toggle dark mode" id="darkModeBtn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 0111.21 3 7 7 0 0012 21a9 9 0 009-8.21z"/></svg>
       </button>
@@ -558,7 +567,7 @@ const STATUS_OPTIONS = [
 ];
 
 // ========== NAMESPACES ==========
-const Utils = {}, UI = {}, Portfolio = {}, Projects = {}, Tasks = {}, Deps = {}, Drag = {}, Sidebar = {}, Timeline = {}, AI = {}, Cmd = {}, CSV = {}, App = {};
+const Utils = {}, UI = {}, Portfolio = {}, Projects = {}, Tasks = {}, Deps = {}, Drag = {}, Sidebar = {}, Timeline = {}, AI = {}, Cmd = {}, CSV = {}, App = {}, FileStorage = {};
 
 // ========== STATE ==========
 let state = {
@@ -779,6 +788,153 @@ Utils.computeRowHeight = function(numLanes) {
   return numLanes * LANE_HEIGHT + LANE_PADDING;
 };
 
+// ========== FILE STORAGE (File System Access API) ==========
+FileStorage._dirHandle = null;
+FileStorage._lastSavedAt = null;
+FileStorage._pollTimer = null;
+FileStorage._toastTimer = null;
+FileStorage.isSupported = function() { return 'showDirectoryPicker' in window; };
+FileStorage._openIDB = function() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('rm_fs_v1', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('handles');
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = () => reject(req.error);
+  });
+};
+FileStorage._getHandle = async function() {
+  try {
+    const db = await FileStorage._openIDB();
+    return await new Promise(resolve => {
+      const tx = db.transaction('handles', 'readonly');
+      const get = tx.objectStore('handles').get('dir');
+      get.onsuccess = () => resolve(get.result || null);
+      get.onerror = () => resolve(null);
+    });
+  } catch { return null; }
+};
+FileStorage._saveHandle = async function(handle) {
+  try {
+    const db = await FileStorage._openIDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('handles', 'readwrite');
+      tx.objectStore('handles').put(handle, 'dir');
+      tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
+    });
+  } catch (e) { console.warn('FileStorage: failed to save handle', e); }
+};
+FileStorage._verifyPermission = async function(handle) {
+  const opts = { mode: 'readwrite' };
+  if (await handle.queryPermission(opts) === 'granted') return true;
+  if (await handle.requestPermission(opts) === 'granted') return true;
+  return false;
+};
+FileStorage._updateStatus = function() {
+  const el = document.getElementById('fsDot');
+  if (el) el.classList.toggle('on', !!FileStorage._dirHandle);
+};
+FileStorage.showToast = function(msg) {
+  const el = document.getElementById('fsToast');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(FileStorage._toastTimer);
+  FileStorage._toastTimer = setTimeout(() => { el.style.opacity = '0'; }, 3000);
+};
+FileStorage.init = async function() {
+  if (!FileStorage.isSupported()) return false;
+  const saved = await FileStorage._getHandle();
+  if (saved && await FileStorage._verifyPermission(saved)) {
+    FileStorage._dirHandle = saved; FileStorage._updateStatus(); return true;
+  }
+  return false;
+};
+FileStorage.selectFolder = async function() {
+  if (!FileStorage.isSupported()) { alert('File storage requires Chrome or Edge. Your data is currently saved in browser localStorage.'); return; }
+  try {
+    const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    FileStorage._dirHandle = handle;
+    await FileStorage._saveHandle(handle);
+    FileStorage._updateStatus();
+    await FileStorage.writeAll();
+    FileStorage.startPolling();
+    alert('Folder connected! All data is now saved to data.json in this folder.');
+  } catch (e) { if (e.name !== 'AbortError') console.warn('FileStorage: folder select failed', e); }
+};
+FileStorage._write = async function(data) {
+  if (!FileStorage._dirHandle) return;
+  try {
+    const fh = await FileStorage._dirHandle.getFileHandle('data.json', { create: true });
+    const writable = await fh.createWritable();
+    await writable.write(JSON.stringify(data));
+    await writable.close();
+  } catch (e) { console.warn('FileStorage: write failed', e); }
+};
+FileStorage.writeAll = async function() {
+  if (!FileStorage._dirHandle) return;
+  const reg = Portfolio.getPortfolioRegistry();
+  const portData = {};
+  for (const p of reg) { try { const r = localStorage.getItem('rm_portfolio_' + p.id); if (r) portData[p.id] = JSON.parse(r); } catch {} }
+  const savedAt = new Date().toISOString();
+  FileStorage._lastSavedAt = savedAt;
+  await FileStorage._write({ portfolios: reg, portfolioData: portData, global: Portfolio.getGlobalSettings(), activeId: state.activePortfolioId, darkMode: localStorage.getItem('rm_darkMode') || '0', _savedAt: savedAt });
+};
+FileStorage.importToLocalStorage = async function() {
+  try {
+    const fh = await FileStorage._dirHandle.getFileHandle('data.json', { create: false });
+    const file = await fh.getFile();
+    const data = JSON.parse(await file.text());
+    FileStorage._lastSavedAt = data._savedAt || null;
+    if (data.portfolios) localStorage.setItem('rm_portfolios', JSON.stringify(data.portfolios));
+    if (data.global) localStorage.setItem('rm_global', JSON.stringify(data.global));
+    if (data.activeId) localStorage.setItem('rm_active', data.activeId);
+    if (data.darkMode != null) localStorage.setItem('rm_darkMode', data.darkMode);
+    if (data.portfolioData) { for (const [id, pd] of Object.entries(data.portfolioData)) { if (pd) localStorage.setItem('rm_portfolio_' + id, JSON.stringify(pd)); } }
+  } catch { /* file doesn't exist yet — first run */ }
+};
+FileStorage._applyData = function(data) {
+  const global = data.global || {};
+  state.aiKey = global.aiKey || '';
+  state.aiProvider = global.aiProvider || 'gemini';
+  state.aiCustomEndpoint = global.aiCustomEndpoint || '';
+  state.aiCustomModel = global.aiCustomModel || '';
+  state.orgName = global.orgName || 'Organization';
+  const activeId = data.activeId || state.activePortfolioId;
+  if (activeId && data.portfolioData && data.portfolioData[activeId]) {
+    const pd = data.portfolioData[activeId];
+    state.categories = pd.categories || [];
+    state.projectName = pd.projectName || 'Project Plan';
+    state.aiMessages = pd.aiMessages || [];
+    state.activePortfolioId = activeId;
+    Portfolio.migrateTaskData();
+  }
+  if (data.portfolios) localStorage.setItem('rm_portfolios', JSON.stringify(data.portfolios));
+  if (data.global) localStorage.setItem('rm_global', JSON.stringify(data.global));
+  if (data.portfolioData) { for (const [id, pd] of Object.entries(data.portfolioData)) { if (pd) localStorage.setItem('rm_portfolio_' + id, JSON.stringify(pd)); } }
+  Portfolio.applyProjectName();
+  Portfolio.applyOrgName();
+  App.render();
+};
+FileStorage.startPolling = function() {
+  if (FileStorage._pollTimer) return;
+  FileStorage._pollTimer = setInterval(FileStorage.poll, 15000);
+};
+FileStorage.poll = async function() {
+  if (!FileStorage._dirHandle) return;
+  if ($modalBg.classList.contains('open')) return;
+  try {
+    const fh = await FileStorage._dirHandle.getFileHandle('data.json', { create: false });
+    const file = await fh.getFile();
+    const data = JSON.parse(await file.text());
+    const fileSavedAt = data._savedAt || null;
+    if (fileSavedAt && fileSavedAt !== FileStorage._lastSavedAt) {
+      FileStorage._lastSavedAt = fileSavedAt;
+      FileStorage._applyData(data);
+      FileStorage.showToast('↻  Updated by another user');
+    }
+  } catch { /* file temporarily unavailable — skip this cycle */ }
+};
+
 // ========== PERSISTENCE (Multi-Portfolio) ==========
 Portfolio.getPortfolioRegistry = function() {
   try { return JSON.parse(localStorage.getItem('rm_portfolios') || '[]'); }
@@ -911,6 +1067,7 @@ App.saveState = function() {
   const entry = reg.find(p => p.id === state.activePortfolioId);
   if (entry) { entry.updatedAt = new Date().toISOString(); entry.name = state.projectName; Portfolio.savePortfolioRegistry(reg); }
   Portfolio.saveGlobalSettings();
+  FileStorage.writeAll();
 };
 
 Portfolio.loadState = function() {
@@ -1168,6 +1325,17 @@ App.render = function() {
   Timeline.renderTimeline();
 };
 
+Sidebar.focusRow = function(el) {
+  $sidebarBody.querySelectorAll('.s-task.row-focused').forEach(r => r.classList.remove('row-focused'));
+  $timelineBody.querySelectorAll('.t-row.row-focused').forEach(r => r.classList.remove('row-focused'));
+  el.classList.add('row-focused');
+  const projId = el.dataset.project;
+  if (projId) {
+    const tRow = $timelineBody.querySelector(`.t-row[data-project="${projId}"]`);
+    if (tRow) tRow.classList.add('row-focused');
+  }
+};
+
 Sidebar.renderSidebar = function() {
   let html = '';
   const grouped = cachedGroups || Timeline.buildGroups();
@@ -1194,10 +1362,10 @@ Sidebar.renderSidebar = function() {
         const proj = group.project;
         const sel = state.selectedTask && group.tasks.some(t => t.id === state.selectedTask.taskId) ? ' selected' : '';
         const countBadge = group.tasks.length > 0 ? ` <span class="s-count" style="color:var(--text3);font-weight:400;font-size:11px">(${group.tasks.length})</span>` : '';
-        html += `<div class="s-task${sel}" style="height:${group.rowHeight}px" data-cat="${cat.id}" data-project="${proj.id}" data-pidx="${groupIdx - 1}" onclick="Projects.showEditProjectModal('${cat.id}','${proj.id}')" oncontextmenu="Sidebar.showProjectCtx(event,'${cat.id}','${proj.id}')">
+        html += `<div class="s-task${sel}" style="height:${group.rowHeight}px" data-cat="${cat.id}" data-project="${proj.id}" data-pidx="${groupIdx - 1}" onclick="Sidebar.focusRow(this)" oncontextmenu="Sidebar.showProjectCtx(event,'${cat.id}','${proj.id}')">
           <div class="s-task-grip" onmousedown="Drag.onGripMouseDown(event,'${cat.id}','${proj.id}',${groupIdx - 1})"><svg width="6" height="10" viewBox="0 0 6 10"><circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="8.5" r="1" fill="currentColor"/></svg></div>
           <div class="s-task-dot" style="background:${proj.color}"></div>
-          <div class="s-task-name"><span class="s-num">${catIdx}.${groupIdx}</span>${Utils.esc(proj.name)}${countBadge}</div>
+          <div class="s-task-name"><span class="s-num">${catIdx}.${groupIdx}</span><span class="s-task-name-link" onclick="event.stopPropagation();Projects.showEditProjectModal('${cat.id}','${proj.id}')" title="Edit project">${Utils.esc(proj.name)}</span>${countBadge}</div>
           <div class="s-task-actions">
             <button class="s-action" onclick="event.stopPropagation();Tasks.showAddTaskModal('${cat.id}','${proj.id}')" title="Add task or milestone to this project">&#43;</button>
             <button class="s-action" onclick="event.stopPropagation();Projects.showEditProjectModal('${cat.id}','${proj.id}')" title="Edit project">&#9998;</button>
@@ -1558,7 +1726,7 @@ $timelineWrap.addEventListener('dblclick', (e) => {
   const px = Drag.timelinePixelX(e);
   const clickDate = Drag.pixelToDate(px);
   if (projectId) {
-    Tasks.showAddTaskModal(catId, projectId);
+    Tasks.showAddTaskModal(catId, projectId, clickDate, clickDate);
   } else {
     Tasks.showAddTaskModal(catId, clickDate);
   }
@@ -1577,7 +1745,7 @@ $timelineWrap.addEventListener('contextmenu', (e) => {
   const px = Drag.timelinePixelX(e);
   const clickDate = Drag.pixelToDate(px);
   const addAction = projectId
-    ? () => Tasks.showAddTaskModal(catId, projectId)
+    ? () => Tasks.showAddTaskModal(catId, projectId, clickDate, clickDate)
     : () => Tasks.showAddTaskModal(catId, clickDate);
   UI.showCtxMenu(e.clientX, e.clientY, [
     { label: 'Add Task here', action: addAction }
@@ -1801,12 +1969,13 @@ Tasks.onTypeChange = function(val) {
   }
 };
 
-Tasks.showAddTaskModal = function(catId, projectIdOrStart, prefillEnd) {
+Tasks.showAddTaskModal = function(catId, projectIdOrStart, prefillEnd, prefillStart2) {
   modalLinks = [];
   // Determine if second arg is projectId or prefillStart date
   let projectId = null, prefillStart = null;
   if (projectIdOrStart && projectIdOrStart.startsWith && projectIdOrStart.startsWith('id_')) {
     projectId = projectIdOrStart;
+    prefillStart = prefillStart2 || null;
   } else {
     prefillStart = projectIdOrStart;
   }
@@ -2620,7 +2789,7 @@ Drag.handleCreateDragUp = function(e) {
     const endDate = Drag.pixelToDate(Math.max(pixelX, currentPx));
     Drag.createDragState = null;
     if (projectId) {
-      Tasks.showAddTaskModal(catId, projectId);
+      Tasks.showAddTaskModal(catId, projectId, endDate, startDate);
     } else {
       Tasks.showAddTaskModal(catId, startDate, endDate);
     }
@@ -3614,14 +3783,19 @@ $cmdInput.addEventListener('input', () => {
 });
 
 // ========== INIT ==========
-App.init = function() {
+App.init = async function() {
+  if (FileStorage.isSupported()) {
+    const connected = await FileStorage.init();
+    if (connected) {
+      await FileStorage.importToLocalStorage();
+      FileStorage.startPolling();
+    }
+  }
   Portfolio.loadState();
   App.initDarkMode();
   if (state.categories.length === 0) App.loadSampleData();
-
   Portfolio.applyProjectName();
   Portfolio.applyOrgName();
-
   // Set initial view
   state.zoom = 'weeks';
   $zoomSelect.value = 'weeks';
@@ -3638,5 +3812,6 @@ document.addEventListener('keydown', (e) => {
 
 App.init();
 </script>
+<div class="fs-toast" id="fsToast"></div>
 </body>
 </html>

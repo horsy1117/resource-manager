@@ -1,7 +1,7 @@
 # Resource Manager — Project Guide for Claude
 
 ## What This Project Is
-A **single-file, self-contained Gantt-chart project management web app** (`index.html`, ~168 KB, ~3,642 lines). No build step, no dependencies, no external libraries. Pure vanilla HTML + CSS + JavaScript in one file. Served locally via Python HTTP server on port 8090.
+A **single-file, self-contained Gantt-chart project management web app** (`index.html`, ~175 KB, ~3,817 lines). No build step, no dependencies, no external libraries. Pure vanilla HTML + CSS + JavaScript in one file. Served locally via Python HTTP server on port 8090.
 
 ## Dev Server
 Defined in `.claude/launch.json`:
@@ -15,8 +15,8 @@ There is only **one source file**: `index.html`. Everything — styles, markup, 
 | Section | Lines | Content |
 |---------|-------|---------|
 | CSS | 1–450 | All styling, CSS variables, dark mode overrides, component styles |
-| HTML | 451–538 | Layout skeleton (sidebar, timeline, panels, modals, command palette) |
-| JavaScript | 540–3,642 | All application logic organized in 13 namespaces |
+| HTML | 451–542 | Layout skeleton (sidebar, timeline, panels, modals, command palette, toast) |
+| JavaScript | 543–3,815 | All application logic organized in 14 namespaces |
 
 **Do not create additional files** unless absolutely necessary. All changes go into `index.html`.
 
@@ -40,11 +40,11 @@ Portfolio (workspace)
 - **Projects** — first-class entities within a program; have name, notes, color; stored in `cat.projects` array
 - **Tasks** — individual work items within a project; have dates, status, type, notes, links, dependencies; linked to project via `projectId`
 
-### Namespaces (13)
-All logic is organized into namespace objects declared on line 561:
+### Namespaces (14)
+All logic is organized into namespace objects declared on line ~563:
 ```javascript
 const Utils = {}, UI = {}, Portfolio = {}, Projects = {}, Tasks = {}, Deps = {},
-      Drag = {}, Sidebar = {}, Timeline = {}, AI = {}, Cmd = {}, CSV = {}, App = {};
+      Drag = {}, Sidebar = {}, Timeline = {}, AI = {}, Cmd = {}, CSV = {}, App = {}, FileStorage = {};
 ```
 
 | Namespace | Responsibility |
@@ -56,12 +56,13 @@ const Utils = {}, UI = {}, Portfolio = {}, Projects = {}, Tasks = {}, Deps = {},
 | `Tasks` | Task CRUD modals, detail panel, task-level operations |
 | `Deps` | Dependency enforcement, cycle detection, cascading |
 | `Drag` | All drag states + handlers (bar move/resize, create, reorder, pan, dep-draw) |
-| `Sidebar` | Sidebar rendering, program CRUD modals, context menus, reorder |
+| `Sidebar` | Sidebar rendering, program CRUD modals, context menus, reorder, row focus |
 | `Timeline` | Lane assignment, group building, timeline rendering |
 | `AI` | AI panel rendering, Gemini/custom LLM integration |
 | `Cmd` | Command palette search + navigation |
 | `CSV` | CSV export and import with project/group support |
-| `App` | Init, render, navigate, zoom, dark mode, sample data, saveState |
+| `App` | Init (async), render, navigate, zoom, dark mode, sample data, saveState |
+| `FileStorage` | File System Access API — folder picker, data.json read/write, polling |
 
 ### State Object
 ```javascript
@@ -124,41 +125,42 @@ let state = {
 
 ## JavaScript Section Map
 
-| Section | Lines | Key Functions |
+| Section | Lines (approx) | Key Functions |
 |---------|-------|---------------|
 | Constants | 541–558 | COLORS, MONTHS, ZOOM_CFG, STATUS_OPTIONS |
-| Namespaces | 560–561 | All 13 namespace declarations |
-| State | 563–586 | `state` object, Drag state vars |
-| DOM Refs | 588–604 | `$sidebarBody`, `$timelineWrap`, etc. |
-| Utilities | 606–780 | `uid`, `toDate`, `toStr`, `addDays`, `diffDays`, `esc`, `lightenColor`, `findCat`, `findTask`, `Projects.findProject`, project CRUD functions |
-| Persistence | 782–1011 | Portfolio load/save/switch/migrate, multi-portfolio management |
-| Sample Data | 1013–1067 | `App.loadSampleData` with projects + tasks |
-| Grouping | 1069–1161 | `assignLanes` (topological sort + bin-packing), `buildGroups` (by projectId) |
-| Rendering | 1163–1464 | `render`, `renderSidebar`, `renderTimeline` |
-| Navigation | 1465–1488 | `navigate`, `goToday`, `setZoom` |
-| Scroll Sync | 1489–1516 | Timeline↔sidebar scroll sync, sticky labels |
-| Sidebar Resize | 1517–1527 | Draggable sidebar width |
-| Timeline Interactions | 1528–1586 | Pan, drag-to-create, dblclick, right-click on timeline |
-| Category CRUD | 1587–1655 | `toggleCat`, `showAddCatModal`, `doAddCat`, `showEditCatModal`, `doEditCat`, `deleteCat` |
-| Task CRUD | 1656–1946 | `showAddTaskModal`, `doAddTask`, `showEditTaskModal`, `doEditTask`, `deleteTask`, link management, modal body builder |
-| Detail Panel | 1947–2117 | `openPanel`, `closePanel`, `renderPanel`, `panelUpdate`, URL/dep management |
-| Modals | 2118–2145 | `openModal`, `closeModal`, `showConfirmModal` |
-| Portfolio UI | 2146–2303 | Project name editing, org name, portfolio dropdown, portfolio operations |
-| Add Menu | 2304–2316 | Topbar "+" add menu |
-| Context Menus | 2317–2360 | `showCtxMenu`, `showCatCtx`, `showProjectCtx` |
-| Sidebar Reorder | 2361–2423 | Grip drag to reorder projects and categories |
-| Drag Helpers | 2424–2459 | `showDragLabel`, `calcBarPos`, `pixelToDate`, `timelinePixelX` |
-| Bar Drag | 2460–2489 | `onBarMouseDown` (move/resize task bars) |
-| Dependencies | 2490–2563 | `enforceDependency`, `cascadeDependencies`, `wouldCreateCycle`, dep bubble drag |
-| Mouse Dispatch | 2564–2934 | Unified `mousemove`/`mouseup` handlers for all drag operations |
-| Tooltip | 2935–2961 | Bar hover tooltip with project name prefix |
-| Keyboard | 2962–3003 | Ctrl+K, Escape, arrow keys, command palette nav |
-| Dark Mode | 3004–3029 | Toggle, icon update, init |
-| AI Panel | 3030–3213 | AI panel rendering, Gemini/custom API calls, settings |
-| CSV Export | 3214–3267 | Export with Program, Project, Project Color, Type columns |
-| CSV Import | 3268–3439 | Import with backward-compatible Group/Project column, auto-creates project entities |
-| Command Palette | 3440–3615 | Search portfolios, programs, projects, tasks; keyboard navigation |
-| Init | 3616–3642 | `App.init`, Enter key handler for modals |
+| Namespaces | 560–563 | All 14 namespace declarations |
+| State | 565–588 | `state` object, Drag state vars |
+| DOM Refs | 590–606 | `$sidebarBody`, `$timelineWrap`, etc. |
+| Utilities | 608–790 | `uid`, `toDate`, `toStr`, `addDays`, `diffDays`, `esc`, `lightenColor`, `findCat`, `findTask`, `Projects.findProject`, project CRUD functions |
+| File Storage | 792–940 | `FileStorage` — IDB handle persistence, folder picker, read/write, polling, toast |
+| Persistence | 942–1070 | Portfolio load/save/switch/migrate, multi-portfolio management |
+| Sample Data | 1072–1126 | `App.loadSampleData` with projects + tasks |
+| Grouping | 1128–1220 | `assignLanes` (topological sort + bin-packing), `buildGroups` (by projectId) |
+| Rendering | 1222–1530 | `render`, `renderSidebar`, `renderTimeline` |
+| Navigation | 1531–1554 | `navigate`, `goToday`, `setZoom` |
+| Scroll Sync | 1555–1582 | Timeline↔sidebar scroll sync, sticky labels |
+| Sidebar Resize | 1583–1593 | Draggable sidebar width |
+| Timeline Interactions | 1594–1745 | Pan, drag-to-create, dblclick, right-click on timeline |
+| Category CRUD | 1746–1814 | `toggleCat`, `showAddCatModal`, `doAddCat`, `showEditCatModal`, `doEditCat`, `deleteCat` |
+| Task CRUD | 1815–2010 | `showAddTaskModal`, `doAddTask`, `showEditTaskModal`, `doEditTask`, `deleteTask`, link management, modal body builder |
+| Detail Panel | 2011–2181 | `openPanel`, `closePanel`, `renderPanel`, `panelUpdate`, URL/dep management |
+| Modals | 2182–2210 | `openModal`, `closeModal`, `showConfirmModal` |
+| Portfolio UI | 2211–2368 | Project name editing, org name, portfolio dropdown, portfolio operations |
+| Add Menu | 2369–2381 | Topbar "+" add menu |
+| Context Menus | 2382–2425 | `showCtxMenu`, `showCatCtx`, `showProjectCtx` |
+| Sidebar Reorder | 2426–2488 | Grip drag to reorder projects and categories |
+| Drag Helpers | 2489–2524 | `showDragLabel`, `calcBarPos`, `pixelToDate`, `timelinePixelX` |
+| Bar Drag | 2525–2554 | `onBarMouseDown` (move/resize task bars) |
+| Dependencies | 2555–2628 | `enforceDependency`, `cascadeDependencies`, `wouldCreateCycle`, dep bubble drag |
+| Mouse Dispatch | 2629–2999 | Unified `mousemove`/`mouseup` handlers for all drag operations |
+| Tooltip | 3000–3026 | Bar hover tooltip with project name prefix |
+| Keyboard | 3027–3068 | Ctrl+K, Escape, arrow keys, command palette nav |
+| Dark Mode | 3069–3094 | Toggle, icon update, init |
+| AI Panel | 3095–3278 | AI panel rendering, Gemini/custom API calls, settings |
+| CSV Export | 3279–3332 | Export with Program, Project, Project Color, Type columns |
+| CSV Import | 3333–3504 | Import with backward-compatible Group/Project column, auto-creates project entities |
+| Command Palette | 3505–3680 | Search portfolios, programs, projects, tasks; keyboard navigation |
+| Init | 3681–3815 | `App.init` (async), Enter key handler for modals |
 
 ---
 
@@ -238,11 +240,50 @@ Dependencies are only allowed between tasks in the same project (enforced in dep
 ### State Persistence
 | Function | Purpose |
 |----------|---------|
-| `App.saveState()` | Persist to localStorage |
+| `App.saveState()` | Persist to localStorage + trigger `FileStorage.writeAll()` |
 | `Portfolio.loadState()` | Load from localStorage, handle migration |
 | `Portfolio.loadPortfolio(id)` | Load a specific portfolio |
 | `Portfolio.switchPortfolio(id)` | Switch active portfolio |
 | `Portfolio.savePortfolioRegistry()` | Update `rm_portfolios` |
+
+### FileStorage System (File System Access API)
+Enables shared `data.json` file persistence for multi-user use (Chrome/Edge only; falls back to localStorage on Firefox).
+
+**data.json structure:**
+```json
+{
+  "portfolios": [...],
+  "portfolioData": { "[id]": { "categories": [], "projectName": "", "aiMessages": [] } },
+  "global": { "aiKey": "", "aiProvider": "gemini", "orgName": "" },
+  "activeId": "...",
+  "darkMode": "0",
+  "_savedAt": "ISO timestamp"
+}
+```
+
+**Key functions:**
+| Function | Purpose |
+|----------|---------|
+| `FileStorage.init()` | Restore saved directory handle from IndexedDB, verify permission |
+| `FileStorage.selectFolder()` | Prompt user to pick folder, save handle to IDB, start polling |
+| `FileStorage.writeAll()` | Collect all state, stamp `_savedAt`, write to `data.json` |
+| `FileStorage.importToLocalStorage()` | Read `data.json`, populate localStorage, record `_lastSavedAt` |
+| `FileStorage.startPolling()` | Start 15-second interval poll for external changes |
+| `FileStorage.poll()` | Compare `_savedAt` in file vs `_lastSavedAt`; if different, call `_applyData()` |
+| `FileStorage._applyData(data)` | Apply external data to state + re-render without page reload |
+| `FileStorage.showToast(msg)` | Show bottom-center toast for 3 seconds |
+
+**Polling behaviour:**
+- Polls every **15 seconds**
+- Skips poll if a modal is open (avoids disrupting user mid-edit)
+- On external change detected: applies data directly to state, calls `App.render()`, shows toast "↻ Updated by another user"
+- Own saves set `_lastSavedAt` so they never trigger a self-reload
+
+**Topbar indicator:**
+- Folder icon button (`.fs-btn`) with status dot (`.fs-dot`)
+- Gray dot = localStorage only; Green dot = connected to folder file
+
+**`App.init` is now `async`** — awaits `FileStorage.init()` and `FileStorage.importToLocalStorage()` before calling `Portfolio.loadState()`.
 
 ---
 
@@ -254,6 +295,7 @@ Dependencies are only allowed between tasks in the same project (enforced in dep
 [Sidebar (resizable)] | [Timeline]
                          [Header: date rows]
                          [Body: grid + task bars + milestones + dep arrows]
+[Toast: bottom-center, fades after 3s]
 ```
 
 ### Panels & Overlays
@@ -263,6 +305,14 @@ Dependencies are only allowed between tasks in the same project (enforced in dep
 - **Context Menu** (`.ctx-menu`) — right-click menus, fixed position
 - **Command Palette** (`.cmd-palette`) — `Ctrl+K`, searches projects, programs, tasks, portfolios
 - **Tooltip** (`.tooltip`) — hover on task bars, shows "Project > Task | Status | Dates"
+- **Toast** (`.fs-toast` `#fsToast`) — bottom-center notification for file sync events
+
+### Sidebar Project Row Behaviour
+- **Click anywhere on row** → focuses row (`Sidebar.focusRow(el)`): adds `.row-focused` to both the `.s-task` sidebar element AND the matching `.t-row[data-project]` timeline element, highlighting the full horizontal band
+- **Click project name text** (`.s-task-name-link`) → opens edit modal (`Projects.showEditProjectModal`)
+- **Action buttons** (+, pencil, ×) → `stopPropagation`, work independently
+- `.s-task.row-focused` CSS: `rgba(59,130,246,.07)` tint + `inset 2px 0 0 #3b82f6` left accent
+- `.t-row.task-row.row-focused` CSS: `rgba(59,130,246,.05)` tint only
 
 ### Context Menus
 | Menu | Trigger | Items |
@@ -281,7 +331,7 @@ Dependencies are only allowed between tasks in the same project (enforced in dep
 | Confirm | Message + Cancel/Delete | Delete operations |
 
 ### Topbar Buttons (left to right)
-Org name → Portfolio title/dropdown → ◄ Today ► → Zoom select → + Add → Export CSV → Import CSV → AI → Search → ? Help → Dark mode
+Org name → Portfolio title/dropdown → ◄ Today ► → Zoom select → + Add → Export CSV → Import CSV → AI → Search → Folder (FileStorage) → Dark mode
 
 ---
 
@@ -293,6 +343,14 @@ Org name → Portfolio title/dropdown → ◄ Today ► → Zoom select → + Ad
 - Projects have: name, notes, color (NO dates, NO status)
 - Tasks have: name, type (task/milestone), dates, status, notes, links, dependencies
 - When adding a task without a project context, a new project is auto-created with the task name
+- **Drag-to-create prefills dates**: `Tasks.showAddTaskModal(catId, projectId, endDate, startDate)` — 4th param is `prefillStart` when 2nd param is a projectId
+
+### `Tasks.showAddTaskModal` Signature
+```javascript
+Tasks.showAddTaskModal(catId, projectIdOrStart, prefillEnd, prefillStart2)
+```
+- If `projectIdOrStart` starts with `'id_'` → it's a projectId; `prefillStart2` is the start date
+- Otherwise → `projectIdOrStart` is the start date, `prefillEnd` is the end date
 
 ### Milestones
 - Task type `'milestone'` — zero-duration, rendered as diamond shape on timeline
@@ -320,9 +378,12 @@ Org name → Portfolio title/dropdown → ◄ Today ► → Zoom select → + Ad
 - Supports backward-compatible column names: Program/Category, Project/Group
 - Import auto-creates Project entities from the Project/Group column
 
-### Multi-Tab Safety
-- Detects changes in other browser tabs via `storage` event
-- Alerts user to external modifications before overwriting
+### Multi-User File Sync
+- Folder connected via File System Access API (Chrome/Edge only)
+- All users open `index.html` from the same SharePoint/shared folder
+- Each save writes `data.json` with a `_savedAt` ISO timestamp
+- Every 15 seconds, each client polls `data.json`; if `_savedAt` changed and wasn't caused by self → auto-apply + toast
+- Modal-guard: poll skips if a modal is open
 
 ---
 
@@ -344,6 +405,7 @@ Org name → Portfolio title/dropdown → ◄ Today ► → Zoom select → + Ad
 - **`App.saveState()`** must be called after any mutation to `state.categories` or state fields
 - **`App.render()`** must be called after state changes to update the UI
 - Typical mutation pattern: mutate state → `App.render()` → `App.saveState()`
+- **`App.init` is async** — do not make it synchronous
 
 ---
 
@@ -357,5 +419,5 @@ Org name → Portfolio title/dropdown → ◄ Today ► → Zoom select → + Ad
 ## Git Info
 - Repository: `https://github.com/horsy1117/resource-manager`
 - Branch: `main`
-- 13 namespaces: Utils, UI, Portfolio, Projects, Tasks, Deps, Drag, Sidebar, Timeline, AI, Cmd, CSV, App
-- Recent features: multi-portfolio, org name stacking, timeline drag/click/right-click task creation, milestone task type, Projects as first-class entities (decoupled from Tasks)
+- 14 namespaces: Utils, UI, Portfolio, Projects, Tasks, Deps, Drag, Sidebar, Timeline, AI, Cmd, CSV, App, FileStorage
+- Recent features: FileStorage (data.json + polling), multi-user sync, sidebar row focus highlight, drag-to-create date prefill fix
