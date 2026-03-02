@@ -28,7 +28,7 @@ There is only **one source file**: `index.html`. Everything — styles, markup, 
 ```
 Portfolio (workspace)
   └── Program (colored grouping, called "category" in code)
-        ├── Project (first-class entity: name, notes, color — NO dates, NO status)
+        ├── Project (first-class entity: name, notes — NO color, NO dates, NO status)
         │     ├── Task (work item: name, type, dates, status, notes, links, deps)
         │     └── Task (milestone: zero-duration diamond, single date)
         └── Project
@@ -36,8 +36,8 @@ Portfolio (workspace)
 ```
 
 - **Portfolios** — top-level independent workspaces (each stored separately in localStorage)
-- **Programs** (called "categories" in code) — colored groupings within a portfolio
-- **Projects** — first-class entities within a program; have name, notes, color; stored in `cat.projects` array
+- **Programs** (called "categories" in code) — colored groupings within a portfolio; **color applies to all projects and tasks within**
+- **Projects** — first-class entities within a program; have name and notes only; stored in `cat.projects` array; always rendered in parent program's color
 - **Tasks** — individual work items within a project; have dates, status, type, notes, links, dependencies; linked to project via `projectId`
 
 ### Namespaces (14)
@@ -100,7 +100,7 @@ let state = {
   id: string,        // uid() generated
   name: string,
   notes: string,
-  color: hex_string  // defaults to program color; from COLORS constant
+  color: hex_string  // stored but NOT user-editable; always set to parent cat.color; rendering always uses cat.color
 }
 ```
 
@@ -209,14 +209,18 @@ const STATUS_OPTIONS = [
 
 ### Rendering Pipeline
 1. `App.render()` → calls `Timeline.buildGroups()` → caches result
-2. `Sidebar.renderSidebar()` — iterates `cat.projects`, renders rows with color dots + task counts
-3. `Timeline.renderTimeline()` — renders header, grid, task bars (using `group.project.color`), milestones, dependency SVG
+2. `Sidebar.renderSidebar()` — iterates `cat.projects`, renders rows with color dots + task counts; dots use `cat.color`
+3. `Timeline.renderTimeline()` — renders header, grid, task bars (using `cat.color`), milestones, dependency SVG
+
+### Color Inheritance Rule
+**Program color is the single source of truth for all visual color.** Projects and tasks always use `cat.color` — never `project.color` — in all rendering paths: sidebar dot, task bars, milestone diamonds, detail panel dot, CSV export, command palette. The Add/Edit Project modal has no color picker.
 
 ### Lane Assignment
 - `Timeline.assignLanes(tasks)` — Topological sort + greedy bin-packing
 - Tasks in the same project that overlap in time get separate lanes
 - Milestones get extended visual footprint (~120px label width converted to days based on zoom)
 - `Timeline.buildGroups()` — groups tasks by `projectId` using `cat.projects` ordering
+- `rowHeight` always uses `Utils.computeRowHeight(numLanes)` — **never hardcoded**; `assignLanes` returns `numLanes: 1` for empty projects, giving `1×28+6 = 34px` = `--row-h`, ensuring sidebar/timeline stay pixel-aligned
 
 ### Dependency System
 | Function | Purpose |
@@ -362,7 +366,7 @@ Enables shared `data.json` file persistence for multi-user use (Chrome/Edge only
 | Modal | Fields | Called by |
 |-------|--------|----------|
 | New/Edit Program | Name, Color | Sidebar + context menus |
-| New/Edit Project | Name, Notes, Color (NO dates, NO status) | Sidebar + context menus |
+| New/Edit Project | Name, Notes (NO color, NO dates, NO status) | Sidebar + context menus |
 | New/Edit Task | Name, Type, Start/End Date, Status, Notes, Links | Sidebar "+" button, timeline interactions |
 | Confirm | Message + Cancel/Delete | Delete operations |
 
@@ -376,7 +380,7 @@ Org name → Portfolio title/dropdown → ◄ Today ► → Zoom select → + Ad
 ### Project & Task Creation
 - **Projects**: "+ Add Project" link in sidebar, "+" button in topbar add menu, or right-click program header
 - **Tasks**: "+" button on a project row, drag on timeline row, double-click timeline row, or right-click timeline row
-- Projects have: name, notes, color (NO dates, NO status)
+- Projects have: name, notes (NO color, NO dates, NO status) — color always inherits from program
 - Tasks have: name, type (task/milestone), dates, status, notes, links, dependencies
 - When adding a task without a project context, a new project is auto-created with the task name
 - **Drag-to-create prefills dates**: `Tasks.showAddTaskModal(catId, projectId, endDate, startDate)` — 4th param is `prefillStart` when 2nd param is a projectId
@@ -456,4 +460,4 @@ Tasks.showAddTaskModal(catId, projectIdOrStart, prefillEnd, prefillStart2)
 - Repository: `https://github.com/horsy1117/resource-manager`
 - Branch: `main`
 - 14 namespaces: Utils, UI, Portfolio, Projects, Tasks, Deps, Drag, Sidebar, Timeline, AI, Cmd, CSV, App, FileStorage
-- Recent features: FileStorage (data.json + polling), multi-user sync, reconnect/setup banners, file handle approach (showOpenFilePicker + showSaveFilePicker), sidebar row focus highlight, drag-to-create date prefill fix
+- Recent features: FileStorage (data.json + polling), multi-user sync, reconnect/setup banners, file handle approach (showOpenFilePicker + showSaveFilePicker), sidebar row focus highlight, drag-to-create date prefill fix, program color inheritance (projects/tasks always use cat.color), row height alignment fix (empty projects use computeRowHeight(1)=34px not hardcoded 28px)
