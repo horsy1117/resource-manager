@@ -826,37 +826,95 @@ FileStorage._pollTimer = null;
 FileStorage._toastTimer = null;
 FileStorage.isSupported = function() { return 'showOpenFilePicker' in window && 'showSaveFilePicker' in window; };
 FileStorage.isSharePoint = function() { return window.location.hostname.endsWith('.sharepoint.com'); };
-FileStorage._spDataUrl = function() { return window.location.pathname.replace(/[^\/]*$/, 'data.json'); };
 FileStorage._spGetDigest = async function() {
   const resp = await fetch('/_api/contextinfo', { method: 'POST', headers: { 'Accept': 'application/json;odata=verbose' }, credentials: 'include' });
   const json = await resp.json();
   return json.d.GetContextWebInformation.FormDigestValue;
 };
-FileStorage._spWrite = async function(data) {
+FileStorage._spListName = 'ResourceManagerData';
+FileStorage._spItemId = null;
+FileStorage._spCreateItem = async function(digest) {
+  const resp = await fetch(`/_api/web/lists/GetByTitle('${FileStorage._spListName}')/items`, {
+    method: 'POST',
+    headers: { 'Accept': 'application/json;odata=nometadata', 'Content-Type': 'application/json', 'X-RequestDigest': digest },
+    credentials: 'include',
+    body: JSON.stringify({ Title: 'AppData', DataJson: '{}' })
+  });
+  if (!resp.ok) throw new Error('item-create-failed');
+  const json = await resp.json();
+  FileStorage._spItemId = json.Id;
+};
+FileStorage._spCreateList = async function() {
+  const digest = await FileStorage._spGetDigest();
+  const listResp = await fetch('/_api/web/lists', {
+    method: 'POST',
+    headers: { 'Accept': 'application/json;odata=nometadata', 'Content-Type': 'application/json', 'X-RequestDigest': digest },
+    credentials: 'include',
+    body: JSON.stringify({ Title: FileStorage._spListName, BaseTemplate: 100, Description: 'Resource Manager app data — do not delete' })
+  });
+  if (!listResp.ok) { const e = new Error('list-create-failed'); e.status = listResp.status; throw e; }
+  await fetch(`/_api/web/lists/GetByTitle('${FileStorage._spListName}')/fields`, {
+    method: 'POST',
+    headers: { 'Accept': 'application/json;odata=nometadata', 'Content-Type': 'application/json', 'X-RequestDigest': digest },
+    credentials: 'include',
+    body: JSON.stringify({ FieldTypeKind: 3, Title: 'DataJson', NumberOfLines: 100, RichText: false })
+  });
+  await FileStorage._spCreateItem(digest);
+};
+FileStorage._spListEnsure = async function() {
+  const resp = await fetch(`/_api/web/lists/GetByTitle('${FileStorage._spListName}')/items?$filter=Title eq 'AppData'&$select=Id&$top=1`, {
+    headers: { 'Accept': 'application/json;odata=nometadata' }, credentials: 'include'
+  });
+  if (resp.ok) {
+    const json = await resp.json();
+    const items = json.value || [];
+    if (items.length > 0) { FileStorage._spItemId = items[0].Id; return; }
+    const d = await FileStorage._spGetDigest();
+    await FileStorage._spCreateItem(d);
+    return;
+  }
+  if (resp.status === 403) { const e = new Error('no-permission'); e.status = 403; throw e; }
+  await FileStorage._spCreateList();
+};
+FileStorage._spListRead = async function() {
+  if (!FileStorage._spItemId) return null;
+  const resp = await fetch(`/_api/web/lists/GetByTitle('${FileStorage._spListName}')/items(${FileStorage._spItemId})?$select=DataJson`, {
+    headers: { 'Accept': 'application/json;odata=nometadata' }, credentials: 'include', cache: 'no-cache'
+  });
+  if (!resp.ok) return null;
+  const json = await resp.json();
+  try { return JSON.parse(json.DataJson || '{}'); } catch { return null; }
+};
+FileStorage._spListWrite = async function(data) {
+  if (!FileStorage._spItemId) return;
   try {
     const digest = await FileStorage._spGetDigest();
-    const serverPath = FileStorage._spDataUrl();
-    await fetch(`/_api/web/GetFileByServerRelativeUrl('${serverPath}')/$value`, {
-      method: 'PUT',
-      headers: { 'X-RequestDigest': digest, 'Content-Type': 'application/octet-stream' },
+    await fetch(`/_api/web/lists/GetByTitle('${FileStorage._spListName}')/items(${FileStorage._spItemId})`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json;odata=nometadata', 'Content-Type': 'application/json', 'X-RequestDigest': digest, 'X-HTTP-Method': 'MERGE', 'IF-MATCH': '*' },
       credentials: 'include',
-      body: JSON.stringify(data)
+      body: JSON.stringify({ DataJson: JSON.stringify(data) })
     });
-  } catch (e) { console.warn('FileStorage: SharePoint write failed', e); }
+  } catch (e) { console.warn('FileStorage: SharePoint list write failed', e); }
 };
 FileStorage.spInit = async function() {
   try {
-    const resp = await fetch(FileStorage._spDataUrl(), { credentials: 'include', cache: 'no-cache' });
-    if (!resp.ok) return false;
-    const data = await resp.json();
-    FileStorage._lastSavedAt = data._savedAt || null;
-    if (data.portfolios) localStorage.setItem('rm_portfolios', JSON.stringify(data.portfolios));
-    if (data.global) localStorage.setItem('rm_global', JSON.stringify(data.global));
-    if (data.activeId) localStorage.setItem('rm_active', data.activeId);
-    if (data.darkMode != null) localStorage.setItem('rm_darkMode', data.darkMode);
-    if (data.portfolioData) { for (const [id, pd] of Object.entries(data.portfolioData)) { if (pd) localStorage.setItem('rm_portfolio_' + id, JSON.stringify(pd)); } }
+    await FileStorage._spListEnsure();
+    const data = await FileStorage._spListRead();
+    if (data && data._savedAt) {
+      FileStorage._lastSavedAt = data._savedAt;
+      if (data.portfolios) localStorage.setItem('rm_portfolios', JSON.stringify(data.portfolios));
+      if (data.global) localStorage.setItem('rm_global', JSON.stringify(data.global));
+      if (data.activeId) localStorage.setItem('rm_active', data.activeId);
+      if (data.darkMode != null) localStorage.setItem('rm_darkMode', data.darkMode);
+      if (data.portfolioData) { for (const [id, pd] of Object.entries(data.portfolioData)) { if (pd) localStorage.setItem('rm_portfolio_' + id, JSON.stringify(pd)); } }
+    }
     return true;
-  } catch { return false; }
+  } catch (e) {
+    if (e.status === 403) FileStorage.showToast('⚠ A site owner must open this app once to finish setup');
+    else console.warn('FileStorage: SharePoint list init failed', e);
+    return false;
+  }
 };
 FileStorage._openIDB = function() {
   return new Promise((resolve, reject) => {
@@ -1007,7 +1065,7 @@ FileStorage.writeAll = async function() {
   const savedAt = new Date().toISOString();
   FileStorage._lastSavedAt = savedAt;
   const data = { portfolios: reg, portfolioData: portData, global: Portfolio.getGlobalSettings(), activeId: state.activePortfolioId, darkMode: localStorage.getItem('rm_darkMode') || '0', _savedAt: savedAt };
-  if (FileStorage.isSharePoint()) { await FileStorage._spWrite(data); } else { await FileStorage._write(data); }
+  if (FileStorage.isSharePoint()) { await FileStorage._spListWrite(data); } else { await FileStorage._write(data); }
 };
 FileStorage.importToLocalStorage = async function() {
   try {
@@ -1052,9 +1110,8 @@ FileStorage.poll = async function() {
   if ($modalBg.classList.contains('open')) return;
   if (FileStorage.isSharePoint()) {
     try {
-      const resp = await fetch(FileStorage._spDataUrl(), { credentials: 'include', cache: 'no-cache' });
-      if (!resp.ok) return;
-      const data = await resp.json();
+      const data = await FileStorage._spListRead();
+      if (!data) return;
       const fileSavedAt = data._savedAt || null;
       if (fileSavedAt && fileSavedAt !== FileStorage._lastSavedAt) {
         FileStorage._lastSavedAt = fileSavedAt;
@@ -3928,8 +3985,8 @@ $cmdInput.addEventListener('input', () => {
 App.init = async function() {
   if (FileStorage.isSharePoint()) {
     FileStorage._clearLocalPortfolioData();
-    await FileStorage.spInit();
-    FileStorage.startPolling();
+    const spOk = await FileStorage.spInit();
+    if (spOk) FileStorage.startPolling();
     FileStorage._updateStatus();
   } else if (FileStorage.isSupported()) {
     FileStorage._clearLocalPortfolioData(); // file is the source of truth; localStorage is session cache only
