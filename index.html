@@ -441,7 +441,11 @@ body.resizing *{cursor:col-resize!important}
 .cmd-empty{padding:24px 16px;text-align:center;color:var(--text3);font-size:13px}
 .cmd-hint{padding:8px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;align-items:center;gap:12px}
 .cmd-hint kbd{background:var(--bg2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;font-family:inherit}
-.fs-btn{position:relative}.fs-dot{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:#9ca3af;border:1.5px solid var(--bg)}.fs-dot.on{background:#10b981}
+.fs-btn{position:relative}.fs-dot{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:#9ca3af;border:1.5px solid var(--bg)}.fs-dot.on{background:#10b981}.fs-dot.pending{background:#f59e0b}
+.fs-reconnect{display:none;align-items:center;justify-content:center;gap:10px;padding:7px 16px;background:#fef3c7;border-bottom:1px solid #fcd34d;font-size:12px;color:#92400e}
+html.dark .fs-reconnect{background:#451a03;border-color:#92400e;color:#fcd34d}
+.fs-reconnect-btn{padding:3px 10px;border-radius:4px;border:1px solid #f59e0b;background:#f59e0b;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.fs-reconnect-btn:hover{background:#d97706}
 .fs-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:7px 16px;border-radius:20px;font-size:12px;font-weight:500;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 </style>
 </head>
@@ -492,6 +496,13 @@ body.resizing *{cursor:col-resize!important}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 0111.21 3 7 7 0 0012 21a9 9 0 009-8.21z"/></svg>
       </button>
     </div>
+  </div>
+
+  <!-- File reconnect banner -->
+  <div class="fs-reconnect" id="fsReconnect">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+    <span>Your shared data file was found but needs permission to load.</span>
+    <button class="fs-reconnect-btn" onclick="FileStorage.reconnect()">Load from file</button>
   </div>
 
   <!-- Main Area -->
@@ -790,6 +801,7 @@ Utils.computeRowHeight = function(numLanes) {
 
 // ========== FILE STORAGE (File System Access API) ==========
 FileStorage._dirHandle = null;
+FileStorage._pendingHandle = null;
 FileStorage._lastSavedAt = null;
 FileStorage._pollTimer = null;
 FileStorage._toastTimer = null;
@@ -823,15 +835,17 @@ FileStorage._saveHandle = async function(handle) {
     });
   } catch (e) { console.warn('FileStorage: failed to save handle', e); }
 };
-FileStorage._verifyPermission = async function(handle) {
-  const opts = { mode: 'readwrite' };
-  if (await handle.queryPermission(opts) === 'granted') return true;
-  if (await handle.requestPermission(opts) === 'granted') return true;
-  return false;
-};
 FileStorage._updateStatus = function() {
-  const el = document.getElementById('fsDot');
-  if (el) el.classList.toggle('on', !!FileStorage._dirHandle);
+  const dot = document.getElementById('fsDot');
+  const btn = document.getElementById('fsBtn');
+  const banner = document.getElementById('fsReconnect');
+  if (dot) {
+    dot.classList.remove('on', 'pending');
+    if (FileStorage._dirHandle) dot.classList.add('on');
+    else if (FileStorage._pendingHandle) dot.classList.add('pending');
+  }
+  if (btn) btn.title = FileStorage._dirHandle ? 'Connected — saving to data.json' : FileStorage._pendingHandle ? 'Click to reconnect to your data file' : 'Connect folder (saves to data.json)';
+  if (banner) banner.style.display = FileStorage._pendingHandle && !FileStorage._dirHandle ? 'flex' : 'none';
 };
 FileStorage.showToast = function(msg) {
   const el = document.getElementById('fsToast');
@@ -844,16 +858,40 @@ FileStorage.showToast = function(msg) {
 FileStorage.init = async function() {
   if (!FileStorage.isSupported()) return false;
   const saved = await FileStorage._getHandle();
-  if (saved && await FileStorage._verifyPermission(saved)) {
+  if (!saved) return false;
+  // requestPermission() requires a user gesture — only use queryPermission here
+  const perm = await saved.queryPermission({ mode: 'readwrite' });
+  if (perm === 'granted') {
     FileStorage._dirHandle = saved; FileStorage._updateStatus(); return true;
   }
-  return false;
+  // Permission needs re-granting — park handle and show reconnect banner
+  FileStorage._pendingHandle = saved; FileStorage._updateStatus(); return false;
+};
+FileStorage.reconnect = async function() {
+  if (!FileStorage._pendingHandle) return;
+  try {
+    const perm = await FileStorage._pendingHandle.requestPermission({ mode: 'readwrite' });
+    if (perm === 'granted') {
+      FileStorage._dirHandle = FileStorage._pendingHandle;
+      FileStorage._pendingHandle = null;
+      FileStorage._updateStatus();
+      await FileStorage.importToLocalStorage();
+      Portfolio.loadState();
+      Portfolio.applyProjectName();
+      Portfolio.applyOrgName();
+      App.render();
+      FileStorage.startPolling();
+      FileStorage.showToast('✓ Data file loaded');
+    }
+  } catch (e) { console.warn('FileStorage: reconnect failed', e); }
 };
 FileStorage.selectFolder = async function() {
   if (!FileStorage.isSupported()) { alert('File storage requires Chrome or Edge. Your data is currently saved in browser localStorage.'); return; }
+  if (FileStorage._pendingHandle) { FileStorage.reconnect(); return; }
   try {
     const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
     FileStorage._dirHandle = handle;
+    FileStorage._pendingHandle = null;
     await FileStorage._saveHandle(handle);
     FileStorage._updateStatus();
     await FileStorage.writeAll();
