@@ -825,6 +825,39 @@ FileStorage._lastSavedAt = null;
 FileStorage._pollTimer = null;
 FileStorage._toastTimer = null;
 FileStorage.isSupported = function() { return 'showOpenFilePicker' in window && 'showSaveFilePicker' in window; };
+FileStorage.isSharePoint = function() { return window.location.hostname.endsWith('.sharepoint.com'); };
+FileStorage._spDataUrl = function() { return window.location.pathname.replace(/[^\/]*$/, 'data.json'); };
+FileStorage._spGetDigest = async function() {
+  const resp = await fetch('/_api/contextinfo', { method: 'POST', headers: { 'Accept': 'application/json;odata=verbose' }, credentials: 'include' });
+  const json = await resp.json();
+  return json.d.GetContextWebInformation.FormDigestValue;
+};
+FileStorage._spWrite = async function(data) {
+  try {
+    const digest = await FileStorage._spGetDigest();
+    const serverPath = FileStorage._spDataUrl();
+    await fetch(`/_api/web/GetFileByServerRelativeUrl('${serverPath}')/$value`, {
+      method: 'PUT',
+      headers: { 'X-RequestDigest': digest, 'Content-Type': 'application/octet-stream' },
+      credentials: 'include',
+      body: JSON.stringify(data)
+    });
+  } catch (e) { console.warn('FileStorage: SharePoint write failed', e); }
+};
+FileStorage.spInit = async function() {
+  try {
+    const resp = await fetch(FileStorage._spDataUrl(), { credentials: 'include', cache: 'no-cache' });
+    if (!resp.ok) return false;
+    const data = await resp.json();
+    FileStorage._lastSavedAt = data._savedAt || null;
+    if (data.portfolios) localStorage.setItem('rm_portfolios', JSON.stringify(data.portfolios));
+    if (data.global) localStorage.setItem('rm_global', JSON.stringify(data.global));
+    if (data.activeId) localStorage.setItem('rm_active', data.activeId);
+    if (data.darkMode != null) localStorage.setItem('rm_darkMode', data.darkMode);
+    if (data.portfolioData) { for (const [id, pd] of Object.entries(data.portfolioData)) { if (pd) localStorage.setItem('rm_portfolio_' + id, JSON.stringify(pd)); } }
+    return true;
+  } catch { return false; }
+};
 FileStorage._openIDB = function() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open('rm_fs_v1', 1);
@@ -865,6 +898,13 @@ FileStorage._updateStatus = function() {
   const btn = document.getElementById('fsBtn');
   const reconnect = document.getElementById('fsReconnect');
   const setup = document.getElementById('fsSetup');
+  if (FileStorage.isSharePoint()) {
+    if (dot) { dot.classList.remove('pending'); dot.classList.add('on'); }
+    if (btn) btn.title = 'Connected — saving to SharePoint';
+    if (reconnect) reconnect.style.display = 'none';
+    if (setup) setup.style.display = 'none';
+    return;
+  }
   if (dot) {
     dot.classList.remove('on', 'pending');
     if (FileStorage._fileHandle) dot.classList.add('on');
@@ -960,13 +1000,14 @@ FileStorage._write = async function(data) {
   } catch (e) { console.warn('FileStorage: write failed', e); }
 };
 FileStorage.writeAll = async function() {
-  if (!FileStorage._fileHandle) return;
+  if (!FileStorage._fileHandle && !FileStorage.isSharePoint()) return;
   const reg = Portfolio.getPortfolioRegistry();
   const portData = {};
   for (const p of reg) { try { const r = localStorage.getItem('rm_portfolio_' + p.id); if (r) portData[p.id] = JSON.parse(r); } catch {} }
   const savedAt = new Date().toISOString();
   FileStorage._lastSavedAt = savedAt;
-  await FileStorage._write({ portfolios: reg, portfolioData: portData, global: Portfolio.getGlobalSettings(), activeId: state.activePortfolioId, darkMode: localStorage.getItem('rm_darkMode') || '0', _savedAt: savedAt });
+  const data = { portfolios: reg, portfolioData: portData, global: Portfolio.getGlobalSettings(), activeId: state.activePortfolioId, darkMode: localStorage.getItem('rm_darkMode') || '0', _savedAt: savedAt };
+  if (FileStorage.isSharePoint()) { await FileStorage._spWrite(data); } else { await FileStorage._write(data); }
 };
 FileStorage.importToLocalStorage = async function() {
   try {
@@ -1008,8 +1049,22 @@ FileStorage.startPolling = function() {
   FileStorage._pollTimer = setInterval(FileStorage.poll, 15000);
 };
 FileStorage.poll = async function() {
-  if (!FileStorage._fileHandle) return;
   if ($modalBg.classList.contains('open')) return;
+  if (FileStorage.isSharePoint()) {
+    try {
+      const resp = await fetch(FileStorage._spDataUrl(), { credentials: 'include', cache: 'no-cache' });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const fileSavedAt = data._savedAt || null;
+      if (fileSavedAt && fileSavedAt !== FileStorage._lastSavedAt) {
+        FileStorage._lastSavedAt = fileSavedAt;
+        FileStorage._applyData(data);
+        FileStorage.showToast('↻  Updated by another user');
+      }
+    } catch { /* SharePoint temporarily unavailable — skip this cycle */ }
+    return;
+  }
+  if (!FileStorage._fileHandle) return;
   try {
     const file = await FileStorage._fileHandle.getFile();
     const data = JSON.parse(await file.text());
@@ -3871,7 +3926,12 @@ $cmdInput.addEventListener('input', () => {
 
 // ========== INIT ==========
 App.init = async function() {
-  if (FileStorage.isSupported()) {
+  if (FileStorage.isSharePoint()) {
+    FileStorage._clearLocalPortfolioData();
+    await FileStorage.spInit();
+    FileStorage.startPolling();
+    FileStorage._updateStatus();
+  } else if (FileStorage.isSupported()) {
     FileStorage._clearLocalPortfolioData(); // file is the source of truth; localStorage is session cache only
     const connected = await FileStorage.init();
     if (connected) {
