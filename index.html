@@ -446,6 +446,12 @@ body.resizing *{cursor:col-resize!important}
 html.dark .fs-reconnect{background:#451a03;border-color:#92400e;color:#fcd34d}
 .fs-reconnect-btn{padding:3px 10px;border-radius:4px;border:1px solid #f59e0b;background:#f59e0b;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
 .fs-reconnect-btn:hover{background:#d97706}
+.fs-reconnect-link{background:none;border:none;color:inherit;font-size:12px;cursor:pointer;text-decoration:underline;padding:0;opacity:.75}
+.fs-reconnect-link:hover{opacity:1}
+.fs-setup{display:none;align-items:center;justify-content:center;gap:10px;padding:9px 16px;background:#eff6ff;border-bottom:1px solid #bfdbfe;font-size:12px;color:#1e40af}
+html.dark .fs-setup{background:#1e3a5f;border-color:#1d4ed8;color:#bfdbfe}
+.fs-setup-btn{padding:3px 12px;border-radius:4px;border:1px solid #3b82f6;background:#3b82f6;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.fs-setup-btn:hover{background:#2563eb}
 .fs-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:7px 16px;border-radius:20px;font-size:12px;font-weight:500;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 </style>
 </head>
@@ -498,11 +504,18 @@ html.dark .fs-reconnect{background:#451a03;border-color:#92400e;color:#fcd34d}
     </div>
   </div>
 
-  <!-- File reconnect banner -->
+  <!-- File reconnect banner (returning user — pending permission) -->
   <div class="fs-reconnect" id="fsReconnect">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-    <span>Your shared data file was found but needs permission to load.</span>
+    <span>Previous data file found.</span>
     <button class="fs-reconnect-btn" onclick="FileStorage.reconnect()">Load from file</button>
+    <button class="fs-reconnect-link" onclick="FileStorage.selectNewFolder()">New project</button>
+  </div>
+  <!-- File setup banner (new folder — no handle saved) -->
+  <div class="fs-setup" id="fsSetup">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+    <span>Select a folder to create your data file and get started.</span>
+    <button class="fs-setup-btn" onclick="FileStorage.selectFolder()">Get Started</button>
   </div>
 
   <!-- Main Area -->
@@ -835,17 +848,25 @@ FileStorage._saveHandle = async function(handle) {
     });
   } catch (e) { console.warn('FileStorage: failed to save handle', e); }
 };
+FileStorage._clearLocalPortfolioData = function() {
+  Object.keys(localStorage).filter(k => k.startsWith('rm_') && k !== 'rm_darkMode').forEach(k => localStorage.removeItem(k));
+};
+FileStorage._dataFileExists = async function() {
+  try { await FileStorage._dirHandle.getFileHandle('data.json', { create: false }); return true; } catch { return false; }
+};
 FileStorage._updateStatus = function() {
   const dot = document.getElementById('fsDot');
   const btn = document.getElementById('fsBtn');
-  const banner = document.getElementById('fsReconnect');
+  const reconnect = document.getElementById('fsReconnect');
+  const setup = document.getElementById('fsSetup');
   if (dot) {
     dot.classList.remove('on', 'pending');
     if (FileStorage._dirHandle) dot.classList.add('on');
     else if (FileStorage._pendingHandle) dot.classList.add('pending');
   }
   if (btn) btn.title = FileStorage._dirHandle ? 'Connected — saving to data.json' : FileStorage._pendingHandle ? 'Click to reconnect to your data file' : 'Connect folder (saves to data.json)';
-  if (banner) banner.style.display = FileStorage._pendingHandle && !FileStorage._dirHandle ? 'flex' : 'none';
+  if (reconnect) reconnect.style.display = (FileStorage._pendingHandle && !FileStorage._dirHandle) ? 'flex' : 'none';
+  if (setup) setup.style.display = (!FileStorage._dirHandle && !FileStorage._pendingHandle && FileStorage.isSupported()) ? 'flex' : 'none';
 };
 FileStorage.showToast = function(msg) {
   const el = document.getElementById('fsToast');
@@ -875,13 +896,18 @@ FileStorage.reconnect = async function() {
       FileStorage._dirHandle = FileStorage._pendingHandle;
       FileStorage._pendingHandle = null;
       FileStorage._updateStatus();
-      await FileStorage.importToLocalStorage();
-      Portfolio.loadState();
-      Portfolio.applyProjectName();
-      Portfolio.applyOrgName();
-      App.render();
+      if (await FileStorage._dataFileExists()) {
+        await FileStorage.importToLocalStorage();
+        Portfolio.loadState();
+        Portfolio.applyProjectName();
+        Portfolio.applyOrgName();
+        App.render();
+        FileStorage.showToast('✓ Data file loaded');
+      } else {
+        await FileStorage.writeAll();
+        FileStorage.showToast('✓ New data file created');
+      }
       FileStorage.startPolling();
-      FileStorage.showToast('✓ Data file loaded');
     }
   } catch (e) { console.warn('FileStorage: reconnect failed', e); }
 };
@@ -889,15 +915,28 @@ FileStorage.selectFolder = async function() {
   if (!FileStorage.isSupported()) { alert('File storage requires Chrome or Edge. Your data is currently saved in browser localStorage.'); return; }
   if (FileStorage._pendingHandle) { FileStorage.reconnect(); return; }
   try {
-    const handle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'rm-data-folder', startIn: FileStorage._pendingHandle || undefined });
+    const handle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'rm-data-folder', startIn: undefined });
     FileStorage._dirHandle = handle;
     FileStorage._pendingHandle = null;
     await FileStorage._saveHandle(handle);
     FileStorage._updateStatus();
-    await FileStorage.writeAll();
+    if (await FileStorage._dataFileExists()) {
+      await FileStorage.importToLocalStorage();
+      Portfolio.loadState();
+      Portfolio.applyProjectName();
+      Portfolio.applyOrgName();
+      App.render();
+      FileStorage.showToast('✓ Data file loaded');
+    } else {
+      await FileStorage.writeAll();
+      FileStorage.showToast('✓ New data file created');
+    }
     FileStorage.startPolling();
-    alert('Folder connected! All data is now saved to data.json in this folder.');
   } catch (e) { if (e.name !== 'AbortError') console.warn('FileStorage: folder select failed', e); }
+};
+FileStorage.selectNewFolder = async function() {
+  FileStorage._pendingHandle = null;
+  await FileStorage.selectFolder();
 };
 FileStorage._write = async function(data) {
   if (!FileStorage._dirHandle) return;
@@ -3823,15 +3862,18 @@ $cmdInput.addEventListener('input', () => {
 // ========== INIT ==========
 App.init = async function() {
   if (FileStorage.isSupported()) {
+    FileStorage._clearLocalPortfolioData(); // file is the source of truth; localStorage is session cache only
     const connected = await FileStorage.init();
     if (connected) {
       await FileStorage.importToLocalStorage();
       FileStorage.startPolling();
     }
+    FileStorage._updateStatus(); // show setup or reconnect banner as appropriate
   }
   Portfolio.loadState();
   App.initDarkMode();
-  if (state.categories.length === 0) App.loadSampleData();
+  // Only load sample data in localStorage-only mode (File System Access API not supported)
+  if (state.categories.length === 0 && !FileStorage.isSupported()) App.loadSampleData();
   Portfolio.applyProjectName();
   Portfolio.applyOrgName();
   // Set initial view
