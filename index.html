@@ -558,7 +558,7 @@ const STATUS_OPTIONS = [
 ];
 
 // ========== NAMESPACES ==========
-const Utils = {}, UI = {}, Portfolio = {}, Tasks = {}, Deps = {}, Drag = {}, Sidebar = {}, Timeline = {}, AI = {}, Cmd = {}, CSV = {}, App = {};
+const Utils = {}, UI = {}, Portfolio = {}, Projects = {}, Tasks = {}, Deps = {}, Drag = {}, Sidebar = {}, Timeline = {}, AI = {}, Cmd = {}, CSV = {}, App = {};
 
 // ========== STATE ==========
 let state = {
@@ -671,6 +671,98 @@ Utils.findTask = function(catId, taskId) {
   return cat ? cat.tasks.find(t => t.id === taskId) : null;
 };
 
+Projects.findProject = function(catId, projectId) {
+  const cat = Utils.findCat(catId);
+  if (!cat || !cat.projects) return null;
+  return cat.projects.find(p => p.id === projectId) || null;
+};
+
+Projects.showAddProjectModal = function(catId) {
+  const cat = Utils.findCat(catId);
+  if (!cat) return;
+  const html = `
+    <div class="modal-header">New Project<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Project Name</label><input id="mProjectName" placeholder="Enter project name" autofocus></div>
+      <div class="form-group"><label>Notes</label><textarea id="mProjectNotes" rows="2" placeholder="Add notes..."></textarea></div>
+      <div class="form-group"><label>Color</label><div class="color-picker" id="mColorPicker">
+        ${COLORS.map((c, i) => `<div class="color-swatch${c === cat.color ? ' selected' : ''}" style="background:${c}" data-color="${c}" onclick="UI.pickColor(this)"></div>`).join('')}
+      </div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="UI.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Projects.doAddProject('${catId}')">Add Project</button>
+    </div>`;
+  UI.openModal(html);
+  setTimeout(() => document.getElementById('mProjectName')?.focus(), 100);
+};
+
+Projects.doAddProject = function(catId) {
+  const cat = Utils.findCat(catId);
+  if (!cat) return;
+  const name = document.getElementById('mProjectName').value.trim();
+  if (!name) return;
+  const notes = document.getElementById('mProjectNotes').value;
+  const color = document.querySelector('#mColorPicker .selected')?.dataset.color || cat.color;
+  if (!cat.projects) cat.projects = [];
+  cat.projects.push({ id: Utils.uid(), name, notes, color });
+  UI.closeModal(); App.render(); App.saveState();
+};
+
+Projects.showEditProjectModal = function(catId, projectId) {
+  const cat = Utils.findCat(catId);
+  const proj = Projects.findProject(catId, projectId);
+  if (!cat || !proj) return;
+  const taskCount = cat.tasks.filter(t => t.projectId === projectId).length;
+  const html = `
+    <div class="modal-header">Edit Project<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Project Name</label><input id="mProjectName" value="${Utils.esc(proj.name)}"></div>
+      <div class="form-group"><label>Notes</label><textarea id="mProjectNotes" rows="2" placeholder="Add notes...">${Utils.esc(proj.notes || '')}</textarea></div>
+      <div class="form-group"><label>Color</label><div class="color-picker" id="mColorPicker">
+        ${COLORS.map(c => `<div class="color-swatch${c === proj.color ? ' selected' : ''}" style="background:${c}" data-color="${c}" onclick="UI.pickColor(this)"></div>`).join('')}
+      </div></div>
+      ${taskCount > 0 ? `<div style="font-size:12px;color:var(--text3);margin-top:4px">${taskCount} task${taskCount !== 1 ? 's' : ''} in this project</div>` : '<div style="font-size:12px;color:var(--text3);margin-top:4px">No tasks yet</div>'}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="UI.closeModal();Projects.deleteProject('${catId}','${projectId}')">Delete</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="UI.closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="Projects.doEditProject('${catId}','${projectId}')">Save</button>
+    </div>`;
+  UI.openModal(html);
+};
+
+Projects.doEditProject = function(catId, projectId) {
+  const proj = Projects.findProject(catId, projectId);
+  if (!proj) return;
+  proj.name = document.getElementById('mProjectName').value.trim() || proj.name;
+  proj.notes = document.getElementById('mProjectNotes').value;
+  proj.color = document.querySelector('#mColorPicker .selected')?.dataset.color || proj.color;
+  UI.closeModal(); App.render(); App.saveState();
+};
+
+Projects.deleteProject = function(catId, projectId) {
+  const cat = Utils.findCat(catId);
+  const proj = Projects.findProject(catId, projectId);
+  if (!cat || !proj) return;
+  const taskCount = cat.tasks.filter(t => t.projectId === projectId).length;
+  const msg = taskCount > 0
+    ? `Delete project "${Utils.esc(proj.name)}" and its ${taskCount} task${taskCount !== 1 ? 's' : ''}? This cannot be undone.`
+    : `Delete project "${Utils.esc(proj.name)}"? This cannot be undone.`;
+  UI.showConfirmModal('Delete Project', msg, () => {
+    cat.projects = (cat.projects || []).filter(p => p.id !== projectId);
+    // Remove all tasks in this project and clean up dependency refs
+    const removedIds = new Set(cat.tasks.filter(t => t.projectId === projectId).map(t => t.id));
+    cat.tasks = cat.tasks.filter(t => t.projectId !== projectId);
+    for (const t of cat.tasks) {
+      if (t.dependencies) t.dependencies = t.dependencies.filter(id => !removedIds.has(id));
+    }
+    if (state.selectedTask && removedIds.has(state.selectedTask.taskId)) Tasks.closePanel();
+    App.render(); App.saveState();
+  });
+};
+
 Utils.statusColor = function(v) { const s = STATUS_OPTIONS.find(o => o.value === v); return s ? s.color : '#9ca3af'; };
 
 Utils.esc = function(s) {
@@ -754,6 +846,39 @@ Portfolio.migrateTaskData = function() {
             task.endDate = Utils.toStr(Utils.addDays(Utils.toDate(task.endDate), shift));
           }
         }
+      }
+    }
+  }
+  // Migrate from group-based to project-based model
+  for (const cat of state.categories) {
+    if (!cat.projects) {
+      const projectMap = new Map();
+      const projectOrder = [];
+      for (const task of cat.tasks) {
+        const gKey = task.group || task.name;
+        if (!projectMap.has(gKey)) {
+          const proj = { id: Utils.uid(), name: gKey, notes: '', color: cat.color };
+          projectMap.set(gKey, proj);
+          projectOrder.push(proj);
+        }
+        task.projectId = projectMap.get(gKey).id;
+        delete task.group;
+      }
+      cat.projects = projectOrder;
+    }
+    // Ensure all tasks have projectId (safety)
+    for (const task of cat.tasks) {
+      if (task.group && !task.projectId) {
+        // Leftover group field — find or create project
+        const gKey = task.group;
+        let proj = (cat.projects || []).find(p => p.name === gKey);
+        if (!proj) {
+          proj = { id: Utils.uid(), name: gKey, notes: '', color: cat.color };
+          if (!cat.projects) cat.projects = [];
+          cat.projects.push(proj);
+        }
+        task.projectId = proj.id;
+        delete task.group;
       }
     }
   }
@@ -888,36 +1013,54 @@ Portfolio.duplicatePortfolio = function(id) {
 // ========== SAMPLE DATA ==========
 App.loadSampleData = function() {
   const today = Utils.todayDate();
+  const p1 = Utils.uid(), p2 = Utils.uid(), p3 = Utils.uid();
+  const p4 = Utils.uid(), p5 = Utils.uid(), p6 = Utils.uid();
+  const p7 = Utils.uid(), p8 = Utils.uid(), p9 = Utils.uid();
   state.categories = [
     {
       id: Utils.uid(), name: 'Website Redesign', color: '#3b82f6', collapsed: false,
+      projects: [
+        { id: p1, name: 'Research & Discovery', notes: '', color: '#3b82f6' },
+        { id: p2, name: 'Design & Branding', notes: '', color: '#3b82f6' },
+      ],
       tasks: [
-        { id: Utils.uid(), name: 'UX Research', startDate: Utils.toStr(Utils.addDays(today, -5)), endDate: Utils.toStr(Utils.addDays(today, 8)), status: 'confirmed', notes: 'User interviews and competitive analysis', urls: [{title:'Figma Board', url:'https://figma.com/example'}] },
-        { id: Utils.uid(), name: 'Wireframing', startDate: Utils.toStr(Utils.addDays(today, 6)), endDate: Utils.toStr(Utils.addDays(today, 18)), status: 'confirmed', notes: '', urls: [] },
-        { id: Utils.uid(), name: 'Visual Design', startDate: Utils.toStr(Utils.addDays(today, 15)), endDate: Utils.toStr(Utils.addDays(today, 30)), status: 'planning', notes: 'Pending wireframe approval', urls: [] }
+        { id: Utils.uid(), name: 'User Interviews', type: 'task', projectId: p1, startDate: Utils.toStr(Utils.addDays(today, -5)), endDate: Utils.toStr(Utils.addDays(today, 8)), status: 'confirmed', notes: 'User interviews and competitive analysis', urls: [{title:'Figma Board', url:'https://figma.com/example'}], dependencies: [], lastUpdated: null },
+        { id: Utils.uid(), name: 'Wireframing', type: 'task', projectId: p1, startDate: Utils.toStr(Utils.addDays(today, 6)), endDate: Utils.toStr(Utils.addDays(today, 18)), status: 'confirmed', notes: '', urls: [], dependencies: [], lastUpdated: null },
+        { id: Utils.uid(), name: 'Mockups', type: 'task', projectId: p2, startDate: Utils.toStr(Utils.addDays(today, 15)), endDate: Utils.toStr(Utils.addDays(today, 30)), status: 'planning', notes: 'Pending wireframe approval', urls: [], dependencies: [], lastUpdated: null }
       ]
     },
     {
       id: Utils.uid(), name: 'Mobile App', color: '#10b981', collapsed: false,
+      projects: [
+        { id: p4, name: 'Planning & Coordination', notes: '', color: '#10b981' },
+        { id: p5, name: 'Core Development', notes: '', color: '#10b981' },
+      ],
       tasks: [
-        { id: Utils.uid(), name: 'Sprint Planning', startDate: Utils.toStr(Utils.addDays(today, -2)), endDate: Utils.toStr(Utils.addDays(today, 1)), status: 'confirmed', notes: '', urls: [] },
-        { id: Utils.uid(), name: 'Development Phase 1', startDate: Utils.toStr(Utils.addDays(today, 3)), endDate: Utils.toStr(Utils.addDays(today, 22)), status: 'confirmed', notes: 'Core features implementation', urls: [{title:'GitHub Repo', url:'https://github.com/example/app'}] },
-        { id: Utils.uid(), name: 'QA Testing', startDate: Utils.toStr(Utils.addDays(today, 20)), endDate: Utils.toStr(Utils.addDays(today, 32)), status: 'draft', notes: '', urls: [] }
+        { id: Utils.uid(), name: 'Sprint Kickoff', type: 'task', projectId: p4, startDate: Utils.toStr(Utils.addDays(today, -2)), endDate: Utils.toStr(Utils.addDays(today, 1)), status: 'confirmed', notes: '', urls: [], dependencies: [], lastUpdated: null },
+        { id: Utils.uid(), name: 'Core Features', type: 'task', projectId: p5, startDate: Utils.toStr(Utils.addDays(today, 3)), endDate: Utils.toStr(Utils.addDays(today, 22)), status: 'confirmed', notes: 'Core features implementation', urls: [{title:'GitHub Repo', url:'https://github.com/example/app'}], dependencies: [], lastUpdated: null },
+        { id: Utils.uid(), name: 'QA Testing', type: 'task', projectId: p5, startDate: Utils.toStr(Utils.addDays(today, 20)), endDate: Utils.toStr(Utils.addDays(today, 32)), status: 'draft', notes: '', urls: [], dependencies: [], lastUpdated: null }
       ]
     },
     {
       id: Utils.uid(), name: 'Marketing Campaign', color: '#f59e0b', collapsed: false,
+      projects: [
+        { id: p7, name: 'Campaign Strategy', notes: '', color: '#f59e0b' },
+        { id: p8, name: 'Content Production', notes: '', color: '#f59e0b' },
+      ],
       tasks: [
-        { id: Utils.uid(), name: 'Strategy', startDate: Utils.toStr(Utils.addDays(today, -8)), endDate: Utils.toStr(Utils.addDays(today, 2)), status: 'confirmed', notes: 'Define target audience and channels', urls: [] },
-        { id: Utils.uid(), name: 'Content Creation', startDate: Utils.toStr(Utils.addDays(today, 1)), endDate: Utils.toStr(Utils.addDays(today, 16)), status: 'confirmed', notes: '', urls: [] },
-        { id: Utils.uid(), name: 'Launch', startDate: Utils.toStr(Utils.addDays(today, 17)), endDate: Utils.toStr(Utils.addDays(today, 24)), status: 'planning', notes: 'Dependent on content completion', urls: [] }
+        { id: Utils.uid(), name: 'Target Audience', type: 'task', projectId: p7, startDate: Utils.toStr(Utils.addDays(today, -8)), endDate: Utils.toStr(Utils.addDays(today, 2)), status: 'confirmed', notes: 'Define target audience and channels', urls: [], dependencies: [], lastUpdated: null },
+        { id: Utils.uid(), name: 'Blog Posts', type: 'task', projectId: p8, startDate: Utils.toStr(Utils.addDays(today, 1)), endDate: Utils.toStr(Utils.addDays(today, 16)), status: 'confirmed', notes: '', urls: [], dependencies: [], lastUpdated: null },
+        { id: Utils.uid(), name: 'Launch', type: 'milestone', projectId: p8, startDate: Utils.toStr(Utils.addDays(today, 17)), endDate: Utils.toStr(Utils.addDays(today, 17)), status: 'planning', notes: 'Dependent on content completion', urls: [], dependencies: [], lastUpdated: null }
       ]
     },
     {
       id: Utils.uid(), name: 'Infrastructure', color: '#8b5cf6', collapsed: false,
+      projects: [
+        { id: p9, name: 'Cloud Infrastructure', notes: '', color: '#8b5cf6' },
+      ],
       tasks: [
-        { id: Utils.uid(), name: 'Cloud Migration', startDate: Utils.toStr(Utils.addDays(today, 0)), endDate: Utils.toStr(Utils.addDays(today, 14)), status: 'confirmed', notes: 'AWS to GCP migration', urls: [] },
-        { id: Utils.uid(), name: 'CI/CD Pipeline', startDate: Utils.toStr(Utils.addDays(today, 10)), endDate: Utils.toStr(Utils.addDays(today, 20)), status: 'draft', notes: '', urls: [] }
+        { id: Utils.uid(), name: 'AWS to GCP', type: 'task', projectId: p9, startDate: Utils.toStr(Utils.addDays(today, 0)), endDate: Utils.toStr(Utils.addDays(today, 14)), status: 'confirmed', notes: 'AWS to GCP migration', urls: [], dependencies: [], lastUpdated: null },
+        { id: Utils.uid(), name: 'CI/CD Pipeline', type: 'task', projectId: p9, startDate: Utils.toStr(Utils.addDays(today, 10)), endDate: Utils.toStr(Utils.addDays(today, 20)), status: 'draft', notes: '', urls: [], dependencies: [], lastUpdated: null }
       ]
     }
   ];
@@ -1005,22 +1148,12 @@ Timeline.buildGroups = function() {
       result.push({ cat, groups: [] });
       continue;
     }
-    const groupMap = new Map();
-    const groupOrder = [];
-    for (const task of cat.tasks) {
-      const gKey = task.group || task.name;
-      if (!groupMap.has(gKey)) {
-        groupMap.set(gKey, []);
-        groupOrder.push(gKey);
-      }
-      groupMap.get(gKey).push(task);
-    }
     const groups = [];
-    for (const name of groupOrder) {
-      const tasks = groupMap.get(name);
+    for (const proj of (cat.projects || [])) {
+      const tasks = cat.tasks.filter(t => t.projectId === proj.id);
       const { lanes, numLanes } = Timeline.assignLanes(tasks);
-      const rowHeight = Utils.computeRowHeight(numLanes);
-      groups.push({ groupName: name, catId: cat.id, tasks, lanes, numLanes, rowHeight });
+      const rowHeight = tasks.length > 0 ? Utils.computeRowHeight(numLanes) : 28;
+      groups.push({ project: proj, groupName: proj.name, catId: cat.id, tasks, lanes, numLanes, rowHeight });
     }
     result.push({ cat, groups });
   }
@@ -1058,21 +1191,21 @@ Sidebar.renderSidebar = function() {
       let groupIdx = 0;
       for (const group of groups) {
         groupIdx++;
-        const firstTask = group.tasks[0];
+        const proj = group.project;
         const sel = state.selectedTask && group.tasks.some(t => t.id === state.selectedTask.taskId) ? ' selected' : '';
-        const countBadge = group.tasks.length > 1 ? ` <span style="color:var(--text3);font-weight:400;font-size:11px">(${group.tasks.length})</span>` : '';
-        html += `<div class="s-task${sel}" style="height:${group.rowHeight}px" data-cat="${cat.id}" data-task="${firstTask.id}" data-group="${encodeURIComponent(group.groupName)}" data-gidx="${groupIdx - 1}" onclick="Tasks.openPanel('${cat.id}','${firstTask.id}')" oncontextmenu="Sidebar.showTaskCtx(event,'${cat.id}','${firstTask.id}')">
-          <div class="s-task-grip" onmousedown="Drag.onGripMouseDown(event,'${cat.id}','${encodeURIComponent(group.groupName)}',${groupIdx - 1})"><svg width="6" height="10" viewBox="0 0 6 10"><circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="8.5" r="1" fill="currentColor"/></svg></div>
-          <div class="s-task-dot" style="background:${cat.color}"></div>
-          <div class="s-task-name"><span class="s-num">${catIdx}.${groupIdx}</span>${Utils.esc(group.groupName)}${countBadge}</div>
+        const countBadge = group.tasks.length > 0 ? ` <span class="s-count" style="color:var(--text3);font-weight:400;font-size:11px">(${group.tasks.length})</span>` : '';
+        html += `<div class="s-task${sel}" style="height:${group.rowHeight}px" data-cat="${cat.id}" data-project="${proj.id}" data-pidx="${groupIdx - 1}" onclick="Projects.showEditProjectModal('${cat.id}','${proj.id}')" oncontextmenu="Sidebar.showProjectCtx(event,'${cat.id}','${proj.id}')">
+          <div class="s-task-grip" onmousedown="Drag.onGripMouseDown(event,'${cat.id}','${proj.id}',${groupIdx - 1})"><svg width="6" height="10" viewBox="0 0 6 10"><circle cx="1.5" cy="1.5" r="1" fill="currentColor"/><circle cx="4.5" cy="1.5" r="1" fill="currentColor"/><circle cx="1.5" cy="5" r="1" fill="currentColor"/><circle cx="4.5" cy="5" r="1" fill="currentColor"/><circle cx="1.5" cy="8.5" r="1" fill="currentColor"/><circle cx="4.5" cy="8.5" r="1" fill="currentColor"/></svg></div>
+          <div class="s-task-dot" style="background:${proj.color}"></div>
+          <div class="s-task-name"><span class="s-num">${catIdx}.${groupIdx}</span>${Utils.esc(proj.name)}${countBadge}</div>
           <div class="s-task-actions">
-            <button class="s-action" onclick="event.stopPropagation();Tasks.showAddToGroupModal('${cat.id}','${encodeURIComponent(group.groupName)}')" title="Add task or milestone to this project">&#43;</button>
-            <button class="s-action" onclick="event.stopPropagation();Tasks.showEditTaskModal('${cat.id}','${firstTask.id}')" title="Edit">&#9998;</button>
-            <button class="s-action" onclick="event.stopPropagation();Tasks.deleteTask('${cat.id}','${firstTask.id}')" title="Delete">&#10005;</button>
+            <button class="s-action" onclick="event.stopPropagation();Tasks.showAddTaskModal('${cat.id}','${proj.id}')" title="Add task or milestone to this project">&#43;</button>
+            <button class="s-action" onclick="event.stopPropagation();Projects.showEditProjectModal('${cat.id}','${proj.id}')" title="Edit project">&#9998;</button>
+            <button class="s-action" onclick="event.stopPropagation();Projects.deleteProject('${cat.id}','${proj.id}')" title="Delete project">&#10005;</button>
           </div>
         </div>`;
       }
-      html += `<div class="s-add-row" onclick="Tasks.showAddTaskModal('${cat.id}')">+ Add Project</div>`;
+      html += `<div class="s-add-row" onclick="Projects.showAddProjectModal('${cat.id}')">+ Add Project</div>`;
     }
     html += `</div>`;
   }
@@ -1225,7 +1358,7 @@ Timeline.renderTimeline = function() {
     if (!cat.collapsed) {
       for (const group of groups) {
         const groupTop = currentY;
-        rowsHTML += `<div class="t-row task-row" data-cat="${cat.id}" data-group="${encodeURIComponent(group.groupName)}" style="width:${totalWidth}px;height:${group.rowHeight}px">`;
+        rowsHTML += `<div class="t-row task-row" data-cat="${cat.id}" data-project="${group.project.id}" style="width:${totalWidth}px;height:${group.rowHeight}px">`;
         for (const task of group.tasks) {
           const tStart = Utils.diffDays(Utils.toStr(start), task.startDate);
           const tDur = Utils.diffDays(task.startDate, task.endDate) + 1;
@@ -1258,13 +1391,13 @@ Timeline.renderTimeline = function() {
                 onclick="event.stopPropagation();Tasks.openPanel('${cat.id}','${task.id}')"
                 onmouseenter="UI.showBarTooltip(event,'${cat.id}','${task.id}')"
                 onmouseleave="UI.hideTooltip()">
-                <div class="diamond-shape" style="background:${cat.color}"></div>
+                <div class="diamond-shape" style="background:${group.project.color}"></div>
                 <span class="milestone-label">${Utils.esc(task.name)}</span>
                 <div class="dep-bubble" onmousedown="Deps.onDepBubbleMouseDown(event,'${cat.id}','${task.id}')"></div>
               </div>`;
             } else {
               rowsHTML += `<div class="task-bar" data-cat="${cat.id}" data-task="${task.id}"
-                style="left:${barLeft}px;width:${barWidth}px;top:${barTop}px;height:20px;background:${cat.color}"
+                style="left:${barLeft}px;width:${barWidth}px;top:${barTop}px;height:20px;background:${group.project.color}"
                 onmousedown="Drag.onBarMouseDown(event,'${cat.id}','${task.id}')"
                 onclick="event.stopPropagation();Tasks.openPanel('${cat.id}','${task.id}')"
                 onmouseenter="UI.showBarTooltip(event,'${cat.id}','${task.id}')"
@@ -1405,8 +1538,9 @@ $timelineWrap.addEventListener('mousedown', (e) => {
     const cat = Utils.findCat(catId);
     if (!cat) return;
     const px = Drag.timelinePixelX(e);
+    const projectId = taskRow.dataset.project;
     Drag.createDragState = {
-      catId, startX: e.clientX, pixelX: px, taskRow,
+      catId, projectId, startX: e.clientX, pixelX: px, taskRow,
       ghostBar: null, moved: false, color: cat.color
     };
   } else {
@@ -1420,11 +1554,11 @@ $timelineWrap.addEventListener('dblclick', (e) => {
   const taskRow = e.target.closest('.t-row.task-row');
   if (!taskRow || e.target.closest('.task-bar') || e.target.closest('.milestone-diamond')) return;
   const catId = taskRow.dataset.cat;
-  const group = taskRow.dataset.group;
+  const projectId = taskRow.dataset.project;
   const px = Drag.timelinePixelX(e);
   const clickDate = Drag.pixelToDate(px);
-  if (group) {
-    Tasks.showAddToGroupModal(catId, group, clickDate);
+  if (projectId) {
+    Tasks.showAddTaskModal(catId, projectId);
   } else {
     Tasks.showAddTaskModal(catId, clickDate);
   }
@@ -1437,13 +1571,13 @@ $timelineWrap.addEventListener('contextmenu', (e) => {
   e.preventDefault();
   e.stopPropagation();
   const catId = taskRow.dataset.cat;
-  const group = taskRow.dataset.group;
+  const projectId = taskRow.dataset.project;
   const cat = Utils.findCat(catId);
   if (!cat) return;
   const px = Drag.timelinePixelX(e);
   const clickDate = Drag.pixelToDate(px);
-  const addAction = group
-    ? () => Tasks.showAddToGroupModal(catId, group, clickDate)
+  const addAction = projectId
+    ? () => Tasks.showAddTaskModal(catId, projectId)
     : () => Tasks.showAddTaskModal(catId, clickDate);
   UI.showCtxMenu(e.clientX, e.clientY, [
     { label: 'Add Task here', action: addAction }
@@ -1477,7 +1611,7 @@ Sidebar.doAddCat = function() {
   const name = document.getElementById('mCatName').value.trim();
   if (!name) return;
   const color = document.querySelector('#mColorPicker .selected')?.dataset.color || COLORS[0];
-  state.categories.push({ id: Utils.uid(), name, color, collapsed: false, tasks: [] });
+  state.categories.push({ id: Utils.uid(), name, color, collapsed: false, projects: [], tasks: [] });
   UI.closeModal(); App.render(); App.saveState();
 };
 
@@ -1667,23 +1801,32 @@ Tasks.onTypeChange = function(val) {
   }
 };
 
-Tasks.showAddTaskModal = function(catId, prefillStart, prefillEnd) {
+Tasks.showAddTaskModal = function(catId, projectIdOrStart, prefillEnd) {
   modalLinks = [];
+  // Determine if second arg is projectId or prefillStart date
+  let projectId = null, prefillStart = null;
+  if (projectIdOrStart && projectIdOrStart.startsWith && projectIdOrStart.startsWith('id_')) {
+    projectId = projectIdOrStart;
+  } else {
+    prefillStart = projectIdOrStart;
+  }
+  const proj = projectId ? Projects.findProject(catId, projectId) : null;
+  const headerText = proj ? `Add Task to "${Utils.esc(proj.name)}"` : 'New Task';
   const html = `
-    <div class="modal-header">New Project<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
+    <div class="modal-header">${headerText}<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
     <div class="modal-body">
       ${Tasks.buildTaskModalBody({ startDate: prefillStart, endDate: prefillEnd })}
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="UI.closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="Tasks.doAddTask('${catId}')">Add Project</button>
+      <button class="btn btn-primary" onclick="Tasks.doAddTask('${catId}'${projectId ? ",'" + projectId + "'" : ''})">Add Task</button>
     </div>`;
   UI.openModal(html);
   Tasks.renderModalLinks();
   setTimeout(() => document.getElementById('mTaskName')?.focus(), 100);
 };
 
-Tasks.doAddTask = function(catId, groupOverride) {
+Tasks.doAddTask = function(catId, projectId) {
   const cat = Utils.findCat(catId);
   if (!cat) return;
   const name = document.getElementById('mTaskName').value.trim();
@@ -1691,11 +1834,18 @@ Tasks.doAddTask = function(catId, groupOverride) {
   const type = document.getElementById('mType')?.value || 'task';
   const startDate = document.getElementById('mStartDate').value;
   const endDate = type === 'milestone' ? startDate : document.getElementById('mEndDate').value;
+  // If no projectId, create a new project with the task name
+  if (!projectId) {
+    const proj = { id: Utils.uid(), name, notes: '', color: cat.color };
+    if (!cat.projects) cat.projects = [];
+    cat.projects.push(proj);
+    projectId = proj.id;
+  }
   cat.tasks.push({
     id: Utils.uid(),
     name,
     type,
-    group: groupOverride || name,
+    projectId,
     startDate,
     endDate,
     status: document.getElementById('mStatus').value,
@@ -1706,24 +1856,6 @@ Tasks.doAddTask = function(catId, groupOverride) {
   });
   modalLinks = [];
   UI.closeModal(); App.render(); App.saveState();
-};
-
-Tasks.showAddToGroupModal = function(catId, encodedGroupName, prefillStart, prefillEnd) {
-  modalLinks = [];
-  const groupName = decodeURIComponent(encodedGroupName);
-  const safeGroup = groupName.replace(/'/g, "\\'");
-  const html = `
-    <div class="modal-header">Add Task to "${Utils.esc(groupName)}"<button class="s-action" onclick="UI.closeModal()">&#10005;</button></div>
-    <div class="modal-body">
-      ${Tasks.buildTaskModalBody({ startDate: prefillStart, endDate: prefillEnd })}
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="UI.closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="Tasks.doAddTask('${catId}','${safeGroup}')">Add Task</button>
-    </div>`;
-  UI.openModal(html);
-  Tasks.renderModalLinks();
-  setTimeout(() => document.getElementById('mTaskName')?.focus(), 100);
 };
 
 Tasks.getTaskDepInfo = function(catId, taskId) {
@@ -1840,11 +1972,11 @@ Tasks.renderPanel = function() {
 
   $detailPanel.innerHTML = `
     <div class="dp-header">
-      <span class="dp-breadcrumb">${Utils.esc(cat.name)} / ${Utils.esc(task.name)}</span>
+      <span class="dp-breadcrumb">${Utils.esc(cat.name)}${(() => { const proj = (cat.projects || []).find(p => p.id === task.projectId); return proj ? ' / ' + Utils.esc(proj.name) : ''; })()} / ${Utils.esc(task.name)}</span>
       <button class="s-action" onclick="Tasks.closePanel()">&#10005;</button>
     </div>
     <div class="dp-title-row">
-      <div class="dp-color-dot" style="background:${cat.color}"></div>
+      <div class="dp-color-dot" style="background:${(() => { const proj = (cat.projects || []).find(p => p.id === task.projectId); return proj ? proj.color : cat.color; })()}"></div>
       <input class="dp-title-input" value="${Utils.esc(task.name)}" onchange="Tasks.panelUpdate('name',this.value)">
     </div>
     <div class="dp-body">
@@ -2176,7 +2308,7 @@ Sidebar.showAddMenu = function(e) {
     { label: '+ New Program', action: () => Sidebar.showAddCatModal() },
     ...state.categories.map(c => ({
       label: `+ Project in "${c.name}"`,
-      action: () => Tasks.showAddTaskModal(c.id)
+      action: () => Projects.showAddProjectModal(c.id)
     }))
   ];
   UI.showCtxMenu(e.clientX, e.clientY, items);
@@ -2206,19 +2338,18 @@ UI.closeCtxMenu = function() { $ctxMenu.classList.remove('open'); };
 Sidebar.showCatCtx = function(e, catId) {
   e.preventDefault(); e.stopPropagation();
   UI.showCtxMenu(e.clientX, e.clientY, [
-    { label: 'Add Project', action: () => Tasks.showAddTaskModal(catId) },
+    { label: 'Add Project', action: () => Projects.showAddProjectModal(catId) },
     { label: 'Edit Program', action: () => Sidebar.showEditCatModal(catId) },
     { label: 'Delete Program', danger: true, action: () => Sidebar.deleteCat(catId) }
   ]);
 };
 
-Sidebar.showTaskCtx = function(e, catId, taskId) {
+Sidebar.showProjectCtx = function(e, catId, projectId) {
   e.preventDefault(); e.stopPropagation();
   UI.showCtxMenu(e.clientX, e.clientY, [
-    { label: 'Add Project', action: () => Tasks.showAddTaskModal(catId) },
-    { label: 'Edit Task', action: () => Tasks.showEditTaskModal(catId, taskId) },
-    { label: 'Open Details', action: () => Tasks.openPanel(catId, taskId) },
-    { label: 'Delete Task', danger: true, action: () => Tasks.deleteTask(catId, taskId) }
+    { label: 'Add Task', action: () => Tasks.showAddTaskModal(catId, projectId) },
+    { label: 'Edit Project', action: () => Projects.showEditProjectModal(catId, projectId) },
+    { label: 'Delete Project', danger: true, action: () => Projects.deleteProject(catId, projectId) }
   ]);
 };
 
@@ -2228,15 +2359,15 @@ document.addEventListener('contextmenu', (e) => {
 });
 
 // ========== SIDEBAR REORDER ==========
-Drag.onGripMouseDown = function(e, catId, encodedGroupName, groupIdx) {
+Drag.onGripMouseDown = function(e, catId, projectId, pIdx) {
   e.stopPropagation();
   e.preventDefault();
   const row = e.target.closest('.s-task');
   if (!row) return;
   Drag.reorderState = {
     catId,
-    groupName: decodeURIComponent(encodedGroupName),
-    fromIdx: groupIdx,
+    projectId,
+    fromIdx: pIdx,
     row,
     startY: e.clientY,
     started: false,
@@ -2245,35 +2376,30 @@ Drag.onGripMouseDown = function(e, catId, encodedGroupName, groupIdx) {
 };
 
 
-Drag.reorderGroup = function(catId, groupName, fromGroupIdx, toGroupIdx) {
+Drag.reorderGroup = function(catId, projectId, fromGroupIdx, toGroupIdx) {
   const cat = Utils.findCat(catId);
-  if (!cat) return;
-  // Build ordered list of unique group keys (same as buildGroups logic)
-  const groupOrder = [];
-  const seen = new Set();
+  if (!cat || !cat.projects) return;
+  if (fromGroupIdx < 0 || fromGroupIdx >= cat.projects.length) return;
+  if (toGroupIdx < 0 || toGroupIdx >= cat.projects.length) return;
+  // Reorder cat.projects
+  const [movedProj] = cat.projects.splice(fromGroupIdx, 1);
+  cat.projects.splice(toGroupIdx, 0, movedProj);
+  // Rebuild cat.tasks in new project order
+  const tasksByProject = new Map();
+  for (const proj of cat.projects) tasksByProject.set(proj.id, []);
+  const orphaned = [];
   for (const task of cat.tasks) {
-    const gKey = task.group || task.name;
-    if (!seen.has(gKey)) {
-      seen.add(gKey);
-      groupOrder.push(gKey);
+    if (tasksByProject.has(task.projectId)) {
+      tasksByProject.get(task.projectId).push(task);
+    } else {
+      orphaned.push(task);
     }
   }
-  if (fromGroupIdx < 0 || fromGroupIdx >= groupOrder.length) return;
-  if (toGroupIdx < 0 || toGroupIdx >= groupOrder.length) return;
-  // Reorder the groupOrder array
-  const [moved] = groupOrder.splice(fromGroupIdx, 1);
-  groupOrder.splice(toGroupIdx, 0, moved);
-  // Rebuild cat.tasks in new group order
-  const tasksByGroup = new Map();
-  for (const gKey of groupOrder) tasksByGroup.set(gKey, []);
-  for (const task of cat.tasks) {
-    const gKey = task.group || task.name;
-    tasksByGroup.get(gKey).push(task);
-  }
   cat.tasks = [];
-  for (const gKey of groupOrder) {
-    cat.tasks.push(...tasksByGroup.get(gKey));
+  for (const proj of cat.projects) {
+    cat.tasks.push(...tasksByProject.get(proj.id));
   }
+  cat.tasks.push(...orphaned);
   App.render();
   App.saveState();
 };
@@ -2483,7 +2609,7 @@ Drag.handlePanMove = function(e) {
   $timelineWrap.scrollTop = Drag.panState.scrollTop - dy;
 };
 Drag.handleCreateDragUp = function(e) {
-  const { catId, moved, ghostBar, pixelX } = Drag.createDragState;
+  const { catId, projectId, moved, ghostBar, pixelX } = Drag.createDragState;
   if (ghostBar) ghostBar.remove();
   Drag.hideDragLabel();
   document.body.style.cursor = '';
@@ -2492,10 +2618,9 @@ Drag.handleCreateDragUp = function(e) {
     const currentPx = Drag.timelinePixelX(e);
     const startDate = Drag.pixelToDate(Math.min(pixelX, currentPx));
     const endDate = Drag.pixelToDate(Math.max(pixelX, currentPx));
-    const group = Drag.createDragState.taskRow.dataset.group;
     Drag.createDragState = null;
-    if (group) {
-      Tasks.showAddToGroupModal(catId, group, startDate, endDate);
+    if (projectId) {
+      Tasks.showAddTaskModal(catId, projectId);
     } else {
       Tasks.showAddTaskModal(catId, startDate, endDate);
     }
@@ -2549,7 +2674,7 @@ Drag.handleTaskReorderUp = function(e) {
     const fromIdx = Drag.reorderState.fromIdx;
     let toIdx = Drag.reorderState.insertIdx;
     if (fromIdx !== toIdx && fromIdx !== toIdx - 1) {
-      Drag.reorderGroup(Drag.reorderState.catId, Drag.reorderState.groupName, fromIdx, toIdx > fromIdx ? toIdx - 1 : toIdx);
+      Drag.reorderGroup(Drag.reorderState.catId, Drag.reorderState.projectId, fromIdx, toIdx > fromIdx ? toIdx - 1 : toIdx);
     }
   }
   Drag.reorderState = null;
@@ -2767,7 +2892,7 @@ Drag.handleDepDragUp = function(e) {
       if (toTaskId && toTaskId !== Drag.depDragState.fromTaskId && toCatId === Drag.depDragState.catId) {
         const fromTask = Utils.findTask(Drag.depDragState.catId, Drag.depDragState.fromTaskId);
         const toTask = Utils.findTask(toCatId, toTaskId);
-        if (fromTask && toTask && (fromTask.group || fromTask.name) === (toTask.group || toTask.name)) {
+        if (fromTask && toTask && fromTask.projectId === toTask.projectId) {
           if (!Deps.wouldCreateCycle(Drag.depDragState.catId, Drag.depDragState.fromTaskId, toTaskId)) {
             if (!toTask.dependencies) toTask.dependencies = [];
             if (!toTask.dependencies.includes(Drag.depDragState.fromTaskId)) {
@@ -2815,11 +2940,13 @@ UI.showBarTooltip = function(e, catId, taskId) {
   if (!task || !cat) return;
   const sOpt = STATUS_OPTIONS.find(s => s.value === task.status);
   const sLabel = sOpt ? sOpt.label : task.status;
+  const proj = (cat.projects || []).find(p => p.id === task.projectId);
+  const projPrefix = proj ? proj.name + ' \u203A ' : '';
   if (task.type === 'milestone') {
-    $tooltip.textContent = `\u25C6 ${task.name} | ${sLabel} | ${Utils.formatDateShort(Utils.toDate(task.startDate))}`;
+    $tooltip.textContent = `\u25C6 ${projPrefix}${task.name} | ${sLabel} | ${Utils.formatDateShort(Utils.toDate(task.startDate))}`;
   } else {
     const dur = Utils.diffDays(task.startDate, task.endDate) + 1;
-    $tooltip.textContent = `${task.name} | ${sLabel} | ${Utils.formatDateShort(Utils.toDate(task.startDate))} - ${Utils.formatDateShort(Utils.toDate(task.endDate))} (${dur}d)`;
+    $tooltip.textContent = `${projPrefix}${task.name} | ${sLabel} | ${Utils.formatDateShort(Utils.toDate(task.startDate))} - ${Utils.formatDateShort(Utils.toDate(task.endDate))} (${dur}d)`;
   }
   $tooltip.style.display = 'block';
   UI.positionTooltip(e);
@@ -3095,7 +3222,7 @@ CSV.csvEscape = function(val) {
 };
 
 CSV.exportCSV = function() {
-  const headers = ['Program', 'Program Color', 'Type', 'Task Name', 'Group', 'Start Date', 'End Date', 'Duration (days)', 'Status', 'Notes', 'Links', 'Dependencies'];
+  const headers = ['Program', 'Program Color', 'Type', 'Task Name', 'Project', 'Project Color', 'Start Date', 'End Date', 'Duration (days)', 'Status', 'Notes', 'Links', 'Dependencies'];
   const rows = [headers.map(CSV.csvEscape).join(',')];
 
   for (const cat of state.categories) {
@@ -3106,13 +3233,15 @@ CSV.exportCSV = function() {
         const depTask = cat.tasks.find(t => t.id === depId);
         return depTask ? depTask.name : depId;
       }).join('; ');
+      const proj = (cat.projects || []).find(p => p.id === task.projectId);
 
       rows.push([
         CSV.csvEscape(cat.name),
         CSV.csvEscape(cat.color),
         CSV.csvEscape(task.type || 'task'),
         CSV.csvEscape(task.name),
-        CSV.csvEscape(task.group),
+        CSV.csvEscape(proj ? proj.name : ''),
+        CSV.csvEscape(proj ? proj.color : ''),
         CSV.csvEscape(task.startDate),
         CSV.csvEscape(task.endDate),
         CSV.csvEscape(dur),
@@ -3179,7 +3308,8 @@ CSV.importCSV = function(input) {
     const catIdx = hMap['Program'] !== undefined ? hMap['Program'] : hMap['Category'];
     const colorIdx = hMap['Program Color'] !== undefined ? hMap['Program Color'] : hMap['Category Color'];
     const nameIdx = hMap['Task Name'];
-    const groupIdx = hMap['Group'];
+    const groupIdx = hMap['Project'] !== undefined ? hMap['Project'] : hMap['Group'];
+    const projColorIdx = hMap['Project Color'];
     const startIdx = hMap['Start Date'];
     const endIdx = hMap['End Date'];
     const statusIdx = hMap['Status'];
@@ -3236,7 +3366,8 @@ CSV.importCSV = function(input) {
         id: Utils.uid(),
         name: taskName,
         type: taskType,
-        group: groupIdx !== undefined && cells[groupIdx] ? cells[groupIdx].trim() : taskName,
+        _projectName: groupIdx !== undefined && cells[groupIdx] ? cells[groupIdx].trim() : taskName,
+        _projectColor: projColorIdx !== undefined ? (cells[projColorIdx] || '').trim() : '',
         startDate, endDate: resolvedEndDate, status,
         notes: notesIdx !== undefined ? (cells[notesIdx] || '') : '',
         urls,
@@ -3257,6 +3388,25 @@ CSV.importCSV = function(input) {
         const dep = cat.tasks.find(t => t.name === depName && t.id !== task.id);
         if (dep) task.dependencies.push(dep.id);
       }
+    }
+
+    // Create project entities from imported tasks
+    for (const [catName, cat] of catMap) {
+      const projMap = new Map();
+      const projOrder = [];
+      for (const task of cat.tasks) {
+        const pName = task._projectName || task.name;
+        const pColor = task._projectColor && /^#[0-9a-fA-F]{6}$/.test(task._projectColor) ? task._projectColor : cat.color;
+        if (!projMap.has(pName)) {
+          const proj = { id: Utils.uid(), name: pName, notes: '', color: pColor };
+          projMap.set(pName, proj);
+          projOrder.push(proj);
+        }
+        task.projectId = projMap.get(pName).id;
+        delete task._projectName;
+        delete task._projectColor;
+      }
+      cat.projects = projOrder;
     }
 
     const newCats = Array.from(catMap.values());
@@ -3324,8 +3474,19 @@ Cmd.searchAll = function(query) {
       results.push({
         type: 'category', catId: cat.id, taskId: null,
         name: cat.name, color: cat.color,
-        meta: (() => { const n = new Set(cat.tasks.map(t => t.group)).size; return n + ' project' + (n !== 1 ? 's' : ''); })()
+        meta: (() => { const n = (cat.projects || []).length; return n + ' project' + (n !== 1 ? 's' : ''); })()
       });
+    }
+    // Search projects
+    for (const proj of (cat.projects || [])) {
+      if (proj.name.toLowerCase().includes(q)) {
+        const taskCount = cat.tasks.filter(t => t.projectId === proj.id).length;
+        results.push({
+          type: 'project', catId: cat.id, projectId: proj.id,
+          name: proj.name, color: proj.color,
+          meta: cat.name + ' \u00b7 ' + taskCount + ' task' + (taskCount !== 1 ? 's' : '')
+        });
+      }
     }
     for (const task of cat.tasks) {
       if (task.name.toLowerCase().includes(q)) {
@@ -3403,7 +3564,18 @@ Cmd.cmdSelect = function(idx) {
       const el = $sidebarBody.querySelector('[data-cat="' + r.catId + '"] .s-cat-header');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 50);
-  } else {
+    return;
+  }
+  if (r.type === 'project') {
+    const cat = Utils.findCat(r.catId);
+    if (cat && cat.collapsed) { cat.collapsed = false; App.render(); App.saveState(); }
+    setTimeout(() => {
+      const el = $sidebarBody.querySelector('[data-project="' + r.projectId + '"]');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+    return;
+  }
+  {
     const cat = Utils.findCat(r.catId);
     if (cat && cat.collapsed) { cat.collapsed = false; App.render(); App.saveState(); }
     Cmd.scrollToTask(r.catId, r.taskId);
@@ -3432,7 +3604,7 @@ Cmd.scrollToTask = function(catId, taskId) {
     $timelineWrap.scrollLeft = Math.max(0, midOff * dayW - $timelineWrap.clientWidth / 2);
   }
 
-  const taskRow = $sidebarBody.querySelector('.s-task[data-task="' + taskId + '"]');
+  const taskRow = task ? $sidebarBody.querySelector('.s-task[data-project="' + task.projectId + '"]') : null;
   if (taskRow) taskRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
