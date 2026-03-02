@@ -514,7 +514,7 @@ html.dark .fs-setup{background:#1e3a5f;border-color:#1d4ed8;color:#bfdbfe}
   <!-- File setup banner (new folder — no handle saved) -->
   <div class="fs-setup" id="fsSetup">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-    <span>Select a folder to create your data file and get started.</span>
+    <span>Save a data.json file to get started. Your data will be stored there.</span>
     <button class="fs-setup-btn" onclick="FileStorage.selectFolder()">Get Started</button>
   </div>
 
@@ -813,12 +813,12 @@ Utils.computeRowHeight = function(numLanes) {
 };
 
 // ========== FILE STORAGE (File System Access API) ==========
-FileStorage._dirHandle = null;
+FileStorage._fileHandle = null;
 FileStorage._pendingHandle = null;
 FileStorage._lastSavedAt = null;
 FileStorage._pollTimer = null;
 FileStorage._toastTimer = null;
-FileStorage.isSupported = function() { return 'showDirectoryPicker' in window; };
+FileStorage.isSupported = function() { return 'showSaveFilePicker' in window; };
 FileStorage._openIDB = function() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open('rm_fs_v1', 1);
@@ -832,7 +832,7 @@ FileStorage._getHandle = async function() {
     const db = await FileStorage._openIDB();
     return await new Promise(resolve => {
       const tx = db.transaction('handles', 'readonly');
-      const get = tx.objectStore('handles').get('dir');
+      const get = tx.objectStore('handles').get('file');
       get.onsuccess = () => resolve(get.result || null);
       get.onerror = () => resolve(null);
     });
@@ -843,7 +843,7 @@ FileStorage._saveHandle = async function(handle) {
     const db = await FileStorage._openIDB();
     await new Promise((resolve, reject) => {
       const tx = db.transaction('handles', 'readwrite');
-      tx.objectStore('handles').put(handle, 'dir');
+      tx.objectStore('handles').put(handle, 'file');
       tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
     });
   } catch (e) { console.warn('FileStorage: failed to save handle', e); }
@@ -851,8 +851,8 @@ FileStorage._saveHandle = async function(handle) {
 FileStorage._clearLocalPortfolioData = function() {
   Object.keys(localStorage).filter(k => k.startsWith('rm_') && k !== 'rm_darkMode').forEach(k => localStorage.removeItem(k));
 };
-FileStorage._dataFileExists = async function() {
-  try { await FileStorage._dirHandle.getFileHandle('data.json', { create: false }); return true; } catch { return false; }
+FileStorage._hasFileData = async function() {
+  try { const f = await FileStorage._fileHandle.getFile(); return f.size > 0; } catch { return false; }
 };
 FileStorage._updateStatus = function() {
   const dot = document.getElementById('fsDot');
@@ -861,12 +861,12 @@ FileStorage._updateStatus = function() {
   const setup = document.getElementById('fsSetup');
   if (dot) {
     dot.classList.remove('on', 'pending');
-    if (FileStorage._dirHandle) dot.classList.add('on');
+    if (FileStorage._fileHandle) dot.classList.add('on');
     else if (FileStorage._pendingHandle) dot.classList.add('pending');
   }
-  if (btn) btn.title = FileStorage._dirHandle ? 'Connected — saving to data.json' : FileStorage._pendingHandle ? 'Click to reconnect to your data file' : 'Connect folder (saves to data.json)';
-  if (reconnect) reconnect.style.display = (FileStorage._pendingHandle && !FileStorage._dirHandle) ? 'flex' : 'none';
-  if (setup) setup.style.display = (!FileStorage._dirHandle && !FileStorage._pendingHandle && FileStorage.isSupported()) ? 'flex' : 'none';
+  if (btn) btn.title = FileStorage._fileHandle ? 'Connected — saving to data.json' : FileStorage._pendingHandle ? 'Click to reconnect to your data file' : 'Connect to data file (data.json)';
+  if (reconnect) reconnect.style.display = (FileStorage._pendingHandle && !FileStorage._fileHandle) ? 'flex' : 'none';
+  if (setup) setup.style.display = (!FileStorage._fileHandle && !FileStorage._pendingHandle && FileStorage.isSupported()) ? 'flex' : 'none';
 };
 FileStorage.showToast = function(msg) {
   const el = document.getElementById('fsToast');
@@ -883,7 +883,7 @@ FileStorage.init = async function() {
   // requestPermission() requires a user gesture — only use queryPermission here
   const perm = await saved.queryPermission({ mode: 'readwrite' });
   if (perm === 'granted') {
-    FileStorage._dirHandle = saved; FileStorage._updateStatus(); return true;
+    FileStorage._fileHandle = saved; FileStorage._updateStatus(); return true;
   }
   // Permission needs re-granting — park handle and show reconnect banner
   FileStorage._pendingHandle = saved; FileStorage._updateStatus(); return false;
@@ -893,10 +893,10 @@ FileStorage.reconnect = async function() {
   try {
     const perm = await FileStorage._pendingHandle.requestPermission({ mode: 'readwrite' });
     if (perm === 'granted') {
-      FileStorage._dirHandle = FileStorage._pendingHandle;
+      FileStorage._fileHandle = FileStorage._pendingHandle;
       FileStorage._pendingHandle = null;
       FileStorage._updateStatus();
-      if (await FileStorage._dataFileExists()) {
+      if (await FileStorage._hasFileData()) {
         await FileStorage.importToLocalStorage();
         Portfolio.loadState();
         Portfolio.applyProjectName();
@@ -915,12 +915,16 @@ FileStorage.selectFolder = async function() {
   if (!FileStorage.isSupported()) { alert('File storage requires Chrome or Edge. Your data is currently saved in browser localStorage.'); return; }
   if (FileStorage._pendingHandle) { FileStorage.reconnect(); return; }
   try {
-    const handle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'rm-data-folder', startIn: undefined });
-    FileStorage._dirHandle = handle;
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'data.json',
+      types: [{ description: 'JSON Data File', accept: { 'application/json': ['.json'] } }],
+      id: 'rm-data-file'
+    });
+    FileStorage._fileHandle = handle;
     FileStorage._pendingHandle = null;
     await FileStorage._saveHandle(handle);
     FileStorage._updateStatus();
-    if (await FileStorage._dataFileExists()) {
+    if (await FileStorage._hasFileData()) {
       await FileStorage.importToLocalStorage();
       Portfolio.loadState();
       Portfolio.applyProjectName();
@@ -932,23 +936,22 @@ FileStorage.selectFolder = async function() {
       FileStorage.showToast('✓ New data file created');
     }
     FileStorage.startPolling();
-  } catch (e) { if (e.name !== 'AbortError') console.warn('FileStorage: folder select failed', e); }
+  } catch (e) { if (e.name !== 'AbortError') console.warn('FileStorage: file select failed', e); }
 };
 FileStorage.selectNewFolder = async function() {
   FileStorage._pendingHandle = null;
   await FileStorage.selectFolder();
 };
 FileStorage._write = async function(data) {
-  if (!FileStorage._dirHandle) return;
+  if (!FileStorage._fileHandle) return;
   try {
-    const fh = await FileStorage._dirHandle.getFileHandle('data.json', { create: true });
-    const writable = await fh.createWritable();
+    const writable = await FileStorage._fileHandle.createWritable();
     await writable.write(JSON.stringify(data));
     await writable.close();
   } catch (e) { console.warn('FileStorage: write failed', e); }
 };
 FileStorage.writeAll = async function() {
-  if (!FileStorage._dirHandle) return;
+  if (!FileStorage._fileHandle) return;
   const reg = Portfolio.getPortfolioRegistry();
   const portData = {};
   for (const p of reg) { try { const r = localStorage.getItem('rm_portfolio_' + p.id); if (r) portData[p.id] = JSON.parse(r); } catch {} }
@@ -958,8 +961,7 @@ FileStorage.writeAll = async function() {
 };
 FileStorage.importToLocalStorage = async function() {
   try {
-    const fh = await FileStorage._dirHandle.getFileHandle('data.json', { create: false });
-    const file = await fh.getFile();
+    const file = await FileStorage._fileHandle.getFile();
     const data = JSON.parse(await file.text());
     FileStorage._lastSavedAt = data._savedAt || null;
     if (data.portfolios) localStorage.setItem('rm_portfolios', JSON.stringify(data.portfolios));
@@ -997,11 +999,10 @@ FileStorage.startPolling = function() {
   FileStorage._pollTimer = setInterval(FileStorage.poll, 15000);
 };
 FileStorage.poll = async function() {
-  if (!FileStorage._dirHandle) return;
+  if (!FileStorage._fileHandle) return;
   if ($modalBg.classList.contains('open')) return;
   try {
-    const fh = await FileStorage._dirHandle.getFileHandle('data.json', { create: false });
-    const file = await fh.getFile();
+    const file = await FileStorage._fileHandle.getFile();
     const data = JSON.parse(await file.text());
     const fileSavedAt = data._savedAt || null;
     if (fileSavedAt && fileSavedAt !== FileStorage._lastSavedAt) {
