@@ -889,7 +889,7 @@ FileStorage.selectFolder = async function() {
   if (!FileStorage.isSupported()) { alert('File storage requires Chrome or Edge. Your data is currently saved in browser localStorage.'); return; }
   if (FileStorage._pendingHandle) { FileStorage.reconnect(); return; }
   try {
-    const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    const handle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'rm-data-folder', startIn: FileStorage._pendingHandle || undefined });
     FileStorage._dirHandle = handle;
     FileStorage._pendingHandle = null;
     await FileStorage._saveHandle(handle);
