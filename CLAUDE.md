@@ -261,29 +261,53 @@ Enables shared `data.json` file persistence for multi-user use (Chrome/Edge only
 }
 ```
 
+**Storage model:**
+- Uses `FileSystemFileHandle` (not `FileSystemDirectoryHandle`) — stored directly as `_fileHandle`
+- IndexedDB store `rm_fs_v1`, key `'file'` holds the handle across sessions
+- `isSupported()` checks for both `showOpenFilePicker` AND `showSaveFilePicker` in window
+
 **Key functions:**
 | Function | Purpose |
 |----------|---------|
-| `FileStorage.init()` | Restore saved directory handle from IndexedDB; uses `queryPermission` only (no user gesture needed on load) |
-| `FileStorage.selectFolder()` | Open folder picker (opens in previously selected folder via `startIn` + `id`); if pending handle exists, calls `reconnect()` instead |
-| `FileStorage.reconnect()` | Called via user gesture (banner button or folder icon); calls `requestPermission`, then loads data and re-renders |
-| `FileStorage.writeAll()` | Collect all state, stamp `_savedAt`, write to `data.json` |
-| `FileStorage.importToLocalStorage()` | Read `data.json`, populate localStorage, record `_lastSavedAt` |
+| `FileStorage.init()` | Restore saved file handle from IndexedDB; uses `queryPermission` only (no user gesture needed on load) |
+| `FileStorage.openExisting()` | Open existing `data.json` via `showOpenFilePicker` — never overwrites; then calls `_connectHandle()` |
+| `FileStorage.selectFolder()` | Create a new `data.json` via `showSaveFilePicker`; if pending handle exists, calls `reconnect()` instead |
+| `FileStorage.selectNewFolder()` | Clears `_pendingHandle` then calls `selectFolder()` — for fresh start from reconnect banner |
+| `FileStorage.reconnect()` | Called via user gesture (banner button); calls `requestPermission`, then calls `_connectHandle()` |
+| `FileStorage._connectHandle(handle)` | Shared post-connect logic: saves handle to IDB, calls `_updateStatus()`, loads or creates data, starts polling |
+| `FileStorage._hasFileData()` | Returns true if `_fileHandle.getFile().size > 0` — distinguishes new vs existing file |
+| `FileStorage.writeAll()` | Collect all state, stamp `_savedAt`, write to `data.json` via `_fileHandle.createWritable()` |
+| `FileStorage.importToLocalStorage()` | Read `data.json` via `_fileHandle.getFile()`, populate localStorage, record `_lastSavedAt` |
 | `FileStorage.startPolling()` | Start 15-second interval poll for external changes |
 | `FileStorage.poll()` | Compare `_savedAt` in file vs `_lastSavedAt`; if different, call `_applyData()` |
 | `FileStorage._applyData(data)` | Apply external data to state + re-render without page reload |
 | `FileStorage.showToast(msg)` | Show bottom-center toast for 3 seconds |
 
+**Why `openExisting` uses `showOpenFilePicker` (not `showSaveFilePicker`):**
+`showSaveFilePicker` truncates the file when the user confirms "Replace?", losing existing data before we can read it. `showOpenFilePicker` never modifies file contents — safe to read first.
+
 **Permission model:**
 - `requestPermission()` requires a user gesture — it **cannot** be called on page load
 - `init()` uses `queryPermission()` only; if permission not yet granted, parks handle as `_pendingHandle`
 - Amber reconnect banner (`#fsReconnect`) appears below topbar when a pending handle exists
-- User clicks **"Load from file"** (or the folder icon) → `reconnect()` → `requestPermission()` → data loads
+- User clicks **"Load from file"** → `reconnect()` → `requestPermission()` → data loads
 - This one-click-per-session is a hard browser security requirement
 
-**Folder picker behaviour:**
-- `showDirectoryPicker({ id: 'rm-data-folder', startIn: _pendingHandle })` — opens in the previously selected folder every time
-- `id` key lets the browser remember location independently of the handle
+**File picker behaviour:**
+- `showOpenFilePicker({ id: 'rm-data-file', startIn: _fileHandle })` — browser remembers last folder via `id`
+- `showSaveFilePicker({ suggestedName: 'data.json', id: 'rm-data-file', startIn: _fileHandle })` — same memory
+- **Browser cannot auto-navigate to the index.html folder on first use** — user must navigate there manually once; after that the `id` key remembers it
+- localStorage is always cleared on load when `isSupported()` — `data.json` is the source of truth
+
+**Setup banner UX (`#fsSetup`):**
+- Shown when no file handle saved in IDB (fresh install / new folder)
+- Two distinct card buttons: **"Load from file"** (outlined, `openExisting`) and **"New Calendar"** (solid blue, `selectFolder`)
+- Each card has an icon, title, and subtitle
+- CSS classes: `.fs-setup-card`, `.fs-setup-load`, `.fs-setup-new`, `.fs-setup-card-inner`, `.fs-setup-card-title`, `.fs-setup-card-sub`
+
+**Reconnect banner (`#fsReconnect`):**
+- Shown when a saved handle exists but permission has lapsed (amber background)
+- **"Load from file"** button → `reconnect()`; **"New Calendar"** link → `selectNewFolder()`
 
 **Polling behaviour:**
 - Polls every **15 seconds**
@@ -295,7 +319,7 @@ Enables shared `data.json` file persistence for multi-user use (Chrome/Edge only
 - Folder icon button (`.fs-btn`) with status dot (`.fs-dot`)
 - Gray dot = localStorage only; Amber dot = pending permission; Green dot = connected
 
-**`App.init` is now `async`** — awaits `FileStorage.init()` and `FileStorage.importToLocalStorage()` before calling `Portfolio.loadState()`.
+**`App.init` is `async`** — awaits `FileStorage.init()` and `FileStorage.importToLocalStorage()` before calling `Portfolio.loadState()`.
 
 ---
 
@@ -432,4 +456,4 @@ Tasks.showAddTaskModal(catId, projectIdOrStart, prefillEnd, prefillStart2)
 - Repository: `https://github.com/horsy1117/resource-manager`
 - Branch: `main`
 - 14 namespaces: Utils, UI, Portfolio, Projects, Tasks, Deps, Drag, Sidebar, Timeline, AI, Cmd, CSV, App, FileStorage
-- Recent features: FileStorage (data.json + polling), multi-user sync, reconnect banner, folder picker memory, sidebar row focus highlight, drag-to-create date prefill fix
+- Recent features: FileStorage (data.json + polling), multi-user sync, reconnect/setup banners, file handle approach (showOpenFilePicker + showSaveFilePicker), sidebar row focus highlight, drag-to-create date prefill fix
