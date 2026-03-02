@@ -264,14 +264,26 @@ Enables shared `data.json` file persistence for multi-user use (Chrome/Edge only
 **Key functions:**
 | Function | Purpose |
 |----------|---------|
-| `FileStorage.init()` | Restore saved directory handle from IndexedDB, verify permission |
-| `FileStorage.selectFolder()` | Prompt user to pick folder, save handle to IDB, start polling |
+| `FileStorage.init()` | Restore saved directory handle from IndexedDB; uses `queryPermission` only (no user gesture needed on load) |
+| `FileStorage.selectFolder()` | Open folder picker (opens in previously selected folder via `startIn` + `id`); if pending handle exists, calls `reconnect()` instead |
+| `FileStorage.reconnect()` | Called via user gesture (banner button or folder icon); calls `requestPermission`, then loads data and re-renders |
 | `FileStorage.writeAll()` | Collect all state, stamp `_savedAt`, write to `data.json` |
 | `FileStorage.importToLocalStorage()` | Read `data.json`, populate localStorage, record `_lastSavedAt` |
 | `FileStorage.startPolling()` | Start 15-second interval poll for external changes |
 | `FileStorage.poll()` | Compare `_savedAt` in file vs `_lastSavedAt`; if different, call `_applyData()` |
 | `FileStorage._applyData(data)` | Apply external data to state + re-render without page reload |
 | `FileStorage.showToast(msg)` | Show bottom-center toast for 3 seconds |
+
+**Permission model:**
+- `requestPermission()` requires a user gesture — it **cannot** be called on page load
+- `init()` uses `queryPermission()` only; if permission not yet granted, parks handle as `_pendingHandle`
+- Amber reconnect banner (`#fsReconnect`) appears below topbar when a pending handle exists
+- User clicks **"Load from file"** (or the folder icon) → `reconnect()` → `requestPermission()` → data loads
+- This one-click-per-session is a hard browser security requirement
+
+**Folder picker behaviour:**
+- `showDirectoryPicker({ id: 'rm-data-folder', startIn: _pendingHandle })` — opens in the previously selected folder every time
+- `id` key lets the browser remember location independently of the handle
 
 **Polling behaviour:**
 - Polls every **15 seconds**
@@ -281,7 +293,7 @@ Enables shared `data.json` file persistence for multi-user use (Chrome/Edge only
 
 **Topbar indicator:**
 - Folder icon button (`.fs-btn`) with status dot (`.fs-dot`)
-- Gray dot = localStorage only; Green dot = connected to folder file
+- Gray dot = localStorage only; Amber dot = pending permission; Green dot = connected
 
 **`App.init` is now `async`** — awaits `FileStorage.init()` and `FileStorage.importToLocalStorage()` before calling `Portfolio.loadState()`.
 
@@ -420,4 +432,4 @@ Tasks.showAddTaskModal(catId, projectIdOrStart, prefillEnd, prefillStart2)
 - Repository: `https://github.com/horsy1117/resource-manager`
 - Branch: `main`
 - 14 namespaces: Utils, UI, Portfolio, Projects, Tasks, Deps, Drag, Sidebar, Timeline, AI, Cmd, CSV, App, FileStorage
-- Recent features: FileStorage (data.json + polling), multi-user sync, sidebar row focus highlight, drag-to-create date prefill fix
+- Recent features: FileStorage (data.json + polling), multi-user sync, reconnect banner, folder picker memory, sidebar row focus highlight, drag-to-create date prefill fix
